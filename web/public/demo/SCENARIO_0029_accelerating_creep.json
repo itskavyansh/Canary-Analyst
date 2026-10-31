@@ -1,6 +1,7 @@
 {
   "scenario_id": "SCENARIO_0029_accelerating_creep",
-  "title": "Array Alpha: East quarry sector during scheduled blast window",
+  "title": "Array 4",
+  "subtitle": "Monitoring chunk, 4 nodes, 6 hours",
   "criterion_tag": "A",
   "node_coordinates_m": {
     "NODE_01": [

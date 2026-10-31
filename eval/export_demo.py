@@ -28,25 +28,26 @@ def main():
     with open(scen_path / "index.json", "r", encoding="utf-8") as f:
         all_test_scenarios = json.load(f)["scenarios"]
 
-    # 4 Selected scenarios based on strict hackathon evaluation criteria:
-    # A: SCENARIO_0029_accelerating_creep (combo creep + scheduled blast, KEEP ground_movement, lead time 57m)
-    # B: SCENARIO_0056_sensor_fault (B2.1 triggered 14 alerts, analyst proposed downgrade, safety guard vetoed for safety)
-    # C: SCENARIO_0054_rain_tilt (B2.1 triggered false alarm, analyst identified environmental_tilt, guard approved, hold cleared)
-    # D: SCENARIO_0005_accelerating_creep (ordinary accelerating creep detection without blast, lead time 52m)
-
-    selected_ids = [
-        ("SCENARIO_0029_accelerating_creep", "Array Alpha: East quarry sector during scheduled blast window", "A"),
-        ("SCENARIO_0056_sensor_fault", "Array Beta: Sub-station 4 transducer anomaly", "B"),
-        ("SCENARIO_0054_rain_tilt", "Array Gamma: Saturated soil gradient following rainfall", "C"),
-        ("SCENARIO_0005_accelerating_creep", "Array Delta: Inactive drift baseline survey", "D")
+    # 4 Selected scenarios shuffled with fixed seed=5 so creep scenarios are not first:
+    # 1. SCENARIO_0054_rain_tilt (Criterion C: rain_tilt false alarm cleared by AGENT)
+    # 2. SCENARIO_0056_sensor_fault (Criterion B: sensor fault alert where guard vetoed downgrade for safety)
+    # 3. SCENARIO_0005_accelerating_creep (Criterion D: ordinary accelerating creep detection, lead time 52 min)
+    # 4. SCENARIO_0029_accelerating_creep (Criterion A: creep + blast overlay, KEEP ground_movement, lead time 57 min)
+    selected_scenarios = [
+        ("SCENARIO_0054_rain_tilt", "Array 1", "C"),
+        ("SCENARIO_0056_sensor_fault", "Array 2", "B"),
+        ("SCENARIO_0005_accelerating_creep", "Array 3", "D"),
+        ("SCENARIO_0029_accelerating_creep", "Array 4", "A")
     ]
+
+    subtitle_common = "Monitoring chunk, 4 nodes, 6 hours"
 
     shared_analyst = Analyst(budget_usd=20.0)
     shared_guard = SafetyGuard()
 
     exported_index = []
 
-    for sid, neutral_title, criterion_tag in selected_ids:
+    for sid, neutral_title, criterion_tag in selected_scenarios:
         scen_meta = next(s for s in all_test_scenarios if s["scenario_id"] == sid)
         rf = scen_path / scen_meta["readings_file"]
         tf = scen_path / scen_meta["truth_file"]
@@ -125,7 +126,6 @@ def main():
 
             steps = []
             if analyst_res:
-                # Find tool calls and corresponding tool results
                 t_results = analyst_res.tool_results or {}
                 for tc in analyst_res.tool_calls:
                     fname = tc.get("function", {}).get("name", "unknown")
@@ -135,7 +135,6 @@ def main():
                     except Exception:
                         parsed_args = {}
 
-                    # Match result
                     res_obj = t_results.get(fname, {})
                     ev_id = res_obj.get("evidence_id", "") if isinstance(res_obj, dict) else ""
                     steps.append({
@@ -178,6 +177,7 @@ def main():
         scenario_doc = {
             "scenario_id": sid,
             "title": neutral_title,
+            "subtitle": subtitle_common,
             "criterion_tag": criterion_tag,
             "node_coordinates_m": truth.get("node_coordinates_m", {}),
             "blast_schedule": truth.get("blast_schedule", []),
@@ -195,10 +195,11 @@ def main():
         exported_index.append({
             "scenario_id": sid,
             "title": neutral_title,
+            "subtitle": subtitle_common,
             "criterion_tag": criterion_tag,
             "file": f"{sid}.json"
         })
-        print(f"  [Exported] {sid} ({neutral_title})")
+        print(f"  [Exported] {sid} -> {neutral_title}")
 
     # Write demo/index.json
     with open(out_dir / "index.json", "w", encoding="utf-8") as f:
@@ -211,9 +212,6 @@ def main():
 
     with open("results/agent_v1/summary.json", "r", encoding="utf-8") as f:
         dev_summary = json.load(f)
-
-    with open("results/agent_eval_summary.json", "r", encoding="utf-8") as f:
-        dev_agent_eval = json.load(f)
 
     # Compile demo/summary.json
     summary_doc = {
@@ -246,18 +244,9 @@ def main():
         "ablation": [
             {"tier": "B0", "name": "Raw Instantaneous Thresholds", "test_fa_rate": 40.0, "test_lead_time": 10.0, "failure_mode": "Single transient spikes trigger false alarms; missed early creep."},
             {"tier": "B1", "name": "Stateful Persistence (3/5) + OLS Trend", "test_fa_rate": 39.3, "test_lead_time": 57.0, "failure_mode": "High early sensitivity, but high false alarms from rain and ultrasonic rail jumps."},
-            {"tier": "B2.1", "name": "Engineered Rules + Autocorrelation Correction", "test_fa_rate": 8.0, "test_lead_time": 52.0, "failure_mode": "Common-mode rain rejection and rail-jump suppression filter spurious noise drift."},
+            {"tier": "B2.1", "name": "Engineered Rules Baseline", "test_fa_rate": 8.0, "test_lead_time": 52.0, "failure_mode": "Common-mode rain rejection and rail-jump suppression filter spurious noise drift."},
             {"tier": "AGENT", "name": "Muse Spark 1.3 + Guard + 15m Review Hold", "test_fa_rate": 5.3, "test_lead_time": 52.0, "failure_mode": "Multi-tool investigation disambiguates complex multi-channel context, removing 8 false alarms with 0 added."}
         ],
-        "hypothesis_confusion_matrix": {
-            "accelerating_creep": {"ground_movement": 54, "unclear": 2},
-            "slow_creep": {"ground_movement": 57, "unclear": 2},
-            "blast": {"machinery_impact": 4, "unclear": 1},
-            "machinery_impact": {"machinery_impact": 1},
-            "rain_tilt": {"environmental_tilt": 3, "unclear": 2},
-            "sensor_fault": {"sensor_fault": 9, "machinery_impact": 2, "unclear": 3},
-            "stuck_sensor": {"machinery_impact": 1, "unclear": 1}
-        },
         "costs": {
             "test_total_usd": 2.99488,
             "test_mean_usd": 0.02109,
@@ -267,9 +256,9 @@ def main():
             "evidence_validity_rate": 100.0
         },
         "limitations": [
+            "Silent sensor faults remain unresolved (12 of 43 test scenarios still alarm; 128 of 139 baseline alarm-minutes come from silent sensor faults).",
             "Simulated data from physics-inspired mathematical models rather than raw underground mine seismic records.",
             "Noise profiles calibrated against prototype bench sensor readings (data/real_readings.csv).",
-            "Silent partial calibration drift without diagnostic flags cannot be reliably separated from ground movement without physical inspection.",
             "Synthetic hazard profiles follow continuous deterministic acceleration; real collapse dynamics can feature brittle stick-slip behavior.",
             "Thresholds (15 deg, 2.0 cm, 1.0 g) are engineering demonstration values requiring site-specific geotechnical tuning."
         ]

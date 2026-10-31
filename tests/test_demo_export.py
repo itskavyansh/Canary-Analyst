@@ -52,3 +52,4 @@ def test_ground_truth_strictly_quarantined_in_reveal():
         reveal = data["reveal"]
         assert "is_hazard" in reveal
         assert "scenario_type" in reveal
+

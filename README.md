@@ -95,3 +95,7 @@ cd web
 npm run build
 ```
 The compiled static assets are output to `web/dist/` with relative base paths (`./`) and make zero external network requests.
+
+#### Deploying to GitHub Pages or Vercel
+- **GitHub Pages**: A preconfigured GitHub Actions workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml) automatically builds `web/` and deploys `web/dist/` on push to `master` or `main`. No secrets or tokens are needed.
+- **Vercel**: Import the repository in Vercel, set the **Root Directory** to `web`, with Framework Preset **Vite**, Build Command `npm run build`, and Output Directory `dist`. Because all asset paths are relative and data is loaded from local static JSON, zero environment variables or secrets are required.

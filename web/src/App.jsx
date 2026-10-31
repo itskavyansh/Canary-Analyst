@@ -79,7 +79,6 @@ export default function App() {
 
   // Active investigation up to currentMinute
   const activeInvestigations = investigations.filter((_, idx) => {
-    // Check if candidate timestamp is <= current reading timestamp
     if (!currentReading) return false;
     const inv = investigations[idx];
     return inv.timestamp <= currentReading.timestamp;
@@ -169,8 +168,8 @@ export default function App() {
       <main style={{ flex: 1, padding: '20px 24px' }}>
         {activeTab === 'replay' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {/* 1. Scenario Picker Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+            {/* 1. Neutral Scenario Picker Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
               {indexData.map(scen => {
                 const isSelected = scen.scenario_id === selectedScenarioId;
                 return (
@@ -187,16 +186,13 @@ export default function App() {
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--color-review)', textTransform: 'uppercase' }}>
-                        Scenario {scen.criterion_tag}
+                      <span style={{ fontSize: '13px', fontWeight: '700', color: isSelected ? 'var(--color-review)' : 'var(--text-main)' }}>
+                        {scen.title}
                       </span>
                       {isSelected && <span style={{ fontSize: '11px', color: 'var(--color-healthy)' }}>● ACTIVE</span>}
                     </div>
-                    <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-main)', lineHeight: '1.4' }}>
-                      {scen.title}
-                    </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '4px' }}>
-                      360 min simulation · 4 surface nodes
+                    <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '2px' }}>
+                      {scen.subtitle || 'Monitoring chunk, 4 nodes, 6 hours'}
                     </div>
                   </div>
                 );
@@ -285,7 +281,6 @@ export default function App() {
 
             {/* Stacked Charts & Alert Lanes Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
-              {/* Stacked Charts Component */}
               <StackedCharts
                 readings={readings}
                 currentMinute={currentMinute}
@@ -332,7 +327,7 @@ export default function App() {
             <RevealPanel
               reveal={scenarioData ? scenarioData.reveal : null}
               currentMinute={currentMinute}
-              scenarioId={selectedScenarioId}
+              scenarioData={scenarioData}
             />
           </div>
         )}
@@ -355,7 +350,7 @@ export default function App() {
         gap: '8px'
       }}>
         <div>Canary Analyst — Meta Global AI Developer Hackathon 2026</div>
-        <div>Operational Notice: The system advises and recommends; human site authority commands evacuation.</div>
+        <div>Operational Notice: The system advises and recommends; human site authority decides evacuation.</div>
       </footer>
     </div>
   );
@@ -367,7 +362,6 @@ export default function App() {
 function StackedCharts({ readings, currentMinute, blastSchedule }) {
   if (!readings || readings.length === 0) return null;
 
-  // Node colors
   const nodeColors = {
     NODE_01: 'var(--node1)',
     NODE_02: 'var(--node2)',
@@ -375,14 +369,12 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
     NODE_04: 'var(--node4)',
   };
 
-  // Precompute initial baseline distance for each node
   const baseDist = {};
   const firstNodes = readings[0].nodes;
   for (const nid in firstNodes) {
     baseDist[nid] = firstNodes[nid].distance;
   }
 
-  // Precompute metrics
   const totalMins = readings.length;
   const svgWidth = 800;
   const svgHeight = 110;
@@ -394,7 +386,6 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
   const chartW = svgWidth - padLeft - padRight;
   const chartH = svgHeight - padTop - padBottom;
 
-  // Channels: Tilt Magnitude, Peak Vibration, Distance Delta
   const channels = [
     {
       id: 'tilt',
@@ -450,7 +441,6 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
       </div>
 
       {channels.map(ch => {
-        // Build SVG paths for each node up to currentMinute
         const nodePaths = {};
         ['NODE_01', 'NODE_02', 'NODE_03', 'NODE_04'].forEach(nid => {
           let dStr = '';
@@ -467,7 +457,6 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
           nodePaths[nid] = dStr;
         });
 
-        // Time cursor position
         const cursorX = padLeft + (currentMinute / (totalMins - 1)) * chartW;
 
         return (
@@ -476,12 +465,10 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
               {ch.title}
             </div>
             <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} style={{ width: '100%', height: '110px', display: 'block' }}>
-              {/* Background grid */}
               <line x1={padLeft} y1={padTop} x2={padLeft + chartW} y2={padTop} stroke="var(--border-color)" strokeWidth="1" />
               <line x1={padLeft} y1={padTop + chartH / 2} x2={padLeft + chartW} y2={padTop + chartH / 2} stroke="var(--border-color)" strokeDasharray="3,3" strokeWidth="1" />
               <line x1={padLeft} y1={padTop + chartH} x2={padLeft + chartW} y2={padTop + chartH} stroke="var(--border-color)" strokeWidth="1" />
 
-              {/* Threshold lines */}
               {ch.thresholds.map((t, idx) => {
                 const ty = padTop + chartH - (t.val / ch.maxVal) * chartH;
                 return (
@@ -499,9 +486,7 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
                 );
               })}
 
-              {/* Scheduled blast windows */}
               {blastSchedule && blastSchedule.map((b, bIdx) => {
-                // Find approximate minute in readings
                 const bMin = readings.findIndex(r => r.timestamp >= b.scheduled_time);
                 if (bMin >= 0) {
                   const bx = padLeft + (bMin / (totalMins - 1)) * chartW;
@@ -515,7 +500,6 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
                 return null;
               })}
 
-              {/* Node paths */}
               {['NODE_01', 'NODE_02', 'NODE_03', 'NODE_04'].map(nid => (
                 <path
                   key={nid}
@@ -527,7 +511,6 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
                 />
               ))}
 
-              {/* Moving cursor line */}
               <line
                 x1={cursorX}
                 y1={padTop}
@@ -538,7 +521,6 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
                 opacity="0.8"
               />
 
-              {/* Y axis labels */}
               <text x={padLeft - 6} y={padTop + 4} fill="var(--text-dim)" fontSize="10" textAnchor="end">{ch.maxVal}</text>
               <text x={padLeft - 6} y={padTop + chartH} fill="var(--text-dim)" fontSize="10" textAnchor="end">0</text>
             </svg>
@@ -555,7 +537,6 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
 function AlertLane({ label, subtitle, alerts, holdResolutions, currentMinute, readings, isAgent = false }) {
   const totalMins = readings.length || 360;
 
-  // Convert alert timestamps to minutes
   const alertMinutes = (alerts || []).map(a => {
     const minIdx = readings.findIndex(r => r.timestamp >= a.time);
     return {
@@ -579,7 +560,6 @@ function AlertLane({ label, subtitle, alerts, holdResolutions, currentMinute, re
         </div>
       </div>
 
-      {/* Progress Track */}
       <div style={{
         position: 'relative',
         height: '24px',
@@ -588,7 +568,6 @@ function AlertLane({ label, subtitle, alerts, holdResolutions, currentMinute, re
         overflow: 'hidden',
         border: '1px solid var(--border-color)'
       }}>
-        {/* Render alert blocks */}
         {alertMinutes.map((a, idx) => {
           if (a.minute > currentMinute) return null;
           const leftPct = (a.minute / (totalMins - 1)) * 100;
@@ -613,7 +592,6 @@ function AlertLane({ label, subtitle, alerts, holdResolutions, currentMinute, re
           );
         })}
 
-        {/* Current Replay Head Marker */}
         <div style={{
           position: 'absolute',
           left: `${(currentMinute / (totalMins - 1)) * 100}%`,
@@ -625,7 +603,6 @@ function AlertLane({ label, subtitle, alerts, holdResolutions, currentMinute, re
         }} />
       </div>
 
-      {/* Current status display */}
       <div style={{ marginTop: '6px', fontSize: '11px', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
         <span>
           Active Alert at T+{currentMinute}m:{' '}
@@ -676,6 +653,7 @@ function InvestigationPanel({ investigation, currentMinute }) {
 
   const { steps, final_structured_result, guard_verdict, cost_usd, latency_sec } = investigation;
   const res = final_structured_result || {};
+  const isVetoed = guard_verdict.action !== 'DOWNGRADE' && (guard_verdict.failed_conditions && guard_verdict.failed_conditions.length > 0);
 
   return (
     <div style={{
@@ -696,7 +674,7 @@ function InvestigationPanel({ investigation, currentMinute }) {
             </span>
           </h3>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-            Candidate triggered at {investigation.timestamp} · 6 diagnostic inspection tools dispatched
+            Candidate triggered at {investigation.timestamp} · Diagnostic inspection tools dispatched
           </p>
         </div>
       </div>
@@ -754,7 +732,7 @@ function InvestigationPanel({ investigation, currentMinute }) {
             </span>
           </div>
           <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-main)', marginBottom: '8px' }}>
-            Recommendation: {res.recommendation === 'KEEP' ? 'KEEP ALERT (Maintain Hazard Warning)' : 'DOWNGRADE (Place on Review Hold)'}
+            Recommendation: {res.recommendation === 'KEEP' ? 'KEEP ALERT (Maintain Hazard Warning)' : 'DOWNGRADE (Propose Review Hold)'}
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic', marginBottom: '10px', lineHeight: '1.4' }}>
             "{res.brief || 'No brief emitted.'}"
@@ -778,27 +756,50 @@ function InvestigationPanel({ investigation, currentMinute }) {
               fontWeight: '700',
               padding: '2px 8px',
               borderRadius: '4px',
-              background: guard_verdict.action === 'DOWNGRADE' ? 'rgba(56, 189, 248, 0.2)' : 'rgba(245, 158, 11, 0.2)',
-              color: guard_verdict.action === 'DOWNGRADE' ? 'var(--color-review)' : 'var(--color-warning)'
+              background: guard_verdict.action === 'DOWNGRADE' ? 'rgba(56, 189, 248, 0.2)' : isVetoed ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.2)',
+              color: guard_verdict.action === 'DOWNGRADE' ? 'var(--color-review)' : isVetoed ? 'var(--color-critical)' : 'var(--color-warning)'
             }}>
-              {guard_verdict.action}
+              {guard_verdict.action === 'DOWNGRADE' ? 'APPROVED' : isVetoed ? 'VETOED (FORCED KEEP)' : 'CONFIRMED KEEP'}
             </span>
           </div>
-          <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-main)', marginBottom: '8px' }}>
-            Verdict: {guard_verdict.action === 'DOWNGRADE' ? 'Approved Review Hold (15m Bounded Timeout)' : 'Forced KEEP (Vetoed Downgrade)'}
+          
+          <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-main)', marginBottom: '6px' }}>
+            {guard_verdict.action === 'DOWNGRADE'
+              ? 'Verdict: Approved Review Hold (15-min bounded observation)'
+              : isVetoed
+              ? 'Verdict: Downgrade Vetoed by Deterministic Gate'
+              : 'Verdict: Alert Maintained (Analyst Recommended KEEP)'}
           </div>
+
           <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px' }}>
-            Reason: {guard_verdict.reason}
+            <strong>Gate Outcome:</strong> {guard_verdict.reason}
           </div>
+
+          {/* Explicit failed gate display if vetoed */}
+          {isVetoed && (
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '4px',
+              padding: '6px 10px',
+              marginBottom: '10px',
+              fontSize: '11px',
+              color: '#f87171'
+            }}>
+              <strong>Failed Gate:</strong> {guard_verdict.failed_conditions.join('; ')}
+            </div>
+          )}
+
           <div style={{
             background: 'var(--bg-secondary)',
             borderRadius: '4px',
             padding: '8px 10px',
             fontSize: '11px',
             color: 'var(--text-dim)',
-            borderLeft: '3px solid var(--color-warning)'
+            borderLeft: '3px solid var(--color-warning)',
+            lineHeight: '1.4'
           }}>
-            <strong>Why the guard can overrule the model:</strong> Autonomous LLM agents can misattribute correlated multi-node strain to localized faults. Deterministic code enforces absolute life-safety invariants: real trends can never be suppressed.
+            The model proposes, deterministic checks recomputed from tool data decide. If the evidence cannot be verified, the alert stays. The system recommends; a human site authority decides.
           </div>
         </div>
       </div>
@@ -809,12 +810,30 @@ function InvestigationPanel({ investigation, currentMinute }) {
 // -----------------------------------------------------------------------------
 // Component: Reveal Panel (Ground Truth)
 // -----------------------------------------------------------------------------
-function RevealPanel({ reveal, currentMinute, scenarioId }) {
+function RevealPanel({ reveal, currentMinute, scenarioData }) {
   const [forceReveal, setForceReveal] = useState(false);
   const isComplete = currentMinute >= 359;
   const showReveal = isComplete || forceReveal;
 
   if (!reveal) return null;
+
+  // Compute exact lead times dynamically from timestamps
+  let b2LeadTimeMin = null;
+  let agLeadTimeMin = null;
+
+  if (reveal.is_hazard && reveal.collapse_time && scenarioData) {
+    const tCollapse = new Date(reveal.collapse_time).getTime();
+
+    if (scenarioData.b2_alerts && scenarioData.b2_alerts.length > 0) {
+      const tB2Alert = new Date(scenarioData.b2_alerts[0].time).getTime();
+      b2LeadTimeMin = Math.round((tCollapse - tB2Alert) / 60000);
+    }
+
+    if (scenarioData.agent_alerts && scenarioData.agent_alerts.length > 0) {
+      const tAgAlert = new Date(scenarioData.agent_alerts[0].time).getTime();
+      agLeadTimeMin = Math.round((tCollapse - tAgAlert) / 60000);
+    }
+  }
 
   return (
     <div style={{
@@ -871,7 +890,12 @@ function RevealPanel({ reveal, currentMinute, scenarioId }) {
             </div>
             {reveal.collapse_time && (
               <div style={{ fontSize: '12px', color: 'var(--color-critical)', marginTop: '4px', fontWeight: '600' }}>
-                Ground Collapse Occurred at: {reveal.collapse_time}
+                Ground Collapse Time: {reveal.collapse_time}
+              </div>
+            )}
+            {b2LeadTimeMin !== null && (
+              <div style={{ fontSize: '12px', color: 'var(--text-main)', marginTop: '4px' }}>
+                Lead Time (Collapse − First Alert): <strong>{agLeadTimeMin} min</strong> (B2.1: {b2LeadTimeMin} min)
               </div>
             )}
           </div>
@@ -882,13 +906,13 @@ function RevealPanel({ reveal, currentMinute, scenarioId }) {
               <div>
                 <strong>Rules Engine (B2.1):</strong>{' '}
                 {reveal.is_hazard
-                  ? (reveal.b2_detected ? '✓ Detected Hazard' : '✗ Missed Hazard')
+                  ? (reveal.b2_detected ? `✓ Detected Hazard (${b2LeadTimeMin}m lead time)` : '✗ Missed Hazard')
                   : (reveal.b2_false_alarm ? '✗ False Alarm Raised' : '✓ Correctly Silent')}
               </div>
               <div>
                 <strong>Canary Analyst (AGENT):</strong>{' '}
                 {reveal.is_hazard
-                  ? (reveal.agent_detected ? '✓ Detected Hazard' : '✗ Missed Hazard')
+                  ? (reveal.agent_detected ? `✓ Detected Hazard (${agLeadTimeMin}m lead time)` : '✗ Missed Hazard')
                   : (reveal.agent_false_alarm ? '✗ False Alarm Raised' : '✓ Correctly Cleared / Silent')}
               </div>
             </div>
@@ -920,6 +944,47 @@ function ResultsTab({ summaryData }) {
         <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
           Evaluated on 300 held-out test scenarios (seed 2026) under a strict no-lookahead streaming contract. Frozen before evaluation with git tag <code>frozen-before-test</code>.
         </p>
+      </div>
+
+      {/* Primary Key Findings Header Box */}
+      <div style={{
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border-color)',
+        borderRadius: '8px',
+        padding: '16px',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: '16px'
+      }}>
+        <div>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>False-Alarm Scenarios</div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--color-healthy)', marginTop: '2px' }}>
+            24 $\to$ 16 <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '400' }}>/ 300 scenarios</span>
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+            <strong>8 removed</strong>, <strong>0 added</strong> (sign test p = 0.0078)
+          </div>
+        </div>
+
+        <div>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Hazard Detection & Safety</div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--color-healthy)', marginTop: '2px' }}>
+            100.0% <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '400' }}>(86/86 hazards)</span>
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+            <strong>0 hazard candidates held</strong>, same lead time (52.0m)
+          </div>
+        </div>
+
+        <div>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Alarm-Minutes Secondary Note</div>
+          <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)', marginTop: '2px' }}>
+            139m $\to$ 15m <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '400' }}>(-89.2%)</span>
+          </div>
+          <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '2px' }}>
+            128 of 139 baseline alarm-minutes come from silent sensor faults
+          </div>
+        </div>
       </div>
 
       {/* Main Table */}
@@ -972,57 +1037,6 @@ function ResultsTab({ summaryData }) {
         </table>
       </div>
 
-      {/* Paired Comparison & Alarm-Minutes */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
-        <div style={{ background: 'var(--bg-secondary)', borderRadius: '8px', padding: '16px', border: '1px solid var(--border-color)' }}>
-          <h3 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '8px', color: 'var(--text-main)' }}>
-            Paired Comparison on Non-Hazard Scenarios ($N=214$)
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>False Alarms Removed by AGENT:</span>
-              <strong style={{ color: 'var(--color-healthy)' }}>8 scenarios</strong>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>False Alarms Added by AGENT:</span>
-              <strong style={{ color: 'var(--color-healthy)' }}>0 scenarios</strong>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Total False Alarm Counts:</span>
-              <span><strong>24</strong> (B2.1) $\to$ <strong>16</strong> (AGENT)</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Exact Two-Sided Sign Test:</span>
-              <strong style={{ color: 'var(--color-review)' }}>p = 0.0078125</strong>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ background: 'var(--bg-secondary)', borderRadius: '8px', padding: '16px', border: '1px solid var(--border-color)' }}>
-          <h3 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '8px', color: 'var(--text-main)' }}>
-            Alarm-Minutes Reduction on Non-Hazards
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>B2.1 Total Alarm-Minutes:</span>
-              <span style={{ color: 'var(--color-warning)' }}>139.0 minutes</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>AGENT Total Alarm-Minutes:</span>
-              <span style={{ color: 'var(--color-healthy)' }}>15.0 minutes</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Relative Reduction:</span>
-              <strong style={{ color: 'var(--color-healthy)' }}>-89.2% duration</strong>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Hazard Episodes Delayed:</span>
-              <strong style={{ color: 'var(--color-healthy)' }}>0 (Safety invariant maintained)</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Claims and Limits Box */}
       <div style={{
         background: 'rgba(56, 189, 248, 0.05)',
@@ -1035,7 +1049,9 @@ function ResultsTab({ summaryData }) {
         </h3>
         <ul style={{ paddingLeft: '20px', fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
           {summaryData.limitations.map((lim, idx) => (
-            <li key={idx}>{lim}</li>
+            <li key={idx} style={{ fontWeight: idx === 0 ? '600' : 'normal', color: idx === 0 ? 'var(--text-main)' : 'var(--text-muted)' }}>
+              {lim}
+            </li>
           ))}
         </ul>
       </div>

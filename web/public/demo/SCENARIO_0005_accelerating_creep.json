@@ -1,6 +1,7 @@
 {
   "scenario_id": "SCENARIO_0005_accelerating_creep",
-  "title": "Array Delta: Inactive drift baseline survey",
+  "title": "Array 3",
+  "subtitle": "Monitoring chunk, 4 nodes, 6 hours",
   "criterion_tag": "D",
   "node_coordinates_m": {
     "NODE_01": [

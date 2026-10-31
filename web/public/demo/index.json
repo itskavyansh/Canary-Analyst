@@ -1,28 +1,32 @@
 {
   "scenarios": [
     {
-      "scenario_id": "SCENARIO_0029_accelerating_creep",
-      "title": "Array Alpha: East quarry sector during scheduled blast window",
-      "criterion_tag": "A",
-      "file": "SCENARIO_0029_accelerating_creep.json"
-    },
-    {
-      "scenario_id": "SCENARIO_0056_sensor_fault",
-      "title": "Array Beta: Sub-station 4 transducer anomaly",
-      "criterion_tag": "B",
-      "file": "SCENARIO_0056_sensor_fault.json"
-    },
-    {
       "scenario_id": "SCENARIO_0054_rain_tilt",
-      "title": "Array Gamma: Saturated soil gradient following rainfall",
+      "title": "Array 1",
+      "subtitle": "Monitoring chunk, 4 nodes, 6 hours",
       "criterion_tag": "C",
       "file": "SCENARIO_0054_rain_tilt.json"
     },
     {
+      "scenario_id": "SCENARIO_0056_sensor_fault",
+      "title": "Array 2",
+      "subtitle": "Monitoring chunk, 4 nodes, 6 hours",
+      "criterion_tag": "B",
+      "file": "SCENARIO_0056_sensor_fault.json"
+    },
+    {
       "scenario_id": "SCENARIO_0005_accelerating_creep",
-      "title": "Array Delta: Inactive drift baseline survey",
+      "title": "Array 3",
+      "subtitle": "Monitoring chunk, 4 nodes, 6 hours",
       "criterion_tag": "D",
       "file": "SCENARIO_0005_accelerating_creep.json"
+    },
+    {
+      "scenario_id": "SCENARIO_0029_accelerating_creep",
+      "title": "Array 4",
+      "subtitle": "Monitoring chunk, 4 nodes, 6 hours",
+      "criterion_tag": "A",
+      "file": "SCENARIO_0029_accelerating_creep.json"
     }
   ]
 }

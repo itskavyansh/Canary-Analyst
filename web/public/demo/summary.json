@@ -1833,7 +1833,7 @@
     },
     {
       "tier": "B2.1",
-      "name": "Engineered Rules + Autocorrelation Correction",
+      "name": "Engineered Rules Baseline",
       "test_fa_rate": 8.0,
       "test_lead_time": 52.0,
       "failure_mode": "Common-mode rain rejection and rail-jump suppression filter spurious noise drift."
@@ -1846,36 +1846,6 @@
       "failure_mode": "Multi-tool investigation disambiguates complex multi-channel context, removing 8 false alarms with 0 added."
     }
   ],
-  "hypothesis_confusion_matrix": {
-    "accelerating_creep": {
-      "ground_movement": 54,
-      "unclear": 2
-    },
-    "slow_creep": {
-      "ground_movement": 57,
-      "unclear": 2
-    },
-    "blast": {
-      "machinery_impact": 4,
-      "unclear": 1
-    },
-    "machinery_impact": {
-      "machinery_impact": 1
-    },
-    "rain_tilt": {
-      "environmental_tilt": 3,
-      "unclear": 2
-    },
-    "sensor_fault": {
-      "sensor_fault": 9,
-      "machinery_impact": 2,
-      "unclear": 3
-    },
-    "stuck_sensor": {
-      "machinery_impact": 1,
-      "unclear": 1
-    }
-  },
   "costs": {
     "test_total_usd": 2.99488,
     "test_mean_usd": 0.02109,
@@ -1885,9 +1855,9 @@
     "evidence_validity_rate": 100.0
   },
   "limitations": [
+    "Silent sensor faults remain unresolved (12 of 43 test scenarios still alarm; 128 of 139 baseline alarm-minutes come from silent sensor faults).",
     "Simulated data from physics-inspired mathematical models rather than raw underground mine seismic records.",
     "Noise profiles calibrated against prototype bench sensor readings (data/real_readings.csv).",
-    "Silent partial calibration drift without diagnostic flags cannot be reliably separated from ground movement without physical inspection.",
     "Synthetic hazard profiles follow continuous deterministic acceleration; real collapse dynamics can feature brittle stick-slip behavior.",
     "Thresholds (15 deg, 2.0 cm, 1.0 g) are engineering demonstration values requiring site-specific geotechnical tuning."
   ]

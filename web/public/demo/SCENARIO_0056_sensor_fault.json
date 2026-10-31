@@ -1,6 +1,7 @@
 {
   "scenario_id": "SCENARIO_0056_sensor_fault",
-  "title": "Array Beta: Sub-station 4 transducer anomaly",
+  "title": "Array 2",
+  "subtitle": "Monitoring chunk, 4 nodes, 6 hours",
   "criterion_tag": "B",
   "node_coordinates_m": {
     "NODE_01": [

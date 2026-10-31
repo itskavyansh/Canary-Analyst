@@ -1,6 +1,7 @@
 {
   "scenario_id": "SCENARIO_0054_rain_tilt",
-  "title": "Array Gamma: Saturated soil gradient following rainfall",
+  "title": "Array 1",
+  "subtitle": "Monitoring chunk, 4 nodes, 6 hours",
   "criterion_tag": "C",
   "node_coordinates_m": {
     "NODE_01": [
