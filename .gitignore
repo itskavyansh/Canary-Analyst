@@ -15,6 +15,7 @@ results/
 data/real_readings.csv
 data/raw/
 data/scenarios/
+data/scenarios_test/
 cache/
 .cache/
 dist/

@@ -1,0 +1,37 @@
+{
+  "config": {
+    "baseline_window": 30,
+    "cooldown_minutes": 15,
+    "persistence_window": 5,
+    "persistence_min_exceed": 3,
+    "stuck_sensor_min_readings": 30,
+    "trend_window": 30,
+    "trend_projection_minutes": 90.0,
+    "warning": {
+      "tilt_deg": 15.0,
+      "vibration_g": 1.0,
+      "distance_delta_cm": 2.0
+    },
+    "critical": {
+      "tilt_deg": 22.5,
+      "vibration_g": 1.5,
+      "distance_delta_cm": 3.0
+    },
+    "enable_significant_trend": true,
+    "trend_min_tstat": 4.0,
+    "trend_min_abs_change": {
+      "tilt_deg": 5.0,
+      "distance_delta_cm": 0.8
+    },
+    "enable_common_mode_rejection": true,
+    "common_mode_node_count": 3,
+    "common_mode_mag_tolerance": 0.4,
+    "enable_rail_jump_rejection": true,
+    "rail_jump_max_step_cm": 10.0,
+    "rail_jump_suppress_readings": 10,
+    "enable_transient_vibration_gating": true,
+    "piezo_trend_min_v": 0.05
+  },
+  "sha256": "99344d2d11ed5d5c25057f65c95c49619a619a903a2c1bd6202e2702586806ca",
+  "description": "B2.1 frozen configuration with lag-1 residual autocorrelation adjustment and trend_projection_minutes=90.0"
+}
