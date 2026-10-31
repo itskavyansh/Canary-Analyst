@@ -114,3 +114,4 @@ Evaluated across all non-hazard scenarios ($N=214$):
 3. **Silent Sensor Faults**: While the Safety Guard and B2.1 filter ultrasonic transducer rail jumps and frozen constant outputs, subtle partial-calibration drift on a single axis without diagnostic error flags cannot be reliably distinguished from localized micro-strain without ground truthing.
 4. **Generator Hazards vs Reality**: Synthetic collapse profiles follow deterministic acceleration curves. Actual rock falls may undergo discontinuous step-like stick-slip behavior with sudden brittle failure.
 5. **Demonstration Thresholds**: Warning (15° tilt, 2.0 cm displacement, 1.0 g vibration) and critical thresholds are engineering demonstration values chosen for bench validation; site-specific geotechnical installations require customized geotechnical baseline surveying.
+
