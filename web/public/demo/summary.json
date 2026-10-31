@@ -1,0 +1,1894 @@
+{
+  "dev_metrics": {
+    "AGENT": {
+      "overall": {
+        "count": 300,
+        "false_alarm_rate": 0.043333333333333335,
+        "false_alarm_ci": [
+          0.02,
+          0.06666666666666667
+        ],
+        "detection_rate": 1.0,
+        "detection_ci": [
+          1.0,
+          1.0
+        ],
+        "missed_hazard_rate": 0.0,
+        "missed_hazard_ci": [
+          0.0,
+          0.0
+        ],
+        "median_time_to_detect_min": 111.5,
+        "time_to_detect_ci": [
+          108.0,
+          115.5
+        ],
+        "median_lead_time_min": 50.0,
+        "p25_lead_time_min": 43.0,
+        "p75_lead_time_min": 56.5,
+        "lead_time_ci": [
+          47.0,
+          54.0
+        ],
+        "detected_before_collapse_rate": 1.0,
+        "mean_alert_episodes": 0.43666666666666665,
+        "mean_alert_episodes_ci": [
+          0.3599166666666667,
+          0.5166666666666667
+        ]
+      },
+      "by_type": {
+        "accelerating_creep": {
+          "count": 43,
+          "false_alarm_rate": 0.0,
+          "false_alarm_ci": [
+            0.0,
+            0.0
+          ],
+          "detection_rate": 1.0,
+          "detection_ci": [
+            1.0,
+            1.0
+          ],
+          "missed_hazard_rate": 0.0,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": 132.0,
+          "time_to_detect_ci": [
+            108.0,
+            156.0
+          ],
+          "median_lead_time_min": 50.0,
+          "p25_lead_time_min": 43.0,
+          "p75_lead_time_min": 56.5,
+          "lead_time_ci": [
+            47.0,
+            54.0
+          ],
+          "detected_before_collapse_rate": 1.0,
+          "mean_alert_episodes": 1.4651162790697674,
+          "mean_alert_episodes_ci": [
+            1.2790697674418605,
+            1.6511627906976745
+          ]
+        },
+        "blast": {
+          "count": 43,
+          "false_alarm_rate": 0.023255813953488372,
+          "false_alarm_ci": [
+            0.0,
+            0.06976744186046512
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.023255813953488372,
+          "mean_alert_episodes_ci": [
+            0.0,
+            0.06976744186046512
+          ]
+        },
+        "machinery_impact": {
+          "count": 43,
+          "false_alarm_rate": 0.0,
+          "false_alarm_ci": [
+            0.0,
+            0.0
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.0,
+          "mean_alert_episodes_ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "rain_tilt": {
+          "count": 43,
+          "false_alarm_rate": 0.046511627906976744,
+          "false_alarm_ci": [
+            0.0,
+            0.11627906976744186
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.046511627906976744,
+          "mean_alert_episodes_ci": [
+            0.0,
+            0.11627906976744186
+          ]
+        },
+        "sensor_fault": {
+          "count": 43,
+          "false_alarm_rate": 0.13953488372093023,
+          "false_alarm_ci": [
+            0.046511627906976744,
+            0.2558139534883721
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.16279069767441862,
+          "mean_alert_episodes_ci": [
+            0.046511627906976744,
+            0.3023255813953488
+          ]
+        },
+        "slow_creep": {
+          "count": 43,
+          "false_alarm_rate": 0.0,
+          "false_alarm_ci": [
+            0.0,
+            0.0
+          ],
+          "detection_rate": 1.0,
+          "detection_ci": [
+            1.0,
+            1.0
+          ],
+          "missed_hazard_rate": 0.0,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": 109.0,
+          "time_to_detect_ci": [
+            103.0,
+            112.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 1.255813953488372,
+          "mean_alert_episodes_ci": [
+            1.0930232558139534,
+            1.441860465116279
+          ]
+        },
+        "stuck_sensor": {
+          "count": 42,
+          "false_alarm_rate": 0.09523809523809523,
+          "false_alarm_ci": [
+            0.023809523809523808,
+            0.19047619047619047
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.09523809523809523,
+          "mean_alert_episodes_ci": [
+            0.023809523809523808,
+            0.19047619047619047
+          ]
+        }
+      }
+    },
+    "B2.1": {
+      "overall": {
+        "count": 300,
+        "false_alarm_rate": 0.06666666666666667,
+        "false_alarm_ci": [
+          0.04,
+          0.09666666666666666
+        ],
+        "detection_rate": 1.0,
+        "detection_ci": [
+          1.0,
+          1.0
+        ],
+        "missed_hazard_rate": 0.0,
+        "missed_hazard_ci": [
+          0.0,
+          0.0
+        ],
+        "median_time_to_detect_min": 111.5,
+        "time_to_detect_ci": [
+          108.0,
+          115.5
+        ],
+        "median_lead_time_min": 50.0,
+        "p25_lead_time_min": 43.0,
+        "p75_lead_time_min": 56.5,
+        "lead_time_ci": [
+          47.0,
+          54.0
+        ],
+        "detected_before_collapse_rate": 1.0,
+        "mean_alert_episodes": 0.4633333333333333,
+        "mean_alert_episodes_ci": [
+          0.38333333333333336,
+          0.55
+        ]
+      },
+      "by_type": {
+        "accelerating_creep": {
+          "count": 43,
+          "false_alarm_rate": 0.0,
+          "false_alarm_ci": [
+            0.0,
+            0.0
+          ],
+          "detection_rate": 1.0,
+          "detection_ci": [
+            1.0,
+            1.0
+          ],
+          "missed_hazard_rate": 0.0,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": 132.0,
+          "time_to_detect_ci": [
+            108.0,
+            156.0
+          ],
+          "median_lead_time_min": 50.0,
+          "p25_lead_time_min": 43.0,
+          "p75_lead_time_min": 56.5,
+          "lead_time_ci": [
+            47.0,
+            54.0
+          ],
+          "detected_before_collapse_rate": 1.0,
+          "mean_alert_episodes": 1.4651162790697674,
+          "mean_alert_episodes_ci": [
+            1.2790697674418605,
+            1.6511627906976745
+          ]
+        },
+        "blast": {
+          "count": 43,
+          "false_alarm_rate": 0.046511627906976744,
+          "false_alarm_ci": [
+            0.0,
+            0.11627906976744186
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.046511627906976744,
+          "mean_alert_episodes_ci": [
+            0.0,
+            0.11627906976744186
+          ]
+        },
+        "machinery_impact": {
+          "count": 43,
+          "false_alarm_rate": 0.046511627906976744,
+          "false_alarm_ci": [
+            0.0,
+            0.11627906976744186
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.046511627906976744,
+          "mean_alert_episodes_ci": [
+            0.0,
+            0.11627906976744186
+          ]
+        },
+        "rain_tilt": {
+          "count": 43,
+          "false_alarm_rate": 0.11627906976744186,
+          "false_alarm_ci": [
+            0.023255813953488372,
+            0.23255813953488372
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.13953488372093023,
+          "mean_alert_episodes_ci": [
+            0.046511627906976744,
+            0.27906976744186046
+          ]
+        },
+        "sensor_fault": {
+          "count": 43,
+          "false_alarm_rate": 0.16279069767441862,
+          "false_alarm_ci": [
+            0.06976744186046512,
+            0.27906976744186046
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.18604651162790697,
+          "mean_alert_episodes_ci": [
+            0.06976744186046512,
+            0.32558139534883723
+          ]
+        },
+        "slow_creep": {
+          "count": 43,
+          "false_alarm_rate": 0.0,
+          "false_alarm_ci": [
+            0.0,
+            0.0
+          ],
+          "detection_rate": 1.0,
+          "detection_ci": [
+            1.0,
+            1.0
+          ],
+          "missed_hazard_rate": 0.0,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": 109.0,
+          "time_to_detect_ci": [
+            103.0,
+            112.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 1.255813953488372,
+          "mean_alert_episodes_ci": [
+            1.0930232558139534,
+            1.441860465116279
+          ]
+        },
+        "stuck_sensor": {
+          "count": 42,
+          "false_alarm_rate": 0.09523809523809523,
+          "false_alarm_ci": [
+            0.023809523809523808,
+            0.19047619047619047
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.09523809523809523,
+          "mean_alert_episodes_ci": [
+            0.023809523809523808,
+            0.19047619047619047
+          ]
+        }
+      }
+    }
+  },
+  "test_metrics": {
+    "B0": {
+      "overall": {
+        "count": 300,
+        "false_alarm_rate": 0.4,
+        "false_alarm_ci": [
+          0.34,
+          0.45666666666666667
+        ],
+        "detection_rate": 1.0,
+        "detection_ci": [
+          1.0,
+          1.0
+        ],
+        "missed_hazard_rate": 0.0,
+        "missed_hazard_ci": [
+          0.0,
+          0.0
+        ],
+        "median_time_to_detect_min": 187.0,
+        "time_to_detect_ci": [
+          164.5,
+          198.5125
+        ],
+        "median_lead_time_min": 10.0,
+        "p25_lead_time_min": 0.5,
+        "p75_lead_time_min": 31.5,
+        "lead_time_ci": [
+          5.975000000000023,
+          18.0
+        ],
+        "detected_before_collapse_rate": 0.7441860465116279,
+        "mean_alert_episodes": 0.8133333333333334,
+        "mean_alert_episodes_ci": [
+          0.74,
+          0.8833333333333333
+        ]
+      },
+      "by_type": {
+        "accelerating_creep": {
+          "count": 43,
+          "false_alarm_rate": 0.0,
+          "false_alarm_ci": [
+            0.0,
+            0.0
+          ],
+          "detection_rate": 1.0,
+          "detection_ci": [
+            1.0,
+            1.0
+          ],
+          "missed_hazard_rate": 0.0,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": 161.0,
+          "time_to_detect_ci": [
+            146.0,
+            184.0
+          ],
+          "median_lead_time_min": 10.0,
+          "p25_lead_time_min": 0.5,
+          "p75_lead_time_min": 31.5,
+          "lead_time_ci": [
+            5.975000000000023,
+            18.0
+          ],
+          "detected_before_collapse_rate": 0.7441860465116279,
+          "mean_alert_episodes": 1.3953488372093024,
+          "mean_alert_episodes_ci": [
+            1.2325581395348837,
+            1.5813953488372092
+          ]
+        },
+        "blast": {
+          "count": 43,
+          "false_alarm_rate": 0.9534883720930233,
+          "false_alarm_ci": [
+            0.8837209302325582,
+            1.0
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.9534883720930233,
+          "mean_alert_episodes_ci": [
+            0.8837209302325582,
+            1.0
+          ]
+        },
+        "machinery_impact": {
+          "count": 43,
+          "false_alarm_rate": 0.813953488372093,
+          "false_alarm_ci": [
+            0.6976744186046512,
+            0.9302325581395349
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.813953488372093,
+          "mean_alert_episodes_ci": [
+            0.6976744186046512,
+            0.9302325581395349
+          ]
+        },
+        "rain_tilt": {
+          "count": 43,
+          "false_alarm_rate": 0.023255813953488372,
+          "false_alarm_ci": [
+            0.0,
+            0.06976744186046512
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.023255813953488372,
+          "mean_alert_episodes_ci": [
+            0.0,
+            0.06976744186046512
+          ]
+        },
+        "sensor_fault": {
+          "count": 43,
+          "false_alarm_rate": 1.0,
+          "false_alarm_ci": [
+            1.0,
+            1.0
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 1.069767441860465,
+          "mean_alert_episodes_ci": [
+            1.0,
+            1.1395348837209303
+          ]
+        },
+        "slow_creep": {
+          "count": 43,
+          "false_alarm_rate": 0.0,
+          "false_alarm_ci": [
+            0.0,
+            0.0
+          ],
+          "detection_rate": 1.0,
+          "detection_ci": [
+            1.0,
+            1.0
+          ],
+          "missed_hazard_rate": 0.0,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": 198.0,
+          "time_to_detect_ci": [
+            188.0,
+            208.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 1.4186046511627908,
+          "mean_alert_episodes_ci": [
+            1.2325581395348837,
+            1.627906976744186
+          ]
+        },
+        "stuck_sensor": {
+          "count": 42,
+          "false_alarm_rate": 0.0,
+          "false_alarm_ci": [
+            0.0,
+            0.0
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.0,
+          "mean_alert_episodes_ci": [
+            0.0,
+            0.0
+          ]
+        }
+      }
+    },
+    "B1": {
+      "overall": {
+        "count": 300,
+        "false_alarm_rate": 0.3933333333333333,
+        "false_alarm_ci": [
+          0.33991666666666676,
+          0.4500833333333333
+        ],
+        "detection_rate": 1.0,
+        "detection_ci": [
+          1.0,
+          1.0
+        ],
+        "missed_hazard_rate": 0.0,
+        "missed_hazard_ci": [
+          0.0,
+          0.0
+        ],
+        "median_time_to_detect_min": 114.0,
+        "time_to_detect_ci": [
+          105.0,
+          120.0
+        ],
+        "median_lead_time_min": 57.0,
+        "p25_lead_time_min": 42.0,
+        "p75_lead_time_min": 78.5,
+        "lead_time_ci": [
+          43.0,
+          67.0
+        ],
+        "detected_before_collapse_rate": 1.0,
+        "mean_alert_episodes": 1.0166666666666666,
+        "mean_alert_episodes_ci": [
+          0.9132500000000001,
+          1.1233333333333333
+        ]
+      },
+      "by_type": {
+        "accelerating_creep": {
+          "count": 43,
+          "false_alarm_rate": 0.023255813953488372,
+          "false_alarm_ci": [
+            0.0,
+            0.06976744186046512
+          ],
+          "detection_rate": 1.0,
+          "detection_ci": [
+            1.0,
+            1.0
+          ],
+          "missed_hazard_rate": 0.0,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": 122.0,
+          "time_to_detect_ci": [
+            112.0,
+            140.0
+          ],
+          "median_lead_time_min": 57.0,
+          "p25_lead_time_min": 42.0,
+          "p75_lead_time_min": 78.5,
+          "lead_time_ci": [
+            43.0,
+            67.0
+          ],
+          "detected_before_collapse_rate": 1.0,
+          "mean_alert_episodes": 1.6511627906976745,
+          "mean_alert_episodes_ci": [
+            1.441860465116279,
+            1.8837209302325582
+          ]
+        },
+        "blast": {
+          "count": 43,
+          "false_alarm_rate": 0.2558139534883721,
+          "false_alarm_ci": [
+            0.13953488372093023,
+            0.3953488372093023
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.37209302325581395,
+          "mean_alert_episodes_ci": [
+            0.16279069767441862,
+            0.6511627906976745
+          ]
+        },
+        "machinery_impact": {
+          "count": 43,
+          "false_alarm_rate": 0.4418604651162791,
+          "false_alarm_ci": [
+            0.3023255813953488,
+            0.5819767441860461
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.5116279069767442,
+          "mean_alert_episodes_ci": [
+            0.32558139534883723,
+            0.7209302325581395
+          ]
+        },
+        "rain_tilt": {
+          "count": 43,
+          "false_alarm_rate": 0.9302325581395349,
+          "false_alarm_ci": [
+            0.8372093023255814,
+            1.0
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 1.2325581395348837,
+          "mean_alert_episodes_ci": [
+            1.0691860465116283,
+            1.4186046511627908
+          ]
+        },
+        "sensor_fault": {
+          "count": 43,
+          "false_alarm_rate": 0.7441860465116279,
+          "false_alarm_ci": [
+            0.6046511627906976,
+            0.8610465116279065
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.813953488372093,
+          "mean_alert_episodes_ci": [
+            0.6511627906976745,
+            0.9767441860465116
+          ]
+        },
+        "slow_creep": {
+          "count": 43,
+          "false_alarm_rate": 0.06976744186046512,
+          "false_alarm_ci": [
+            0.0,
+            0.16279069767441862
+          ],
+          "detection_rate": 1.0,
+          "detection_ci": [
+            1.0,
+            1.0
+          ],
+          "missed_hazard_rate": 0.0,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": 107.0,
+          "time_to_detect_ci": [
+            93.0,
+            117.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 2.186046511627907,
+          "mean_alert_episodes_ci": [
+            1.8837209302325582,
+            2.511627906976744
+          ]
+        },
+        "stuck_sensor": {
+          "count": 42,
+          "false_alarm_rate": 0.2857142857142857,
+          "false_alarm_ci": [
+            0.14285714285714285,
+            0.42857142857142855
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.3333333333333333,
+          "mean_alert_episodes_ci": [
+            0.16666666666666666,
+            0.5
+          ]
+        }
+      }
+    },
+    "AGENT": {
+      "overall": {
+        "count": 300,
+        "false_alarm_rate": 0.05333333333333334,
+        "false_alarm_ci": [
+          0.03,
+          0.07674999999999992
+        ],
+        "detection_rate": 1.0,
+        "detection_ci": [
+          1.0,
+          1.0
+        ],
+        "missed_hazard_rate": 0.0,
+        "missed_hazard_ci": [
+          0.0,
+          0.0
+        ],
+        "median_time_to_detect_min": 117.0,
+        "time_to_detect_ci": [
+          108.0,
+          126.5
+        ],
+        "median_lead_time_min": 52.0,
+        "p25_lead_time_min": 44.5,
+        "p75_lead_time_min": 60.5,
+        "lead_time_ci": [
+          46.0,
+          57.0
+        ],
+        "detected_before_collapse_rate": 1.0,
+        "mean_alert_episodes": 0.4166666666666667,
+        "mean_alert_episodes_ci": [
+          0.3499166666666667,
+          0.4866666666666667
+        ]
+      },
+      "by_type": {
+        "accelerating_creep": {
+          "count": 43,
+          "false_alarm_rate": 0.023255813953488372,
+          "false_alarm_ci": [
+            0.0,
+            0.06976744186046512
+          ],
+          "detection_rate": 1.0,
+          "detection_ci": [
+            1.0,
+            1.0
+          ],
+          "missed_hazard_rate": 0.0,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": 137.0,
+          "time_to_detect_ci": [
+            127.0,
+            153.0
+          ],
+          "median_lead_time_min": 52.0,
+          "p25_lead_time_min": 44.5,
+          "p75_lead_time_min": 60.5,
+          "lead_time_ci": [
+            46.0,
+            57.0
+          ],
+          "detected_before_collapse_rate": 1.0,
+          "mean_alert_episodes": 1.2325581395348837,
+          "mean_alert_episodes_ci": [
+            1.0930232558139534,
+            1.372093023255814
+          ]
+        },
+        "blast": {
+          "count": 43,
+          "false_alarm_rate": 0.023255813953488372,
+          "false_alarm_ci": [
+            0.0,
+            0.06976744186046512
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.023255813953488372,
+          "mean_alert_episodes_ci": [
+            0.0,
+            0.06976744186046512
+          ]
+        },
+        "machinery_impact": {
+          "count": 43,
+          "false_alarm_rate": 0.0,
+          "false_alarm_ci": [
+            0.0,
+            0.0
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.0,
+          "mean_alert_episodes_ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "rain_tilt": {
+          "count": 43,
+          "false_alarm_rate": 0.023255813953488372,
+          "false_alarm_ci": [
+            0.0,
+            0.06976744186046512
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.023255813953488372,
+          "mean_alert_episodes_ci": [
+            0.0,
+            0.06976744186046512
+          ]
+        },
+        "sensor_fault": {
+          "count": 43,
+          "false_alarm_rate": 0.27906976744186046,
+          "false_alarm_ci": [
+            0.16279069767441862,
+            0.4186046511627907
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.27906976744186046,
+          "mean_alert_episodes_ci": [
+            0.16279069767441862,
+            0.4186046511627907
+          ]
+        },
+        "slow_creep": {
+          "count": 43,
+          "false_alarm_rate": 0.0,
+          "false_alarm_ci": [
+            0.0,
+            0.0
+          ],
+          "detection_rate": 1.0,
+          "detection_ci": [
+            1.0,
+            1.0
+          ],
+          "missed_hazard_rate": 0.0,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": 103.0,
+          "time_to_detect_ci": [
+            100.0,
+            110.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 1.3255813953488371,
+          "mean_alert_episodes_ci": [
+            1.186046511627907,
+            1.4883720930232558
+          ]
+        },
+        "stuck_sensor": {
+          "count": 42,
+          "false_alarm_rate": 0.023809523809523808,
+          "false_alarm_ci": [
+            0.0,
+            0.07142857142857142
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.023809523809523808,
+          "mean_alert_episodes_ci": [
+            0.0,
+            0.07142857142857142
+          ]
+        }
+      }
+    },
+    "B2.1": {
+      "overall": {
+        "count": 300,
+        "false_alarm_rate": 0.08,
+        "false_alarm_ci": [
+          0.05,
+          0.11333333333333333
+        ],
+        "detection_rate": 1.0,
+        "detection_ci": [
+          1.0,
+          1.0
+        ],
+        "missed_hazard_rate": 0.0,
+        "missed_hazard_ci": [
+          0.0,
+          0.0
+        ],
+        "median_time_to_detect_min": 117.0,
+        "time_to_detect_ci": [
+          108.0,
+          126.5
+        ],
+        "median_lead_time_min": 52.0,
+        "p25_lead_time_min": 44.5,
+        "p75_lead_time_min": 60.5,
+        "lead_time_ci": [
+          46.0,
+          57.0
+        ],
+        "detected_before_collapse_rate": 1.0,
+        "mean_alert_episodes": 0.44333333333333336,
+        "mean_alert_episodes_ci": [
+          0.37,
+          0.5134166666666665
+        ]
+      },
+      "by_type": {
+        "accelerating_creep": {
+          "count": 43,
+          "false_alarm_rate": 0.023255813953488372,
+          "false_alarm_ci": [
+            0.0,
+            0.06976744186046512
+          ],
+          "detection_rate": 1.0,
+          "detection_ci": [
+            1.0,
+            1.0
+          ],
+          "missed_hazard_rate": 0.0,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": 137.0,
+          "time_to_detect_ci": [
+            127.0,
+            153.0
+          ],
+          "median_lead_time_min": 52.0,
+          "p25_lead_time_min": 44.5,
+          "p75_lead_time_min": 60.5,
+          "lead_time_ci": [
+            46.0,
+            57.0
+          ],
+          "detected_before_collapse_rate": 1.0,
+          "mean_alert_episodes": 1.2325581395348837,
+          "mean_alert_episodes_ci": [
+            1.0930232558139534,
+            1.372093023255814
+          ]
+        },
+        "blast": {
+          "count": 43,
+          "false_alarm_rate": 0.09302325581395349,
+          "false_alarm_ci": [
+            0.023255813953488372,
+            0.18604651162790697
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.09302325581395349,
+          "mean_alert_episodes_ci": [
+            0.023255813953488372,
+            0.18604651162790697
+          ]
+        },
+        "machinery_impact": {
+          "count": 43,
+          "false_alarm_rate": 0.023255813953488372,
+          "false_alarm_ci": [
+            0.0,
+            0.06976744186046512
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.023255813953488372,
+          "mean_alert_episodes_ci": [
+            0.0,
+            0.06976744186046512
+          ]
+        },
+        "rain_tilt": {
+          "count": 43,
+          "false_alarm_rate": 0.09302325581395349,
+          "false_alarm_ci": [
+            0.023255813953488372,
+            0.18604651162790697
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.09302325581395349,
+          "mean_alert_episodes_ci": [
+            0.023255813953488372,
+            0.18604651162790697
+          ]
+        },
+        "sensor_fault": {
+          "count": 43,
+          "false_alarm_rate": 0.27906976744186046,
+          "false_alarm_ci": [
+            0.16279069767441862,
+            0.4186046511627907
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.27906976744186046,
+          "mean_alert_episodes_ci": [
+            0.16279069767441862,
+            0.4186046511627907
+          ]
+        },
+        "slow_creep": {
+          "count": 43,
+          "false_alarm_rate": 0.0,
+          "false_alarm_ci": [
+            0.0,
+            0.0
+          ],
+          "detection_rate": 1.0,
+          "detection_ci": [
+            1.0,
+            1.0
+          ],
+          "missed_hazard_rate": 0.0,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": 103.0,
+          "time_to_detect_ci": [
+            100.0,
+            110.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 1.3255813953488371,
+          "mean_alert_episodes_ci": [
+            1.186046511627907,
+            1.4883720930232558
+          ]
+        },
+        "stuck_sensor": {
+          "count": 42,
+          "false_alarm_rate": 0.047619047619047616,
+          "false_alarm_ci": [
+            0.0,
+            0.11904761904761904
+          ],
+          "detection_rate": null,
+          "detection_ci": [
+            0.0,
+            0.0
+          ],
+          "missed_hazard_rate": null,
+          "missed_hazard_ci": [
+            0.0,
+            0.0
+          ],
+          "median_time_to_detect_min": null,
+          "time_to_detect_ci": [
+            0.0,
+            0.0
+          ],
+          "median_lead_time_min": null,
+          "p25_lead_time_min": null,
+          "p75_lead_time_min": null,
+          "lead_time_ci": [
+            0.0,
+            0.0
+          ],
+          "detected_before_collapse_rate": null,
+          "mean_alert_episodes": 0.047619047619047616,
+          "mean_alert_episodes_ci": [
+            0.0,
+            0.11904761904761904
+          ]
+        }
+      }
+    }
+  },
+  "paired_comparison": {
+    "non_hazard_removed": 8,
+    "non_hazard_added": 0,
+    "non_hazard_both": 15,
+    "non_hazard_neither": 191,
+    "p_value": 0.0078125,
+    "all_removed": 8,
+    "all_added": 0,
+    "all_both": 16,
+    "all_neither": 276
+  },
+  "hold_outcomes": {
+    "REEMITTED_BY_CRITICAL": {
+      "hazard": 0,
+      "non_hazard": 0
+    },
+    "REEMITTED_BY_WORSENING": {
+      "hazard": 0,
+      "non_hazard": 0
+    },
+    "REEMITTED_BY_TIMEOUT_PERSISTENCE": {
+      "hazard": 0,
+      "non_hazard": 0
+    },
+    "CLEARED": {
+      "hazard": 0,
+      "non_hazard": 8
+    }
+  },
+  "alarm_minutes": {
+    "blast": {
+      "B2.1": 4.0,
+      "AGENT": 1.0,
+      "scenarios_B2": 4,
+      "scenarios_AGENT": 1
+    },
+    "machinery_impact": {
+      "B2.1": 1.0,
+      "AGENT": 0.0,
+      "scenarios_B2": 1,
+      "scenarios_AGENT": 0
+    },
+    "rain_tilt": {
+      "B2.1": 4.0,
+      "AGENT": 1.0,
+      "scenarios_B2": 4,
+      "scenarios_AGENT": 1
+    },
+    "sensor_fault": {
+      "B2.1": 128.0,
+      "AGENT": 12.0,
+      "scenarios_B2": 12,
+      "scenarios_AGENT": 12
+    },
+    "stuck_sensor": {
+      "B2.1": 2.0,
+      "AGENT": 1.0,
+      "scenarios_B2": 2,
+      "scenarios_AGENT": 1
+    }
+  },
+  "ablation": [
+    {
+      "tier": "B0",
+      "name": "Raw Instantaneous Thresholds",
+      "test_fa_rate": 40.0,
+      "test_lead_time": 10.0,
+      "failure_mode": "Single transient spikes trigger false alarms; missed early creep."
+    },
+    {
+      "tier": "B1",
+      "name": "Stateful Persistence (3/5) + OLS Trend",
+      "test_fa_rate": 39.3,
+      "test_lead_time": 57.0,
+      "failure_mode": "High early sensitivity, but high false alarms from rain and ultrasonic rail jumps."
+    },
+    {
+      "tier": "B2.1",
+      "name": "Engineered Rules + Autocorrelation Correction",
+      "test_fa_rate": 8.0,
+      "test_lead_time": 52.0,
+      "failure_mode": "Common-mode rain rejection and rail-jump suppression filter spurious noise drift."
+    },
+    {
+      "tier": "AGENT",
+      "name": "Muse Spark 1.3 + Guard + 15m Review Hold",
+      "test_fa_rate": 5.3,
+      "test_lead_time": 52.0,
+      "failure_mode": "Multi-tool investigation disambiguates complex multi-channel context, removing 8 false alarms with 0 added."
+    }
+  ],
+  "hypothesis_confusion_matrix": {
+    "accelerating_creep": {
+      "ground_movement": 54,
+      "unclear": 2
+    },
+    "slow_creep": {
+      "ground_movement": 57,
+      "unclear": 2
+    },
+    "blast": {
+      "machinery_impact": 4,
+      "unclear": 1
+    },
+    "machinery_impact": {
+      "machinery_impact": 1
+    },
+    "rain_tilt": {
+      "environmental_tilt": 3,
+      "unclear": 2
+    },
+    "sensor_fault": {
+      "sensor_fault": 9,
+      "machinery_impact": 2,
+      "unclear": 3
+    },
+    "stuck_sensor": {
+      "machinery_impact": 1,
+      "unclear": 1
+    }
+  },
+  "costs": {
+    "test_total_usd": 2.99488,
+    "test_mean_usd": 0.02109,
+    "test_candidates": 142,
+    "test_mean_tokens": 17676.0,
+    "test_mean_latency_sec": 15.33,
+    "evidence_validity_rate": 100.0
+  },
+  "limitations": [
+    "Simulated data from physics-inspired mathematical models rather than raw underground mine seismic records.",
+    "Noise profiles calibrated against prototype bench sensor readings (data/real_readings.csv).",
+    "Silent partial calibration drift without diagnostic flags cannot be reliably separated from ground movement without physical inspection.",
+    "Synthetic hazard profiles follow continuous deterministic acceleration; real collapse dynamics can feature brittle stick-slip behavior.",
+    "Thresholds (15 deg, 2.0 cm, 1.0 g) are engineering demonstration values requiring site-specific geotechnical tuning."
+  ]
+}
