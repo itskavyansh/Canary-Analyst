@@ -16367,8 +16367,8 @@
           "arguments": {
             "node_id": "NODE_04"
           },
-          "result_summary": {},
-          "evidence_id": ""
+          "result_summary": "healthy=True, flags=ok, noise_ratio=5.58x, step_tilt=0.59\u00b0",
+          "evidence_id": "ev_get_sensor_health_349e5dda"
         },
         {
           "as_of": "2026-10-27T12:17:00Z",
@@ -16377,8 +16377,8 @@
             "channel": "tilt",
             "window_minutes": 30
           },
-          "result_summary": {},
-          "evidence_id": ""
+          "result_summary": "channel=tilt, changes=[NODE_01:0.13 NODE_02:0.10 NODE_03:6.88 NODE_04:6.98], strongest=NODE_04, spatial_decay=True",
+          "evidence_id": "ev_compare_neighbor_nodes_b34a44f1"
         },
         {
           "as_of": "2026-10-27T12:17:00Z",
@@ -16388,8 +16388,8 @@
             "minutes_back": 60,
             "node_id": "NODE_04"
           },
-          "result_summary": {},
-          "evidence_id": ""
+          "result_summary": "node=NODE_04, peak=7.140\u00b0, slope=0.0783/m, base_std=0.135, returned=False",
+          "evidence_id": "ev_get_node_history_3ab093cc"
         },
         {
           "as_of": "2026-10-27T12:17:00Z",
@@ -16399,8 +16399,8 @@
             "fit_minutes": 30,
             "node_id": "NODE_04"
           },
-          "result_summary": {},
-          "evidence_id": ""
+          "result_summary": "node=NODE_04, slope=0.0872/m, t_adj=11.98, R\u00b2=0.95, eta=90.2m",
+          "evidence_id": "ev_project_time_to_threshold_64777319"
         },
         {
           "as_of": "2026-10-27T12:17:00Z",
@@ -16410,15 +16410,15 @@
             "minutes_back": 60,
             "node_id": "NODE_04"
           },
-          "result_summary": {},
-          "evidence_id": ""
+          "result_summary": "node=NODE_04, peak=0.123V, slope=0.0006/m, base_std=0.014, returned=False",
+          "evidence_id": "ev_get_node_history_5436f6ac"
         },
         {
           "as_of": "2026-10-27T12:17:00Z",
           "tool_name": "check_blast_schedule",
           "arguments": {},
-          "result_summary": {},
-          "evidence_id": ""
+          "result_summary": "scheduled_\u00b130m=False, last_blast=130m ago, nearby_blasts=0",
+          "evidence_id": "ev_check_blast_schedule_1bd9adaf"
         }
       ],
       "final_structured_result": {

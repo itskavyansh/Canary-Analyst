@@ -16368,8 +16368,8 @@
           "arguments": {
             "node_id": "NODE_03"
           },
-          "result_summary": {},
-          "evidence_id": ""
+          "result_summary": "healthy=True, flags=ok, noise_ratio=0.07x, step_tilt=0.55\u00b0",
+          "evidence_id": "ev_get_sensor_health_13c5984b"
         },
         {
           "as_of": "2026-10-27T12:00:00Z",
@@ -16378,8 +16378,8 @@
             "channel": "tilt",
             "window_minutes": 30
           },
-          "result_summary": {},
-          "evidence_id": ""
+          "result_summary": "channel=tilt, changes=[NODE_01:0.10 NODE_02:5.84 NODE_03:6.11 NODE_04:0.12], strongest=NODE_03, spatial_decay=True",
+          "evidence_id": "ev_compare_neighbor_nodes_6a16c91c"
         },
         {
           "as_of": "2026-10-27T12:00:00Z",
@@ -16389,8 +16389,8 @@
             "minutes_back": 60,
             "node_id": "NODE_03"
           },
-          "result_summary": {},
-          "evidence_id": ""
+          "result_summary": "node=NODE_03, peak=6.291\u00b0, slope=0.0750/m, base_std=0.126, returned=False",
+          "evidence_id": "ev_get_node_history_2fe1a404"
         },
         {
           "as_of": "2026-10-27T12:00:00Z",
@@ -16400,8 +16400,8 @@
             "fit_minutes": 30,
             "node_id": "NODE_03"
           },
-          "result_summary": {},
-          "evidence_id": ""
+          "result_summary": "node=NODE_03, slope=0.0975/m, t_adj=14.86, R\u00b2=0.96, eta=89.3m",
+          "evidence_id": "ev_project_time_to_threshold_598b08b4"
         },
         {
           "as_of": "2026-10-27T12:00:00Z",
@@ -16411,8 +16411,8 @@
             "minutes_back": 60,
             "node_id": "NODE_03"
           },
-          "result_summary": {},
-          "evidence_id": ""
+          "result_summary": "node=NODE_03, peak=0.108V, slope=0.0011/m, base_std=0.014, returned=False",
+          "evidence_id": "ev_get_node_history_587deafd"
         },
         {
           "as_of": "2026-10-27T12:00:00Z",
@@ -16422,8 +16422,8 @@
             "minutes_back": 30,
             "node_id": "NODE_03"
           },
-          "result_summary": {},
-          "evidence_id": ""
+          "result_summary": "node=NODE_03, peak=0.115g, slope=0.0005/m, base_std=0.014, returned=True",
+          "evidence_id": "ev_get_node_history_5231e53e"
         }
       ],
       "final_structured_result": {

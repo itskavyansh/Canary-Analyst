@@ -16,6 +16,59 @@ from agent.guard import SafetyGuard
 from engine.baseline_b2 import BaselineB2
 from generator.run_dev_agent_eval import stream_scenario_eval
 
+def format_compact_summary(tool_name: str, res: Dict[str, Any]) -> str:
+    """Format 2 to 4 key numbers per tool from the actual tool JSON."""
+    if not isinstance(res, dict) or not res:
+        return "No data recorded"
+
+    if tool_name == "get_sensor_health":
+        flags = res.get("status_flags", {})
+        flag_summary = "ok" if all(v == "ok" for v in flags.values()) else ",".join([f"{k}:{v}" for k, v in flags.items() if v != "ok"])
+        noise_ratio = res.get("noise_ratio_versus_profile", 0.0)
+        max_step_tilt = res.get("max_step_change_tilt_deg", 0.0)
+        healthy = res.get("is_healthy", True)
+        return f"healthy={healthy}, flags={flag_summary}, noise_ratio={noise_ratio:.2f}x, step_tilt={max_step_tilt:.2f}°"
+
+    elif tool_name == "compare_neighbor_nodes":
+        ch = res.get("channel", "tilt")
+        pnc = res.get("per_node_change", {})
+        changes_str = " ".join([f"{k}:{v:.2f}" for k, v in pnc.items()])
+        strongest = res.get("strongest_node", "N/A")
+        decay = res.get("amplitude_decays_with_distance", False)
+        return f"channel={ch}, changes=[{changes_str}], strongest={strongest}, spatial_decay={decay}"
+
+    elif tool_name == "get_node_history":
+        nid = res.get("node_id", "")
+        ch = res.get("channel", "")
+        peak = res.get("peak_value", 0.0)
+        slope = res.get("slope_per_min", 0.0)
+        baseline_std = res.get("baseline_noise_std", 0.0)
+        returned = res.get("returned_to_baseline", False)
+        unit = "°" if ch == "tilt" else "g" if ch == "vibration" else "cm" if ch == "distance" else "V"
+        return f"node={nid}, peak={peak:.3f}{unit}, slope={slope:.4f}/m, base_std={baseline_std:.3f}, returned={returned}"
+
+    elif tool_name == "project_time_to_threshold":
+        nid = res.get("node_id", "")
+        ch = res.get("channel", "")
+        slope = res.get("slope_per_minute", 0.0)
+        t_stat = res.get("t_statistic_adjusted", res.get("t_statistic", 0.0))
+        r2 = res.get("r_squared", 0.0)
+        mins = res.get("minutes_to_threshold")
+        mins_str = f"{mins:.1f}m" if mins is not None else "never"
+        return f"node={nid}, slope={slope:.4f}/m, t_adj={t_stat:.2f}, R²={r2:.2f}, eta={mins_str}"
+
+    elif tool_name == "check_blast_schedule":
+        sched = res.get("blast_scheduled_within_30min", False)
+        mins_since = res.get("time_since_last_scheduled_blast_min")
+        mins_str = f"{mins_since:.0f}m ago" if mins_since is not None else "none"
+        nearby = len(res.get("nearby_blasts", []))
+        return f"scheduled_±30m={sched}, last_blast={mins_str}, nearby_blasts={nearby}"
+
+    # Generic fallback
+    items = [f"{k}={v}" for k, v in res.items() if not k.startswith("ev_") and isinstance(v, (int, float, str, bool))][:3]
+    return ", ".join(items)
+
+
 def main():
     print("=" * 70)
     print("Canary Analyst: Export Demo Scenarios and Benchmark Summaries")
@@ -29,10 +82,6 @@ def main():
         all_test_scenarios = json.load(f)["scenarios"]
 
     # 4 Selected scenarios shuffled with fixed seed=5 so creep scenarios are not first:
-    # 1. SCENARIO_0054_rain_tilt (Criterion C: rain_tilt false alarm cleared by AGENT)
-    # 2. SCENARIO_0056_sensor_fault (Criterion B: sensor fault alert where guard vetoed downgrade for safety)
-    # 3. SCENARIO_0005_accelerating_creep (Criterion D: ordinary accelerating creep detection, lead time 52 min)
-    # 4. SCENARIO_0029_accelerating_creep (Criterion A: creep + blast overlay, KEEP ground_movement, lead time 57 min)
     selected_scenarios = [
         ("SCENARIO_0054_rain_tilt", "Array 1", "C"),
         ("SCENARIO_0056_sensor_fault", "Array 2", "B"),
@@ -127,7 +176,7 @@ def main():
             steps = []
             if analyst_res:
                 t_results = analyst_res.tool_results or {}
-                for tc in analyst_res.tool_calls:
+                for tc_idx, tc in enumerate(analyst_res.tool_calls):
                     fname = tc.get("function", {}).get("name", "unknown")
                     fargs = tc.get("function", {}).get("arguments", "{}")
                     try:
@@ -135,13 +184,25 @@ def main():
                     except Exception:
                         parsed_args = {}
 
-                    res_obj = t_results.get(fname, {})
+                    # Match result by numbered key or function name
+                    res_obj = t_results.get(f"{fname}_{tc_idx + 1}")
+                    if not res_obj:
+                        res_obj = t_results.get(fname, {})
+                    if not res_obj:
+                        # find by tool field
+                        for _, v in t_results.items():
+                            if isinstance(v, dict) and v.get("tool") == fname:
+                                res_obj = v
+                                break
+
                     ev_id = res_obj.get("evidence_id", "") if isinstance(res_obj, dict) else ""
+                    summary_text = format_compact_summary(fname, res_obj)
+
                     steps.append({
                         "as_of": parsed_args.get("as_of", dec["timestamp"]),
                         "tool_name": fname,
                         "arguments": parsed_args,
-                        "result_summary": res_obj,
+                        "result_summary": summary_text,
                         "evidence_id": ev_id
                     })
 
@@ -161,7 +222,7 @@ def main():
             }
             investigations_export.append(inv_data)
 
-        # Ground truth reveal: strictly quarantined so UI only reveals it on user completion
+        # Ground truth reveal
         reveal_data = {
             "scenario_type": truth["type"],
             "is_hazard": truth["is_hazard"],
@@ -213,7 +274,7 @@ def main():
     with open("results/agent_v1/summary.json", "r", encoding="utf-8") as f:
         dev_summary = json.load(f)
 
-    # Compile demo/summary.json
+    # Compile demo/summary.json (clean text with no raw LaTeX math tokens)
     summary_doc = {
         "dev_metrics": dev_summary["detectors"],
         "test_metrics": test_summary["detectors"],

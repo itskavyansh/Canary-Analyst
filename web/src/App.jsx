@@ -92,14 +92,14 @@ export default function App() {
       <header style={{
         background: 'var(--bg-secondary)',
         borderBottom: '1px solid var(--border-color)',
-        padding: '12px 24px',
+        padding: '12px 20px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
         gap: '12px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ fontSize: '24px' }}>🐤</span>
             <div>
@@ -125,7 +125,7 @@ export default function App() {
           <button
             onClick={() => setActiveTab('replay')}
             style={{
-              padding: '6px 14px',
+              padding: '6px 12px',
               fontSize: '13px',
               fontWeight: '600',
               background: activeTab === 'replay' ? 'var(--bg-card-hover)' : 'transparent',
@@ -138,7 +138,7 @@ export default function App() {
           <button
             onClick={() => setActiveTab('results')}
             style={{
-              padding: '6px 14px',
+              padding: '6px 12px',
               fontSize: '13px',
               fontWeight: '600',
               background: activeTab === 'results' ? 'var(--bg-card-hover)' : 'transparent',
@@ -151,7 +151,7 @@ export default function App() {
           <button
             onClick={() => setActiveTab('about')}
             style={{
-              padding: '6px 14px',
+              padding: '6px 12px',
               fontSize: '13px',
               fontWeight: '600',
               background: activeTab === 'about' ? 'var(--bg-card-hover)' : 'transparent',
@@ -165,11 +165,26 @@ export default function App() {
       </header>
 
       {/* Main Content Area */}
-      <main style={{ flex: 1, padding: '20px 24px' }}>
+      <main style={{ flex: 1, padding: '16px 20px', maxWidth: '1400px', width: '100%', margin: '0 auto' }}>
         {activeTab === 'replay' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* 6. Small "How to read this" 3-line box */}
+            <div style={{
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '8px',
+              padding: '10px 14px',
+              fontSize: '12px',
+              color: 'var(--text-muted)',
+              lineHeight: '1.5'
+            }}>
+              <div>• <strong>Charts show live sensor data</strong> across 4 surface nodes (tilt, vibration, distance) over 6 hours.</div>
+              <div>• <strong>Top lane is the rules engine</strong> (B2.1 baseline); <strong>bottom lane is rules + Muse Spark + guard</strong>.</div>
+              <div>• <strong>The true event and outcome are revealed at the end</strong> of the replay (or via the Reveal button).</div>
+            </div>
+
             {/* 1. Neutral Scenario Picker Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
               {indexData.map(scen => {
                 const isSelected = scen.scenario_id === selectedScenarioId;
                 return (
@@ -180,18 +195,18 @@ export default function App() {
                       background: isSelected ? 'var(--bg-card-hover)' : 'var(--bg-secondary)',
                       border: isSelected ? '2px solid var(--color-review)' : '1px solid var(--border-color)',
                       borderRadius: '8px',
-                      padding: '12px 14px',
+                      padding: '10px 12px',
                       cursor: 'pointer',
                       transition: 'border-color 0.15s ease'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
                       <span style={{ fontSize: '13px', fontWeight: '700', color: isSelected ? 'var(--color-review)' : 'var(--text-main)' }}>
                         {scen.title}
                       </span>
                       {isSelected && <span style={{ fontSize: '11px', color: 'var(--color-healthy)' }}>● ACTIVE</span>}
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '2px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
                       {scen.subtitle || 'Monitoring chunk, 4 nodes, 6 hours'}
                     </div>
                   </div>
@@ -204,21 +219,21 @@ export default function App() {
               background: 'var(--bg-secondary)',
               border: '1px solid var(--border-color)',
               borderRadius: '8px',
-              padding: '12px 16px',
+              padding: '10px 14px',
               display: 'flex',
               alignItems: 'center',
-              gap: '16px',
+              gap: '12px',
               flexWrap: 'wrap'
             }}>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '6px' }}>
                 <button
                   onClick={() => setIsPlaying(!isPlaying)}
                   style={{
                     background: isPlaying ? 'var(--color-warning)' : 'var(--color-healthy)',
                     color: '#000',
                     fontWeight: '700',
-                    padding: '8px 16px',
-                    fontSize: '13px'
+                    padding: '6px 14px',
+                    fontSize: '12px'
                   }}
                 >
                   {isPlaying ? '⏸ PAUSE' : '▶ PLAY'}
@@ -229,8 +244,8 @@ export default function App() {
                     background: 'var(--bg-card)',
                     color: 'var(--text-main)',
                     border: '1px solid var(--border-color)',
-                    padding: '8px 12px',
-                    fontSize: '13px'
+                    padding: '6px 10px',
+                    fontSize: '12px'
                   }}
                 >
                   ⏮ RESET
@@ -239,7 +254,7 @@ export default function App() {
 
               {/* Speeds */}
               <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginRight: '4px' }}>Speed:</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Speed:</span>
                 {[1, 5, 20].map(s => (
                   <button
                     key={s}
@@ -248,8 +263,8 @@ export default function App() {
                       background: playSpeed === s ? 'var(--border-highlight)' : 'var(--bg-card)',
                       color: playSpeed === s ? 'var(--text-main)' : 'var(--text-muted)',
                       border: '1px solid var(--border-color)',
-                      padding: '4px 8px',
-                      fontSize: '12px',
+                      padding: '3px 7px',
+                      fontSize: '11px',
                       fontWeight: '600'
                     }}
                   >
@@ -259,7 +274,7 @@ export default function App() {
               </div>
 
               {/* Scrubber slider */}
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px', minWidth: '220px' }}>
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '10px', minWidth: '180px' }}>
                 <input
                   type="range"
                   min="0"
@@ -268,7 +283,7 @@ export default function App() {
                   onChange={e => setCurrentMinute(parseInt(e.target.value))}
                   style={{ flex: 1, accentColor: 'var(--color-review)', cursor: 'pointer' }}
                 />
-                <span style={{ fontSize: '13px', fontFamily: 'monospace', minWidth: '90px', color: 'var(--text-main)' }}>
+                <span style={{ fontSize: '12px', fontFamily: 'monospace', minWidth: '85px', color: 'var(--text-main)' }}>
                   T+{currentMinute}m / 360m
                 </span>
               </div>
@@ -280,7 +295,7 @@ export default function App() {
             </div>
 
             {/* Stacked Charts & Alert Lanes Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <StackedCharts
                 readings={readings}
                 currentMinute={currentMinute}
@@ -292,9 +307,9 @@ export default function App() {
                 background: 'var(--bg-secondary)',
                 border: '1px solid var(--border-color)',
                 borderRadius: '8px',
-                padding: '16px'
+                padding: '14px'
               }}>
-                <h3 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '12px', color: 'var(--text-main)' }}>
+                <h3 style={{ fontSize: '13px', fontWeight: '700', marginBottom: '10px', color: 'var(--text-main)' }}>
                   Real-Time Detection & Alert Timeline (0 to 360 min)
                 </h3>
                 <AlertLane
@@ -304,7 +319,7 @@ export default function App() {
                   currentMinute={currentMinute}
                   readings={readings}
                 />
-                <div style={{ height: '14px' }}></div>
+                <div style={{ height: '12px' }}></div>
                 <AlertLane
                   label="Canary Analyst (Rules Engine + Muse Spark 1.3 + Guard)"
                   subtitle="Autonomous multi-tool candidate investigation + 15m review hold clearance"
@@ -317,13 +332,13 @@ export default function App() {
               </div>
             </div>
 
-            {/* 4. Investigation Panel (Tool calls, brief, guard checklist) */}
+            {/* 4. Investigation Panel */}
             <InvestigationPanel
               investigation={latestInvestigation}
               currentMinute={currentMinute}
             />
 
-            {/* 5. Reveal Panel (Revealed strictly when replay finishes or explicitly clicked) */}
+            {/* 5. Reveal Panel */}
             <RevealPanel
               reveal={scenarioData ? scenarioData.reveal : null}
               currentMinute={currentMinute}
@@ -341,7 +356,7 @@ export default function App() {
       <footer style={{
         background: 'var(--bg-secondary)',
         borderTop: '1px solid var(--border-color)',
-        padding: '12px 24px',
+        padding: '12px 20px',
         fontSize: '12px',
         color: 'var(--text-muted)',
         display: 'flex',
@@ -376,10 +391,11 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
   }
 
   const totalMins = readings.length;
-  const svgWidth = 800;
+  // Use viewBox 0 0 1000 110 so the plot area extends fully across the card width
+  const svgWidth = 1000;
   const svgHeight = 110;
   const padLeft = 45;
-  const padRight = 15;
+  const padRight = 10;
   const padTop = 15;
   const padBottom = 20;
 
@@ -415,25 +431,25 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
       background: 'var(--bg-secondary)',
       border: '1px solid var(--border-color)',
       borderRadius: '8px',
-      padding: '16px',
+      padding: '14px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '14px'
+      gap: '12px'
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+        <h3 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>
           Surface Sensor Telemetry Channels (4 Nodes)
         </h3>
-        <div style={{ display: 'flex', gap: '16px', fontSize: '12px' }}>
+        <div style={{ display: 'flex', gap: '14px', fontSize: '11px', flexWrap: 'wrap' }}>
           {['NODE_01', 'NODE_02', 'NODE_03', 'NODE_04'].map(nid => (
-            <div key={nid} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: nodeColors[nid] }}></span>
+            <div key={nid} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span style={{ width: '9px', height: '9px', borderRadius: '50%', background: nodeColors[nid] }}></span>
               <span style={{ color: 'var(--text-muted)' }}>{nid}</span>
             </div>
           ))}
           {blastSchedule && blastSchedule.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '10px', height: '10px', borderRadius: '2px', background: 'var(--color-blast)' }}></span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span style={{ width: '9px', height: '9px', borderRadius: '2px', background: 'var(--color-blast)' }}></span>
               <span style={{ color: 'var(--color-blast)' }}>Scheduled Blast</span>
             </div>
           )}
@@ -464,7 +480,11 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
             <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', marginBottom: '4px' }}>
               {ch.title}
             </div>
-            <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} style={{ width: '100%', height: '110px', display: 'block' }}>
+            <svg
+              viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+              preserveAspectRatio="none"
+              style={{ width: '100%', height: '110px', display: 'block' }}
+            >
               <line x1={padLeft} y1={padTop} x2={padLeft + chartW} y2={padTop} stroke="var(--border-color)" strokeWidth="1" />
               <line x1={padLeft} y1={padTop + chartH / 2} x2={padLeft + chartW} y2={padTop + chartH / 2} stroke="var(--border-color)" strokeDasharray="3,3" strokeWidth="1" />
               <line x1={padLeft} y1={padTop + chartH} x2={padLeft + chartW} y2={padTop + chartH} stroke="var(--border-color)" strokeWidth="1" />
@@ -524,6 +544,10 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
               <text x={padLeft - 6} y={padTop + 4} fill="var(--text-dim)" fontSize="10" textAnchor="end">{ch.maxVal}</text>
               <text x={padLeft - 6} y={padTop + chartH} fill="var(--text-dim)" fontSize="10" textAnchor="end">0</text>
             </svg>
+            {/* 5. Short caption under each chart */}
+            <div style={{ fontSize: '10px', color: 'var(--text-dim)', marginTop: '3px', textAlign: 'right' }}>
+              Lines show change from each node's baseline.
+            </div>
           </div>
         );
       })}
@@ -548,7 +572,7 @@ function AlertLane({ label, subtitle, alerts, holdResolutions, currentMinute, re
 
   return (
     <div style={{ background: 'var(--bg-primary)', borderRadius: '6px', padding: '12px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
         <div>
           <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>{label}</div>
           <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{subtitle}</div>
@@ -603,7 +627,7 @@ function AlertLane({ label, subtitle, alerts, holdResolutions, currentMinute, re
         }} />
       </div>
 
-      <div style={{ marginTop: '6px', fontSize: '11px', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ marginTop: '6px', fontSize: '11px', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
         <span>
           Active Alert at T+{currentMinute}m:{' '}
           {(() => {
@@ -640,9 +664,9 @@ function InvestigationPanel({ investigation, currentMinute }) {
         background: 'var(--bg-secondary)',
         border: '1px solid var(--border-color)',
         borderRadius: '8px',
-        padding: '16px',
+        padding: '14px',
         color: 'var(--text-dim)',
-        fontSize: '13px',
+        fontSize: '12px',
         textAlign: 'center'
       }}>
         No active candidate episode under investigation at T+{currentMinute}m.
@@ -667,7 +691,7 @@ function InvestigationPanel({ investigation, currentMinute }) {
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
         <div>
-          <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <span>🔍 Muse Spark 1.3 Autonomous Investigation</span>
             <span style={{ fontSize: '11px', background: 'var(--bg-card)', padding: '2px 8px', borderRadius: '4px', color: 'var(--text-muted)' }}>
               Latency: {latency_sec.toFixed(1)}s · Cost: ${cost_usd.toFixed(4)}
@@ -679,7 +703,7 @@ function InvestigationPanel({ investigation, currentMinute }) {
         </div>
       </div>
 
-      {/* Investigation Steps */}
+      {/* Investigation Steps with Real Compact Summaries */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '8px' }}>
         {(steps || []).map((step, sIdx) => {
           return (
@@ -706,8 +730,8 @@ function InvestigationPanel({ investigation, currentMinute }) {
               <div style={{ color: 'var(--text-dim)', fontSize: '11px', marginBottom: '4px' }}>
                 Args: {JSON.stringify(step.arguments)}
               </div>
-              <div style={{ color: 'var(--text-muted)', fontSize: '11px' }}>
-                Summary: {typeof step.result_summary === 'object' ? Object.keys(step.result_summary).slice(0, 3).map(k => `${k}: ${step.result_summary[k]}`).join(', ') : String(step.result_summary)}
+              <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'monospace' }}>
+                Summary: {step.result_summary || 'Completed'}
               </div>
             </div>
           );
@@ -715,7 +739,7 @@ function InvestigationPanel({ investigation, currentMinute }) {
       </div>
 
       {/* Structured Synthesis & Guard Verdict Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '12px' }}>
         {/* Analyst Brief Card */}
         <div style={{ background: 'var(--bg-primary)', borderRadius: '6px', padding: '14px', border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
@@ -775,7 +799,6 @@ function InvestigationPanel({ investigation, currentMinute }) {
             <strong>Gate Outcome:</strong> {guard_verdict.reason}
           </div>
 
-          {/* Explicit failed gate display if vetoed */}
           {isVetoed && (
             <div style={{
               background: 'rgba(239, 68, 68, 0.1)',
@@ -817,7 +840,6 @@ function RevealPanel({ reveal, currentMinute, scenarioData }) {
 
   if (!reveal) return null;
 
-  // Compute exact lead times dynamically from timestamps
   let b2LeadTimeMin = null;
   let agLeadTimeMin = null;
 
@@ -842,7 +864,7 @@ function RevealPanel({ reveal, currentMinute, scenarioData }) {
       borderRadius: '8px',
       padding: '16px'
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
         <div>
           <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)' }}>
             Ground Truth Verification & Outcome Reveal
@@ -946,7 +968,7 @@ function ResultsTab({ summaryData }) {
         </p>
       </div>
 
-      {/* Primary Key Findings Header Box */}
+      {/* Primary Key Findings Header Box (Clean text without raw LaTeX tokens) */}
       <div style={{
         background: 'var(--bg-secondary)',
         border: '1px solid var(--border-color)',
@@ -959,7 +981,7 @@ function ResultsTab({ summaryData }) {
         <div>
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>False-Alarm Scenarios</div>
           <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--color-healthy)', marginTop: '2px' }}>
-            24 $\to$ 16 <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '400' }}>/ 300 scenarios</span>
+            24 → 16 <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '400' }}>/ 300 scenarios</span>
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
             <strong>8 removed</strong>, <strong>0 added</strong> (sign test p = 0.0078)
@@ -979,7 +1001,7 @@ function ResultsTab({ summaryData }) {
         <div>
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Alarm-Minutes Secondary Note</div>
           <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)', marginTop: '2px' }}>
-            139m $\to$ 15m <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '400' }}>(-89.2%)</span>
+            139m → 15m <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '400' }}>(-89.2%)</span>
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '2px' }}>
             128 of 139 baseline alarm-minutes come from silent sensor faults
@@ -987,7 +1009,7 @@ function ResultsTab({ summaryData }) {
         </div>
       </div>
 
-      {/* Main Table */}
+      {/* Main Table with Footnote on Pre-Collapse Rate */}
       <div style={{ background: 'var(--bg-secondary)', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>
@@ -997,7 +1019,7 @@ function ResultsTab({ summaryData }) {
               <th style={{ padding: '12px 16px' }}>False Alarm Rate</th>
               <th style={{ padding: '12px 16px' }}>95% Bootstrap CI</th>
               <th style={{ padding: '12px 16px' }}>Median Lead Time</th>
-              <th style={{ padding: '12px 16px' }}>Pre-Collapse Rate</th>
+              <th style={{ padding: '12px 16px' }}>Pre-Collapse Rate *</th>
             </tr>
           </thead>
           <tbody>
@@ -1035,6 +1057,10 @@ function ResultsTab({ summaryData }) {
             </tr>
           </tbody>
         </table>
+        {/* 3. Footnote defining Pre-Collapse Rate */}
+        <div style={{ padding: '8px 16px', fontSize: '11px', color: 'var(--text-dim)', borderTop: '1px solid var(--border-color)', background: 'var(--bg-primary)' }}>
+          * <strong>Pre-Collapse Rate</strong>: share of creep scenarios warned before the simulated collapse (lead_time &gt; 0).
+        </div>
       </div>
 
       {/* Claims and Limits Box */}
@@ -1081,7 +1107,7 @@ function AboutTab() {
         </p>
         <ul style={{ paddingLeft: '20px', marginTop: '8px', color: 'var(--text-muted)' }}>
           <li>A fast, deterministic rules engine (B2.1) continuously detects threshold excursions and flags candidate anomalies.</li>
-          <li>The <strong>Muse Spark 1.3</strong> multimodal model acts as a tier-2 investigation agent, executing targeted API tool calls to inspect spatial neighbors, acoustic emissions, and blast schedules.</li>
+          <li>The <strong>Muse Spark 1.3</strong> foundation model acts as an autonomous <strong>text-and-tools investigation agent</strong>, executing targeted API tool calls to inspect spatial neighbors, acoustic emissions, and blast schedules.</li>
           <li>If the agent recommends downgrading an alert, a <strong>Deterministic Safety Guard</strong> checks physical invariants (monitored trends, confidence bounds, neighbor consistency).</li>
           <li>Approved downgrades are held in a <strong>15-minute Review Hold</strong>; if signals worsen by &gt;25% or fail to clear at timeout, alarms re-emit immediately.</li>
         </ul>
@@ -1109,16 +1135,16 @@ function AboutTab() {
             <div style={{ fontWeight: '600' }}>muse-spark-1.3</div>
           </div>
           <div>
-            <div style={{ color: 'var(--text-dim)', fontSize: '12px' }}>API Architecture</div>
-            <div style={{ fontWeight: '600' }}>Meta Model API (Native Tools)</div>
+            <div style={{ color: 'var(--text-dim)', fontSize: '12px' }}>Agent Mode</div>
+            <div style={{ fontWeight: '600' }}>text-and-tools investigation agent</div>
           </div>
           <div>
             <div style={{ color: 'var(--text-dim)', fontSize: '12px' }}>Mean Cost / Candidate</div>
             <div style={{ fontWeight: '600', color: 'var(--color-healthy)' }}>$0.0211 USD</div>
           </div>
           <div>
-            <div style={{ color: 'var(--text-dim)', fontSize: '12px' }}>Evidence Validity</div>
-            <div style={{ fontWeight: '600', color: 'var(--color-healthy)' }}>100.0% (Zero Hallucination)</div>
+            <div style={{ color: 'var(--text-dim)', fontSize: '12px' }}>Evidence Verification</div>
+            <div style={{ fontWeight: '600', color: 'var(--color-healthy)' }}>100% of cited evidence IDs matched real tool outputs (761 of 761)</div>
           </div>
         </div>
       </div>
