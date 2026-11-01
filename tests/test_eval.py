@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 import numpy as np
 import pytest
 
@@ -35,7 +35,10 @@ def test_harness_no_lookahead_and_no_ground_truth_leak():
 
     # If file not present, find first scenario from index
     if not rf.exists():
-        with open("data/scenarios/index.json") as f:
+        idx_file = Path("data/scenarios/index.json")
+        if not idx_file.exists():
+            pytest.skip("data/scenarios not generated yet; run 'python -m generator.build_dataset --n 300 --seed 42 --out data/scenarios'")
+        with open(idx_file) as f:
             idx = json.load(f)
         rf = Path("data/scenarios") / idx["scenarios"][0]["readings_file"]
         tf = Path("data/scenarios") / idx["scenarios"][0]["truth_file"]

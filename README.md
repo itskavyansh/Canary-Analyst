@@ -59,7 +59,7 @@ The system was evaluated across two distinct splits:
 1. **Development Split ($N=300$, seed 42)**: Used for exploratory failure analysis, threshold calibration, and baseline tuning.
 2. **Held-Out Test Split ($N=300$, seed 2026)**: Evaluated only after freezing all detectors, guard gates, prompts, and configurations.
 
-Everything was frozen before the test run (git tag `frozen-before-test`, commit `77ae260`, documented in [`results/freeze_manifest.json`](results/freeze_manifest.json)), and all results are reported exactly as measured without post-unblinding adjustments.
+Everything was frozen before the test run (git tag `frozen-before-test`, commit `77ae260`, documented in [`results/freeze_manifest.json`](results/freeze_manifest.json)), and all results are reported exactly as measured without post-unblinding adjustments. After the freeze tag, one commit added a missing `typing` import so the code also runs on Python 3.11 to 3.13, with no change in behaviour.
 
 ---
 
@@ -86,36 +86,46 @@ These sources motivate the problem; none is used as data in our benchmark.
 
 ## How to Run
 
+**Prerequisites**: Python 3.11+ (verified on Python 3.11, 3.12, 3.13, and 3.14).
+
+```bash
+pip install -r requirements.txt
+```
+
 ### 1. Scenario Generator
 ```bash
-# Generate synthetic scenarios (scenarios_dev and scenarios_test)
-python -m generator.scenarios
+# Generate the 300-scenario development split (seed 42)
+python -m generator.build_dataset --n 300 --seed 42 --out data/scenarios
 ```
 
 ### 2. Evaluation Harness
 ```bash
-# Run unit and integration tests
+# Run unit and integration tests (no API calls)
 python -m pytest tests/ -q
 
-# Run benchmark evaluation across all detectors on the dev split
-python -m eval.run_eval --detectors B0 B1 B2.1 AGENT --split dev
+# Run baseline detectors on the dev split (no API calls; note that detector B2 is the frozen B2.1 baseline)
+python -m eval.run_eval --detectors B0,B1,B2 --split dev
+
+# Run all detectors including the AI agent on the dev split (requires META_API_KEY in .env)
+python -m eval.run_eval --detectors B0,B1,B2,AGENT --split dev
 
 # Run benchmark evaluation on the frozen held-out test split
-python -m eval.run_eval --detectors B0 B1 B2.1 AGENT --split test --final
+python -m eval.run_eval --detectors B0,B1,B2,AGENT --split test --final
 ```
 
 ### 3. Demo Export & Web Application
 ```bash
-# Re-export demo scenarios and summary statistics
-python -m eval.export_demo
-
-# Run web application locally
+# Run web application locally (pre-exported static demo data is already included in web/public/demo/)
 cd web
 npm install
 npm run dev
 
 # Build production static bundle for GitHub Pages / Vercel
 npm run build
+
+# (Optional) Re-export demo scenarios from local test split & agent cache
+cd ..
+python -m eval.export_demo
 ```
 
 ---

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import math
 from typing import Any, Dict, List, Optional
+from typing import Tuple
 import numpy as np
 
 from engine.common import Alert, Detector
