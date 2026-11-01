@@ -1,13 +1,15 @@
 import argparse
+import os
 from datetime import datetime
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, List, Optional, Type
 
 from engine.common import Alert, Detector
 from engine.baseline_b0 import BaselineB0
 from engine.baseline_b1 import BaselineB1
 from engine.baseline_b2 import BaselineB2
+from agent.analyst import Analyst
 from agent.detector_agent import AgentDetector
 from eval.metrics import ScenarioOutcome, compute_aggregate_metrics, evaluate_scenario
 
@@ -71,7 +73,8 @@ def run_evaluation(
     detector_names: List[str],
     scenarios_dir: str,
     out_dir: str,
-    seed: int = 42
+    seed: int = 42,
+    model: Optional[str] = None
 ) -> Dict[str, Any]:
     scen_path = Path(scenarios_dir)
     out_path = Path(out_dir)
@@ -82,13 +85,29 @@ def run_evaluation(
 
     scenarios = index_data["scenarios"]
     summary: Dict[str, Any] = {"detectors": {}}
+    analyst_metadata: Dict[str, Any] = {}
 
     for name in detector_names:
         if name not in DETECTOR_REGISTRY:
             raise ValueError(f"Unknown detector '{name}'. Registered: {list(DETECTOR_REGISTRY.keys())}")
 
         det_cls = DETECTOR_REGISTRY[name]
-        detector = det_cls()
+        if name == "AGENT":
+            # Pass configured model if requested
+            resolved_model = model or os.getenv("AGENT_MODEL", "muse-spark-1.3")
+            analyst_inst = Analyst(model=resolved_model)
+            detector = det_cls(analyst=analyst_inst)
+            analyst_metadata = {
+                "model_id": analyst_inst.model,
+                "reasoning_effort": None if analyst_inst.omit_reasoning_effort else analyst_inst.reasoning_effort,
+                "temperature": None if analyst_inst.omit_temperature else analyst_inst.temperature,
+                "omitted_parameters": [
+                    *(["reasoning_effort"] if analyst_inst.omit_reasoning_effort else []),
+                    *(["temperature"] if analyst_inst.omit_temperature else [])
+                ]
+            }
+        else:
+            detector = det_cls()
 
         outcomes: List[ScenarioOutcome] = []
         per_scenario_file = out_path / f"per_scenario_{name}.jsonl"
@@ -142,6 +161,14 @@ def run_evaluation(
             "overall": overall_metrics,
             "by_type": type_metrics
         }
+
+    # Record model metadata in summary.json
+    if analyst_metadata:
+        summary["model_id"] = analyst_metadata["model_id"]
+        summary["reasoning_effort"] = analyst_metadata["reasoning_effort"]
+        summary["temperature"] = analyst_metadata["temperature"]
+        if analyst_metadata.get("omitted_parameters"):
+            summary["omitted_parameters"] = analyst_metadata["omitted_parameters"]
 
     # Save summary.json
     with open(out_path / "summary.json", "w", encoding="utf-8") as f:
@@ -241,6 +268,7 @@ def main():
     parser.add_argument("--scenarios", type=str, default=None, help="Explicit path to scenarios directory (overrides --split)")
     parser.add_argument("--out", type=str, default="results", help="Output directory")
     parser.add_argument("--seed", type=int, default=42, help="Seed for bootstrap confidence intervals")
+    parser.add_argument("--model", type=str, default=None, help="Model ID for AGENT (overrides AGENT_MODEL env and default muse-spark-1.3)")
 
     args = parser.parse_args()
     if args.split == "test" and not args.final:
@@ -252,7 +280,7 @@ def main():
         scenarios_dir = "data/scenarios_test" if args.split == "test" else "data/scenarios"
 
     detector_list = [d.strip() for d in args.detectors.split(",") if d.strip()]
-    run_evaluation(detector_list, scenarios_dir, args.out, seed=args.seed)
+    run_evaluation(detector_list, scenarios_dir, args.out, seed=args.seed, model=args.model)
 
 
 if __name__ == "__main__":

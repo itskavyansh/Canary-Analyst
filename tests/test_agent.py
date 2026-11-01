@@ -300,3 +300,45 @@ def test_agent_never_sees_ground_truth():
     assert "onset_time" not in detector.scenario_meta
     assert "collapse_time" not in detector.scenario_meta
 
+
+def test_models_never_share_cache_entries(tmp_path):
+    """Verify that different model IDs produce distinct cache keys and never share cache entries."""
+    cache_dir = tmp_path / "cache"
+    runs_dir = tmp_path / "runs"
+    
+    analyst_13 = Analyst(model="muse-spark-1.3", cache_dir=str(cache_dir), runs_dir=str(runs_dir))
+    analyst_12 = Analyst(model="muse-spark-1.2", cache_dir=str(cache_dir), runs_dir=str(runs_dir))
+    analyst_11 = Analyst(model="muse-spark-1.1", cache_dir=str(cache_dir), runs_dir=str(runs_dir))
+    
+    candidate_id = "SCENARIO_0001_accelerating_creep_001"
+    
+    key_13 = analyst_13._get_cache_key(candidate_id)
+    key_12 = analyst_12._get_cache_key(candidate_id)
+    key_11 = analyst_11._get_cache_key(candidate_id)
+    
+    # All cache keys must be strictly distinct
+    assert key_13 != key_12
+    assert key_13 != key_11
+    assert key_12 != key_11
+    
+    # Save a cached entry under analyst_13
+    res_13 = AnalystResult(
+        parsed={"hypothesis": "ground_movement", "recommendation": "KEEP"},
+        transcript=[],
+        tool_calls=[],
+        tool_results={},
+        token_usage={"total_tokens": 100},
+        cost_usd=0.01,
+        latency_sec=1.0,
+        prompt_hash=analyst_13.prompt_hash,
+        from_cache=False
+    )
+    analyst_13._save_cache(candidate_id, res_13)
+    
+    # Analyst 1.3 can load it
+    assert analyst_13._load_cache(candidate_id) is not None
+    # Analyst 1.2 and 1.1 MUST NOT load it
+    assert analyst_12._load_cache(candidate_id) is None
+    assert analyst_11._load_cache(candidate_id) is None
+
+

@@ -97,7 +97,7 @@ class GlobalBudgetExceeded(Exception):
 class Analyst:
     def __init__(
         self,
-        model: str = "muse-spark-1.3",
+        model: Optional[str] = None,
         prompt_path: Optional[str] = None,
         cache_dir: str = "results/agent_cache",
         runs_dir: str = "results/agent_runs",
@@ -107,7 +107,10 @@ class Analyst:
         reasoning_effort: str = "low",
         client: Optional[Any] = None
     ):
-        self.model = model
+        if model is not None:
+            self.model = model
+        else:
+            self.model = os.getenv("AGENT_MODEL", "muse-spark-1.3")
         self.max_tool_rounds = max_tool_rounds
         self.temperature = temperature
         self.reasoning_effort = reasoning_effort
@@ -137,6 +140,10 @@ class Analyst:
             self.budget_usd = 20.0
 
         self.total_cost_spent: float = 0.0
+
+        # Parameter support flags (e.g. if an older/different model rejects reasoning_effort or temperature)
+        self.omit_reasoning_effort: bool = False
+        self.omit_temperature: bool = False
 
     def compute_cost(self, usage: Dict[str, Any]) -> float:
         prompt_tokens = usage.get("prompt_tokens", 0)
@@ -312,12 +319,38 @@ class Analyst:
                 "model": self.model,
                 "messages": messages,
                 "tools": TOOL_SCHEMAS,
-                "temperature": self.temperature,
-                "reasoning_effort": self.reasoning_effort,
                 "max_completion_tokens": 2048
             }
+            if not self.omit_temperature and self.temperature is not None:
+                payload["temperature"] = self.temperature
+            if not self.omit_reasoning_effort and self.reasoning_effort is not None:
+                payload["reasoning_effort"] = self.reasoning_effort
 
             resp_json = self._call_api_with_retry(payload)
+            if "error" in resp_json:
+                err_text = str(resp_json["error"]).lower()
+                retry_needed = False
+                if "reasoning_effort" in err_text and not self.omit_reasoning_effort:
+                    print(f"[Analyst WARNING] Model {self.model} rejected reasoning_effort. Omitting it.")
+                    self.omit_reasoning_effort = True
+                    retry_needed = True
+                if "temperature" in err_text and not self.omit_temperature:
+                    print(f"[Analyst WARNING] Model {self.model} rejected temperature. Omitting it.")
+                    self.omit_temperature = True
+                    retry_needed = True
+                if retry_needed:
+                    payload2 = {
+                        "model": self.model,
+                        "messages": messages,
+                        "tools": TOOL_SCHEMAS,
+                        "max_completion_tokens": 2048
+                    }
+                    if not self.omit_temperature and self.temperature is not None:
+                        payload2["temperature"] = self.temperature
+                    if not self.omit_reasoning_effort and self.reasoning_effort is not None:
+                        payload2["reasoning_effort"] = self.reasoning_effort
+                    resp_json = self._call_api_with_retry(payload2)
+
             if "error" in resp_json or not resp_json.get("choices"):
                 # Persistent failure -> fallback to None (guard keeps alert)
                 return None
@@ -390,12 +423,38 @@ class Analyst:
             "model": self.model,
             "messages": messages,
             "response_format": ANALYST_OUTPUT_SCHEMA,
-            "temperature": self.temperature,
-            "reasoning_effort": self.reasoning_effort,
             "max_completion_tokens": 2048
         }
+        if not self.omit_temperature and self.temperature is not None:
+            final_payload["temperature"] = self.temperature
+        if not self.omit_reasoning_effort and self.reasoning_effort is not None:
+            final_payload["reasoning_effort"] = self.reasoning_effort
 
         final_resp = self._call_api_with_retry(final_payload)
+        if "error" in final_resp:
+            err_text = str(final_resp["error"]).lower()
+            retry_needed = False
+            if "reasoning_effort" in err_text and not self.omit_reasoning_effort:
+                print(f"[Analyst WARNING] Model {self.model} rejected reasoning_effort on synthesis call. Omitting it.")
+                self.omit_reasoning_effort = True
+                retry_needed = True
+            if "temperature" in err_text and not self.omit_temperature:
+                print(f"[Analyst WARNING] Model {self.model} rejected temperature on synthesis call. Omitting it.")
+                self.omit_temperature = True
+                retry_needed = True
+            if retry_needed:
+                final_payload2 = {
+                    "model": self.model,
+                    "messages": messages,
+                    "response_format": ANALYST_OUTPUT_SCHEMA,
+                    "max_completion_tokens": 2048
+                }
+                if not self.omit_temperature and self.temperature is not None:
+                    final_payload2["temperature"] = self.temperature
+                if not self.omit_reasoning_effort and self.reasoning_effort is not None:
+                    final_payload2["reasoning_effort"] = self.reasoning_effort
+                final_resp = self._call_api_with_retry(final_payload2)
+
         if "error" in final_resp or not final_resp.get("choices"):
             return None
 
