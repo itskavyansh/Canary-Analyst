@@ -1,101 +1,160 @@
 # Canary Analyst: Autonomous Geotechnical AI Analyst for Subsidence Networks
 
-> **Built entirely from scratch during the Meta Global AI Developer Hackathon (Oct 27 – Nov 4, 2026).**  
-> All code in this repository was authored during the hackathon period. It is the autonomous AI reasoning and decision-support layer for ProjectCanary, our team's earlier sensor-hardware concept. All evaluation sensor telemetry is simulated unless explicitly stated.
+Canary Analyst monitors ground subsidence above abandoned underground coal workings using surface sensor arrays to detect catastrophic collapses early. It couples a multi-tool autonomous AI agent with a deterministic safety guard to eliminate false alarms without delaying or missing life-critical hazard alerts.
+
+Live Interactive Demo: [https://itskavyansh.github.io/Canary-Analyst/](https://itskavyansh.github.io/Canary-Analyst/)
 
 ---
 
-## Overview
-
-Canary Analyst monitors 4-node surface sensor arrays deployed over abandoned room-and-pillar coal mines. It addresses the fundamental trade-off in mine safety: **false alarms cause disruptive operational shutdowns, but missed hazards cause catastrophic loss of human life.**
-
-To solve this, Canary Analyst uses an **"AI Proposes, Deterministic Code Decides"** safety architecture:
-1. **Tier-1 Fast Rules Baseline (B2.1)**: Deterministic persistent thresholding and autocorrelation-adjusted OLS linear trend fitting screen incoming sensor streams tick-by-tick.
-2. **Tier-2 Autonomous Analyst Agent (Muse Spark 1.3)**: When candidate excursions trigger, the agent executes targeted diagnostic tool calls (neighbor node comparisons, acoustic piezo emissions, blast schedules, sensor health diagnostics).
-3. **Deterministic Safety Guard & Review Hold**: The agent recommends an operational action (`KEEP` vs `DOWNGRADE`), but a deterministic safety guard audits physical invariants. Approved downgrades are placed in a **15-minute Review Hold** that automatically re-emits if conditions worsen by >25% or persist at timeout.
-
----
-
-## Key Results Summary (Held-Out Test Set)
-
-Evaluated under a pre-registered protocol on a 300-scenario held-out test split (seed 2026) frozen before testing (git tag `frozen-before-test`):
-
-- **Hazard Detection Rate**: **100.0%** (86 / 86 hazards detected across accelerating creep and slow creep).
-- **Hazard Delay**: **0.0 minutes** (0 hazard candidates ever placed on hold or delayed).
-- **False Alarm Rate**: Reduced from **40.0%** (naive thresholds) and **8.0%** (rules baseline) to **5.3%** (**-33.8% relative reduction** over B2.1).
-- **Non-Hazard Alarm-Minutes**: Reduced from **139.0 minutes** to **15.0 minutes** (**-89.2% reduction**).
-- **Statistical Significance**: Paired comparison showed 8 false alarms removed with 0 added (exact two-sided sign test $p = \mathbf{0.0078125}$).
-- **API Efficiency**: Mean cost of **$0.0211 / candidate**, **100.0% evidence validity rate** (zero hallucinated evidence IDs).
-
-*See [`docs/results.md`](docs/results.md) for full benchmark tables, ablation studies, and scientific methodology.*
+## Table of Contents
+1. [Headline Benchmark Results](#headline-benchmark-results)
+2. [What It Does](#what-it-does)
+3. [Hackathon Provenance & Hardware Credit](#hackathon-provenance--hardware-credit)
+4. [Evaluation Protocol](#evaluation-protocol)
+5. [Limitations & Engineering Disclaimers](#limitations--engineering-disclaimers)
+6. [Related Work & Motivation](#related-work--motivation)
+7. [How to Run](#how-to-run)
+8. [Repository Map](#repository-map)
+9. [Models Used & Cost Efficiency](#models-used--cost-efficiency)
 
 ---
 
-## Engineering Limitations & Claims
+## Headline Benchmark Results
 
-1. **Synthetic Sensor Telemetry**: Data is synthesized using physics-inspired mathematical models (exponential creep, linear shear, seismic impulse decay) rather than raw underground mine records.
-2. **Bench-Noise Calibration**: Noise distributions and baseline drift parameters were calibrated from prototype hardware benchtop readings (`data/real_readings.csv`).
-3. **Silent Sensor Faults**: Unflagged transducer drift on a single axis without diagnostic status flags cannot be reliably separated from localized physical strain without manual inspection.
-4. **Generator Dynamics**: Synthetic collapse profiles follow deterministic acceleration curves; real geomechanical failures can feature sudden brittle stick-slip behavior.
-5. **Demonstration Thresholds**: Warning (15° tilt, 2.0 cm displacement, 1.0 g vibration) and critical thresholds are demonstration values; real sites require site-specific baseline surveys.
-6. **Operational Role**: **The system advises and recommends; human site authorities decide and command evacuations.**
+All four detectors evaluated on the held-out test split ($N=300$, seed 2026) under a strict no-lookahead streaming contract:
+
+| Metric | B0 (Naive Raw Thresholds) | B1 (Stateful Persistence + Trend) | B2.1 (Frozen Engineered Rules) | AGENT (Muse Spark 1.3 + Guard) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Hazard Detection Rate** | **100.0%** | **100.0%** | **100.0%** | **100.0%** |
+| **Overall False Alarm Rate** | 40.0% | 39.3% | 8.0% | **5.3%** |
+| 95% Bootstrap CI (FA) | [34.0%, 45.7%] | [34.0%, 45.0%] | [5.0%, 11.3%] | [3.0%, 7.7%] |
+| **Median Lead Time (min)** | 10.0 min | 57.0 min | 52.0 min | **52.0 min** |
+| IQR Lead Time (p25–p75) | 0.5–31.5 min | 42.0–78.5 min | 44.5–60.5 min | 44.5–60.5 min |
+| Detected Before Collapse | 74.4% | 100.0% | 100.0% | **100.0%** |
+| Mean Alert Episodes / Scenario | 0.81 | 1.02 | 0.44 | **0.42** |
+
+*Paired Evaluation Line*: Across all 214 non-hazard test scenarios, the paired exact sign test versus the frozen B2.1 baseline removed 8 false alarms with 0 added ($p = 0.0078$, statistically significant).
 
 ---
 
-## How to Run the Pipeline
+## What It Does
 
-### 1. Environment & Dependencies
+- **Perceive-decide-act agent loop with five tools**: Investigates candidate anomalies by querying spatial neighbors, physical baselines, acoustic emissions, scheduled blasts, and sensor diagnostics.
+- **Fail-closed deterministic safety guard**: Audits all agent downgrade proposals against physical invariants before approval, ensuring unverified hypotheses default to `KEEP`.
+- **Audit log of replayable investigation transcripts**: Retains a complete cryptographic chain of tool inputs, outputs, and reasoning steps for forensic post-incident review.
+- **Structured JSON output**: Strictly enforces schema validation across confidence levels, root-cause hypotheses, and operational recommendations.
+- **Native tool calling with Muse Spark 1.3 through the Meta Model API**: Coordinates tool calls natively using standard parameter contracts to triage live sensor streams.
+
+---
+
+## Hackathon Provenance & Hardware Credit
+
+All code in this repository was written between Oct 27 and Nov 4, 2026 for the Meta Global AI Developer Hackathon. The ProjectCanary sensor hardware and its data format are the author's earlier prototype and are not code in this repository.
+
+---
+
+## Evaluation Protocol
+
+The system was evaluated across two distinct splits:
+1. **Development Split ($N=300$, seed 42)**: Used for exploratory failure analysis, threshold calibration, and baseline tuning.
+2. **Held-Out Test Split ($N=300$, seed 2026)**: Evaluated only after freezing all detectors, guard gates, prompts, and configurations.
+
+Everything was frozen before the test run (git tag `frozen-before-test`, commit `77ae260`, documented in [`results/freeze_manifest.json`](results/freeze_manifest.json)), and all results are reported exactly as measured without post-unblinding adjustments.
+
+---
+
+## Limitations & Engineering Disclaimers
+
+1. **Approximation of Noise**: Sensor noise was measured on prototype bench logs sampled about once per second, then applied to simulated 1-minute readings, and the generator caps noise levels (distance 0.35 cm, tilt 0.20 degrees, vibration 0.015 g), so simulated noise is an approximation. The generator has no temperature drift, which real tiltmeters show.
+2. **Synthetic Hazards vs Reality**: Simulated hazards are easier than real collapses because synthetic collapse profiles follow continuous deterministic acceleration curves, whereas real geomechanical failures often feature brittle, stick-slip discontinuities.
+3. **Silent Sensor Faults**: Silent sensor faults remain unresolved; unflagged calibration drift on a single axis without diagnostic hardware error codes cannot be reliably distinguished from localized ground strain.
+4. **Benign Cause Misclassifications**: Benign causes are often mislabelled, but the fail-closed safety guard preserves system safety by defaulting unproven hypotheses to `KEEP`.
+5. **Demonstration Thresholds**: Thresholds (15° tilt, 2.0 cm displacement, 1.0 g vibration) are engineering demonstration values; real deployments require site-specific baseline surveys.
+6. **Operational Scope**: The system provides automated decision support; human geotechnical engineers retain command authority for site evacuations.
+
+---
+
+## Related Work & Motivation
+
+These sources motivate the problem; none is used as data in our benchmark.
+
+- [Louisiana Department of Energy and Natural Resources, Sulphur Mines Monthly Deformation Reports (October 2024)](https://www.dnr.louisiana.gov/assets/OC/SulphurMines/InSAR/DeformationReports/October_2024_Deformation_Report.pdf): Monthly monitoring reports document short-lived tilt anomalies caused by weather precipitation and mechanical activity near surface sensors, demonstrating the operational necessity of filtering false alarms.
+- [Qiu et al., JISDM 2025, Tiltmeters as a Low-Cost Technology for Baseline Ground-Movement Monitoring](https://jisdm2025.gik.kit.edu/downloads/JISDM2025_Qiu_et_al.pdf): Field evaluation of low-cost tilt sensors confirms that thermal variations and temperature drift directly affect tiltmeter stability over multi-day monitoring periods.
+- [Gu et al., Sustainability 2022, 14(16), 10421, 'Research on Mining Maximum Subsidence Prediction Based on Genetic Algorithm Combined with XGBoost Model'](https://www.mdpi.com/2071-1050/14/16/10421): Historical modeling predicts ultimate maximum subsidence extent from 78 geological and extraction parameters, contrasting with real-time streaming anomaly triage.
+
+---
+
+## How to Run
+
+### 1. Scenario Generator
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/canary-analyst.git
-cd canary-analyst
-
-# Install Python dependencies (Python 3.11+)
-pip install -r requirements.txt
-
-# (Optional) For live LLM calls, create .env from template
-cp .env.example .env
-# Add your META_API_KEY to .env (not needed for cached replay or testing)
+# Generate synthetic scenarios (scenarios_dev and scenarios_test)
+python -m generator.scenarios
 ```
 
-### 2. Run the Benchmark Evaluations
+### 2. Evaluation Harness
 ```bash
-# Run unit and integration tests (all 27 pass offline)
-python -m pytest tests/ -v
+# Run unit and integration tests
+python -m pytest tests/ -q
 
-# Run evaluation on the DEV split
-python -m eval.run_eval --detectors B0 B1 B2 AGENT --split dev
+# Run benchmark evaluation across all detectors on the dev split
+python -m eval.run_eval --detectors B0 B1 B2.1 AGENT --split dev
 
-# Run evaluation on the frozen TEST split (requires --final flag)
-python -m eval.run_eval --detectors B0 B1 B2 AGENT --split test --final
+# Run benchmark evaluation on the frozen held-out test split
+python -m eval.run_eval --detectors B0 B1 B2.1 AGENT --split test --final
 ```
 
-### 3. Re-export Demo Data
+### 3. Demo Export & Web Application
 ```bash
+# Re-export demo scenarios and summary statistics
 python -m eval.export_demo
-```
 
----
-
-## Interactive Web Demo (Vite + React)
-
-Canary Analyst includes a standalone, self-contained interactive web application to replay 4 representative test scenarios tick-by-tick across all 360 simulation minutes.
-
-### Launching Locally
-```bash
+# Run web application locally
 cd web
 npm install
 npm run dev
-```
-Open `http://localhost:5173` in your browser.
 
-### Building for Static Deployment (GitHub Pages / Vercel)
-```bash
-cd web
+# Build production static bundle for GitHub Pages / Vercel
 npm run build
 ```
-The compiled static assets are output to `web/dist/` with relative base paths (`./`) and make zero external network requests.
 
-#### Deploying to GitHub Pages or Vercel
-- **GitHub Pages**: A preconfigured GitHub Actions workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml) automatically builds `web/` and deploys `web/dist/` on push to `master` or `main`. No secrets or tokens are needed.
-- **Vercel**: Import the repository in Vercel, set the **Root Directory** to `web`, with Framework Preset **Vite**, Build Command `npm run build`, and Output Directory `dist`. Because all asset paths are relative and data is loaded from local static JSON, zero environment variables or secrets are required.
+---
+
+## Repository Map
+
+```text
+canary-analyst/
+├── agent/
+│   ├── analyst.py              # Autonomous LLM analyst with ReAct tool-calling loop
+│   ├── guard.py                # Deterministic Safety Guard checking physical invariants
+│   ├── tools.py                # Five diagnostic tools querying array context
+│   └── prompts/
+│       └── analyst_v1.md       # Frozen system prompt
+├── engine/
+│   ├── baseline_b0.py          # Naive instantaneous threshold baseline
+│   ├── baseline_b1.py          # Persistence and linear trend baseline
+│   ├── baseline_b2.py          # Multimodal engineered baseline
+│   └── b2_frozen.json          # Frozen parameter weights for B2.1
+├── eval/
+│   ├── run_eval.py             # Evaluation harness streaming tick-by-tick
+│   ├── export_demo.py          # Exporter generating static web demo artifacts
+│   └── report_model_swap.py    # Multi-model comparison report generator
+├── generator/
+│   └── scenarios.py            # Synthetic scenario generator (7 failure / benign classes)
+├── docs/
+│   ├── results.md              # Detailed evaluation report, tables, and ablations
+│   ├── safety_design.md        # Safety guard architecture and verification gates
+│   └── model_swap_prereg.md    # Pre-registration for model-swap sensitivity experiment
+├── web/
+│   ├── src/                    # React + Vite interactive dashboard
+│   └── public/demo/            # Exported demo scenarios and summary JSON
+└── tests/                      # Pytest test suite
+```
+
+---
+
+## Models Used & Cost Efficiency
+
+- **Foundation Model**: `muse-spark-1.3` (Meta Model API), supporting native tool calling, reasoning effort, and temperature parameters.
+- **Evaluation Cost**: Total test split inference cost was **$2.99 USD** across 142 candidate anomaly episodes ($0.0211 / candidate).
+- **Evidence Integrity**: **100.0% evidence validity rate** (761 / 761 cited evidence IDs verified against raw tool hashes).

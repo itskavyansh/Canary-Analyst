@@ -1857,7 +1857,8 @@
   "limitations": [
     "Silent sensor faults remain unresolved (12 of 43 test scenarios still alarm; 128 of 139 baseline alarm-minutes come from silent sensor faults).",
     "Simulated data from physics-inspired mathematical models rather than raw underground mine seismic records.",
-    "Noise profiles calibrated against prototype bench sensor readings (data/real_readings.csv).",
+    "Noise profiles informed by prototype test sensor readings (data/real_readings.csv).",
+    "Sensor noise was measured on prototype bench logs sampled about once per second, then applied to simulated 1-minute readings, and the generator caps noise levels (distance 0.35 cm, tilt 0.20 degrees, vibration 0.015 g), so simulated noise is an approximation. The generator has no temperature drift, which real tiltmeters show.",
     "Synthetic hazard profiles follow continuous deterministic acceleration; real collapse dynamics can feature brittle stick-slip behavior.",
     "Thresholds (15 deg, 2.0 cm, 1.0 g) are engineering demonstration values requiring site-specific geotechnical tuning."
   ]
