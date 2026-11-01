@@ -23,3 +23,6 @@ build/
 *.egg-info/
 .DS_Store
 
+
+data/real/
+results/real/
