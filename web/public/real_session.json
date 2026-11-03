@@ -1,0 +1,1393 @@
+{
+  "title": "2-Node Prototype Real Recording",
+  "session_id": "REAL_nov03",
+  "recorded_date": "2026-11-03",
+  "duration_minutes": 37,
+  "baseline_window_minutes": 30,
+  "disclaimer": "Real 2-node prototype recording, 37 minutes, one session. No ground truth labels were given to any detector. This is a demonstration, not a benchmark. Alert time reflects the end of the 30 minute baseline window, not the time of the physical change. Thresholds are demonstration values.",
+  "fail_closed_note": "With 2 nodes the neighbour gates are inert, so KEEP here is fail-closed behaviour.",
+  "node_coordinates_m": {
+    "NODE_01": [
+      0.0,
+      0.0
+    ],
+    "NODE_02": [
+      0.4284,
+      0.0
+    ]
+  },
+  "unlabelled_disturbances": [
+    {
+      "time_ist": "13:38",
+      "time_utc": "08:08:00Z",
+      "node_id": "NODE_02",
+      "channel": "distance",
+      "event": "Distance Step",
+      "details": "Step from 3.92 cm to 5.20 cm (delta: +1.28 cm, or 1.29 cm relative to initial 3.91 cm).",
+      "impact": "Did not exceed 3.0 cm threshold, so no baseline alert triggered."
+    },
+    {
+      "time_ist": "13:52",
+      "time_utc": "08:22:00Z",
+      "node_id": "NODE_01",
+      "channel": "distance & piezo_peak",
+      "event": "Distance Jump & Piezo Spike",
+      "details": "Distance stepped from 42.82 cm to 38.16 cm (delta: -4.66 cm). Simultaneously, piezo acoustic peak spiked to 0.5569 V (baseline mean ~0.0176 V).",
+      "impact": "Triggered persistent distance check at end of 30-min baseline window (13:56 IST / 08:26 UTC) across B0, B1, and B2."
+    },
+    {
+      "time_ist": "14:03",
+      "time_utc": "08:33:00Z",
+      "node_id": "NODE_01 & NODE_02",
+      "channel": "vibration",
+      "event": "Synchronous Vibration Excursion",
+      "details": "Vibration peaked simultaneously on both nodes (0.131 g on NODE_01, 0.127 g on NODE_02).",
+      "impact": "Both peaks remain well below the 1.0 g blast/impact threshold, so no shock alert was raised."
+    }
+  ],
+  "step5_explanation": {
+    "finding": "Agent reported NODE_02 moved 0.29 cm, whereas raw data showed a 1.28-1.29 cm step at 13:38 IST.",
+    "cause": "The compare_neighbor_nodes tool calculates each node's baseline using the first 30 minutes of available data (07:58Z to 08:26Z / 13:28 to 13:56 IST). Because NODE_02 stepped at 13:38 IST (minute 10), 20 out of 30 baseline readings were already at the post-step ~5.20 cm value, contaminating the reference baseline median to 4.89 cm.",
+    "verdict": "The agent faithfully reported the tool output, but the tool window includes post-step readings, rendering the 0.29 cm value inconsistent with the true 1.28 cm step."
+  },
+  "alerts": {
+    "b0": [
+      {
+        "source": "B0",
+        "time_utc": "2026-11-03T08:26:00Z",
+        "time_ist": "13:56",
+        "level": "CRITICAL",
+        "reason": "distance_delta=4.66>=3.0cm",
+        "node_ids": [
+          "NODE_01"
+        ]
+      }
+    ],
+    "b1": [
+      {
+        "source": "B1",
+        "time_utc": "2026-11-03T08:26:00Z",
+        "time_ist": "13:56",
+        "level": "CRITICAL",
+        "reason": "pers_dist>=3.0cm",
+        "node_ids": [
+          "NODE_01"
+        ]
+      }
+    ],
+    "b2": [
+      {
+        "source": "B2",
+        "time_utc": "2026-11-03T08:26:00Z",
+        "time_ist": "13:56",
+        "level": "CRITICAL",
+        "reason": "pers_dist>=3.0cm",
+        "node_ids": [
+          "NODE_01"
+        ]
+      }
+    ]
+  },
+  "agent_decision": {
+    "episode_id": "REAL_nov03_001",
+    "timestamp": "2026-11-03T08:26:00Z",
+    "hypothesis": "unclear",
+    "recommendation": "KEEP",
+    "confidence": 0.55,
+    "brief": "Isolated 4.66 cm distance jump on NODE_01 at 08:22Z with neighbor NODE_02 stable at 0.29 cm, no blast, flat vibration and healthy sensor. Benign cause not proven and persistent reading at 08:26Z leaves crack opening possible. KEEP alert and inspect NODE_01 pole line-of-sight for obstruction, damage, or fresh ground cracking.",
+    "tool_calls": 6,
+    "parsed_ok": true,
+    "guard_action": "KEEP",
+    "guard_reason": "Analyst recommended KEEP"
+  },
+  "transcript": {
+    "parsed": {
+      "brief": "Isolated 4.66 cm distance jump on NODE_01 at 08:22Z with neighbor NODE_02 stable at 0.29 cm, no blast, flat vibration and healthy sensor. Benign cause not proven and persistent reading at 08:26Z leaves crack opening possible. KEEP alert and inspect NODE_01 pole line-of-sight for obstruction, damage, or fresh ground cracking.",
+      "cited_evidence_ids": [
+        "ev_get_node_history_252b4f3b",
+        "ev_compare_neighbor_nodes_5fa21720",
+        "ev_get_node_history_717436b8",
+        "ev_check_blast_schedule_6eb85cb4",
+        "ev_get_sensor_health_9cc0ac24"
+      ],
+      "confidence": 0.55,
+      "findings": [
+        "NODE_01 distance peak 4.66 cm at 2026-11-03T08:22:00Z vs mean 0.85 cm, slope 0.117 per min, flagged returned to baseline but 08:26Z value still 4.66 cm.",
+        "Isolated to NODE_01: per-node change 4.66 cm vs NODE_02 0.29 cm, cross-correlation -0.5479, amplitude_decays_with_distance false.",
+        "No blast or shock support: no blast within 30 min, vibration 0.055-0.062 g mean 0.0589 g flat, tilt max 0.2766 deg returned to baseline.",
+        "Sensor nominally healthy: HC-SR04 ok, rail fraction 0.0, constant readings 1, max step 4.66 cm, noise ratio 0.23, so fault not proven."
+      ],
+      "hypothesis": "unclear",
+      "recommendation": "KEEP"
+    },
+    "token_usage": {
+      "prompt_tokens": 14308,
+      "completion_tokens": 2928,
+      "total_tokens": 17236,
+      "prompt_tokens_details": {
+        "cached_tokens": 2161
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 1679
+      }
+    },
+    "cost_usd": 0.027951900000000002,
+    "evidence_store": {},
+    "tool_calls": [
+      {
+        "id": "call_6a6f730c-2d09-494c-8f27-c6aa6efe2cf1",
+        "type": "function",
+        "function": {
+          "name": "get_sensor_health",
+          "arguments": "{\"node_id\":\"NODE_01\"}"
+        }
+      },
+      {
+        "id": "call_996aa337-1d94-4a62-a99b-cf914c6335b8",
+        "type": "function",
+        "function": {
+          "name": "compare_neighbor_nodes",
+          "arguments": "{\"channel\":\"distance\",\"window_minutes\":30}"
+        }
+      },
+      {
+        "id": "call_6170bb2e-5124-465d-828c-cdb040cafe54",
+        "type": "function",
+        "function": {
+          "name": "get_node_history",
+          "arguments": "{\"channel\":\"distance\",\"minutes_back\":60,\"node_id\":\"NODE_01\"}"
+        }
+      },
+      {
+        "id": "call_1ff135d6-8f46-4f3d-88b1-b738fe42ffee",
+        "type": "function",
+        "function": {
+          "name": "check_blast_schedule",
+          "arguments": "{}"
+        }
+      },
+      {
+        "id": "call_785b1f1f-82dc-4a54-906e-eba1b07cac2b",
+        "type": "function",
+        "function": {
+          "name": "get_node_history",
+          "arguments": "{\"channel\":\"vibration\",\"minutes_back\":60,\"node_id\":\"NODE_01\"}"
+        }
+      },
+      {
+        "id": "call_374f8093-6225-4e6c-9fa9-3fc6622640b9",
+        "type": "function",
+        "function": {
+          "name": "get_node_history",
+          "arguments": "{\"channel\":\"tilt\",\"minutes_back\":60,\"node_id\":\"NODE_01\"}"
+        }
+      }
+    ]
+  },
+  "minute_series": [
+    {
+      "minute_index": 0,
+      "timestamp_utc": "2026-11-03T07:57:00Z",
+      "timestamp_ist": "13:27",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": 0.06,
+          "tilt_y": -0.06,
+          "tilt_mag": 0.0849,
+          "vibration": 0.06,
+          "distance": 43.27,
+          "piezo_peak": 0.0198,
+          "piezo_rms": 0.0081,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 1,
+      "timestamp_utc": "2026-11-03T07:58:00Z",
+      "timestamp_ist": "13:28",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": 0.0,
+          "tilt_y": 0.03,
+          "tilt_mag": 0.03,
+          "vibration": 0.057,
+          "distance": 43.29,
+          "piezo_peak": 0.0161,
+          "piezo_rms": 0.00675,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.1,
+          "tilt_y": 0.03,
+          "tilt_mag": 0.1044,
+          "vibration": 0.027,
+          "distance": 3.91,
+          "piezo_peak": 0.0081,
+          "piezo_rms": 0.0041,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 2,
+      "timestamp_utc": "2026-11-03T07:59:00Z",
+      "timestamp_ist": "13:29",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.009999999999999998,
+          "tilt_y": -0.060000000000000005,
+          "tilt_mag": 0.0608,
+          "vibration": 0.06,
+          "distance": 43.27,
+          "piezo_peak": 0.0158,
+          "piezo_rms": 0.0069,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": 0.03,
+          "tilt_y": 0.0,
+          "tilt_mag": 0.03,
+          "vibration": 0.034,
+          "distance": 3.91,
+          "piezo_peak": 0.0081,
+          "piezo_rms": 0.0043,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 3,
+      "timestamp_utc": "2026-11-03T08:00:00Z",
+      "timestamp_ist": "13:30",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.07,
+          "tilt_y": -0.055,
+          "tilt_mag": 0.089,
+          "vibration": 0.057,
+          "distance": 43.27,
+          "piezo_peak": 0.0168,
+          "piezo_rms": 0.00685,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.025,
+          "tilt_y": 0.04,
+          "tilt_mag": 0.0472,
+          "vibration": 0.031,
+          "distance": 3.93,
+          "piezo_peak": 0.0084,
+          "piezo_rms": 0.0045,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 4,
+      "timestamp_utc": "2026-11-03T08:01:00Z",
+      "timestamp_ist": "13:31",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.06,
+          "tilt_y": 0.01,
+          "tilt_mag": 0.0608,
+          "vibration": 0.059,
+          "distance": 43.27,
+          "piezo_peak": 0.015,
+          "piezo_rms": 0.0062,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.01,
+          "tilt_y": -0.02,
+          "tilt_mag": 0.0224,
+          "vibration": 0.03,
+          "distance": 3.92,
+          "piezo_peak": 0.0081,
+          "piezo_rms": 0.0044,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 5,
+      "timestamp_utc": "2026-11-03T08:02:00Z",
+      "timestamp_ist": "13:32",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": 0.05,
+          "tilt_y": 0.05,
+          "tilt_mag": 0.0707,
+          "vibration": 0.058,
+          "distance": 42.84,
+          "piezo_peak": 0.0144,
+          "piezo_rms": 0.005849999999999999,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.04,
+          "tilt_y": 0.04,
+          "tilt_mag": 0.0566,
+          "vibration": 0.029,
+          "distance": 3.91,
+          "piezo_peak": 0.0082,
+          "piezo_rms": 0.0044,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 6,
+      "timestamp_utc": "2026-11-03T08:03:00Z",
+      "timestamp_ist": "13:33",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.05,
+          "tilt_y": 0.02,
+          "tilt_mag": 0.0539,
+          "vibration": 0.061,
+          "distance": 42.82,
+          "piezo_peak": 0.0138,
+          "piezo_rms": 0.0058,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": 0.02,
+          "tilt_y": 0.11,
+          "tilt_mag": 0.1118,
+          "vibration": 0.031,
+          "distance": 3.93,
+          "piezo_peak": 0.0082,
+          "piezo_rms": 0.0044,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 7,
+      "timestamp_utc": "2026-11-03T08:04:00Z",
+      "timestamp_ist": "13:34",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.055,
+          "tilt_y": 0.03,
+          "tilt_mag": 0.0626,
+          "vibration": 0.062,
+          "distance": 42.82,
+          "piezo_peak": 0.0151,
+          "piezo_rms": 0.00625,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.055,
+          "tilt_y": 0.05,
+          "tilt_mag": 0.0743,
+          "vibration": 0.028,
+          "distance": 3.91,
+          "piezo_peak": 0.0084,
+          "piezo_rms": 0.00435,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 8,
+      "timestamp_utc": "2026-11-03T08:05:00Z",
+      "timestamp_ist": "13:35",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.03,
+          "tilt_y": 0.0,
+          "tilt_mag": 0.03,
+          "vibration": 0.057,
+          "distance": 42.82,
+          "piezo_peak": 0.0161,
+          "piezo_rms": 0.0064,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.09,
+          "tilt_y": 0.02,
+          "tilt_mag": 0.0922,
+          "vibration": 0.031,
+          "distance": 3.91,
+          "piezo_peak": 0.008,
+          "piezo_rms": 0.0043,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 9,
+      "timestamp_utc": "2026-11-03T08:06:00Z",
+      "timestamp_ist": "13:36",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.02,
+          "tilt_y": -0.01,
+          "tilt_mag": 0.0224,
+          "vibration": 0.058,
+          "distance": 42.82,
+          "piezo_peak": 0.0153,
+          "piezo_rms": 0.0068,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.004999999999999999,
+          "tilt_y": 0.005,
+          "tilt_mag": 0.0071,
+          "vibration": 0.029,
+          "distance": 3.92,
+          "piezo_peak": 0.008,
+          "piezo_rms": 0.0043,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 10,
+      "timestamp_utc": "2026-11-03T08:07:00Z",
+      "timestamp_ist": "13:37",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": 0.0,
+          "tilt_y": 0.0,
+          "tilt_mag": 0.0,
+          "vibration": 0.062,
+          "distance": 42.82,
+          "piezo_peak": 0.0165,
+          "piezo_rms": 0.007,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.08,
+          "tilt_y": 0.005,
+          "tilt_mag": 0.0802,
+          "vibration": 0.032,
+          "distance": 3.92,
+          "piezo_peak": 0.0082,
+          "piezo_rms": 0.0043,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 11,
+      "timestamp_utc": "2026-11-03T08:08:00Z",
+      "timestamp_ist": "13:38",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": 0.09,
+          "tilt_y": -0.06,
+          "tilt_mag": 0.1082,
+          "vibration": 0.057,
+          "distance": 42.84,
+          "piezo_peak": 0.0196,
+          "piezo_rms": 0.007,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.03,
+          "tilt_y": 0.055,
+          "tilt_mag": 0.0626,
+          "vibration": 0.031,
+          "distance": 5.2,
+          "piezo_peak": 0.0149,
+          "piezo_rms": 0.0043,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 12,
+      "timestamp_utc": "2026-11-03T08:09:00Z",
+      "timestamp_ist": "13:39",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.01,
+          "tilt_y": -0.02,
+          "tilt_mag": 0.0224,
+          "vibration": 0.062,
+          "distance": 42.82,
+          "piezo_peak": 0.0191,
+          "piezo_rms": 0.0071,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.07500000000000001,
+          "tilt_y": 0.02,
+          "tilt_mag": 0.0776,
+          "vibration": 0.034,
+          "distance": 5.2,
+          "piezo_peak": 0.0077,
+          "piezo_rms": 0.0043,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 13,
+      "timestamp_utc": "2026-11-03T08:10:00Z",
+      "timestamp_ist": "13:40",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": 0.0,
+          "tilt_y": 0.065,
+          "tilt_mag": 0.065,
+          "vibration": 0.06,
+          "distance": 42.82,
+          "piezo_peak": 0.031,
+          "piezo_rms": 0.0073,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.07,
+          "tilt_y": 0.05,
+          "tilt_mag": 0.086,
+          "vibration": 0.032,
+          "distance": 5.2,
+          "piezo_peak": 0.008,
+          "piezo_rms": 0.0043,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 14,
+      "timestamp_utc": "2026-11-03T08:11:00Z",
+      "timestamp_ist": "13:41",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.04,
+          "tilt_y": 0.02,
+          "tilt_mag": 0.0447,
+          "vibration": 0.057,
+          "distance": 42.82,
+          "piezo_peak": 0.0168,
+          "piezo_rms": 0.0072,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.06,
+          "tilt_y": 0.04,
+          "tilt_mag": 0.0721,
+          "vibration": 0.031,
+          "distance": 5.2,
+          "piezo_peak": 0.008,
+          "piezo_rms": 0.0043,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 15,
+      "timestamp_utc": "2026-11-03T08:12:00Z",
+      "timestamp_ist": "13:42",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.04,
+          "tilt_y": 0.045,
+          "tilt_mag": 0.0602,
+          "vibration": 0.058,
+          "distance": 42.82,
+          "piezo_peak": 0.0175,
+          "piezo_rms": 0.007350000000000001,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.04,
+          "tilt_y": 0.07,
+          "tilt_mag": 0.0806,
+          "vibration": 0.034,
+          "distance": 5.2,
+          "piezo_peak": 0.0082,
+          "piezo_rms": 0.0043,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 16,
+      "timestamp_utc": "2026-11-03T08:13:00Z",
+      "timestamp_ist": "13:43",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.05500000000000001,
+          "tilt_y": -0.07,
+          "tilt_mag": 0.089,
+          "vibration": 0.06,
+          "distance": 42.82,
+          "piezo_peak": 0.0184,
+          "piezo_rms": 0.007549999999999999,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.095,
+          "tilt_y": 0.07500000000000001,
+          "tilt_mag": 0.121,
+          "vibration": 0.027,
+          "distance": 5.2,
+          "piezo_peak": 0.0081,
+          "piezo_rms": 0.0043,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 17,
+      "timestamp_utc": "2026-11-03T08:14:00Z",
+      "timestamp_ist": "13:44",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.02,
+          "tilt_y": -0.02,
+          "tilt_mag": 0.0283,
+          "vibration": 0.059,
+          "distance": 42.82,
+          "piezo_peak": 0.0186,
+          "piezo_rms": 0.0079,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.09,
+          "tilt_y": 0.0,
+          "tilt_mag": 0.09,
+          "vibration": 0.031,
+          "distance": 5.2,
+          "piezo_peak": 0.0082,
+          "piezo_rms": 0.0042,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 18,
+      "timestamp_utc": "2026-11-03T08:15:00Z",
+      "timestamp_ist": "13:45",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.08,
+          "tilt_y": -0.060000000000000005,
+          "tilt_mag": 0.1,
+          "vibration": 0.062,
+          "distance": 42.82,
+          "piezo_peak": 0.0184,
+          "piezo_rms": 0.0083,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.025,
+          "tilt_y": 0.08,
+          "tilt_mag": 0.0838,
+          "vibration": 0.032,
+          "distance": 5.2,
+          "piezo_peak": 0.0081,
+          "piezo_rms": 0.0042,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 19,
+      "timestamp_utc": "2026-11-03T08:16:00Z",
+      "timestamp_ist": "13:46",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.004999999999999999,
+          "tilt_y": -0.015,
+          "tilt_mag": 0.0158,
+          "vibration": 0.055,
+          "distance": 42.815,
+          "piezo_peak": 0.0175,
+          "piezo_rms": 0.0082,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.05,
+          "tilt_y": 0.02,
+          "tilt_mag": 0.0539,
+          "vibration": 0.03,
+          "distance": 5.2,
+          "piezo_peak": 0.008,
+          "piezo_rms": 0.0042,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 20,
+      "timestamp_utc": "2026-11-03T08:17:00Z",
+      "timestamp_ist": "13:47",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.07,
+          "tilt_y": 0.01,
+          "tilt_mag": 0.0707,
+          "vibration": 0.06,
+          "distance": 42.82,
+          "piezo_peak": 0.0209,
+          "piezo_rms": 0.0081,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.11,
+          "tilt_y": 0.03,
+          "tilt_mag": 0.114,
+          "vibration": 0.029,
+          "distance": 5.2,
+          "piezo_peak": 0.0081,
+          "piezo_rms": 0.0043,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 21,
+      "timestamp_utc": "2026-11-03T08:18:00Z",
+      "timestamp_ist": "13:48",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.04,
+          "tilt_y": 0.02,
+          "tilt_mag": 0.0447,
+          "vibration": 0.055,
+          "distance": 42.82,
+          "piezo_peak": 0.0176,
+          "piezo_rms": 0.0082,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.02,
+          "tilt_y": 0.03,
+          "tilt_mag": 0.0361,
+          "vibration": 0.029,
+          "distance": 5.2,
+          "piezo_peak": 0.0082,
+          "piezo_rms": 0.0044,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 22,
+      "timestamp_utc": "2026-11-03T08:19:00Z",
+      "timestamp_ist": "13:49",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": 0.025,
+          "tilt_y": 0.055,
+          "tilt_mag": 0.0604,
+          "vibration": 0.057,
+          "distance": 42.82,
+          "piezo_peak": 0.0174,
+          "piezo_rms": 0.0082,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.03,
+          "tilt_y": 0.06,
+          "tilt_mag": 0.0671,
+          "vibration": 0.031,
+          "distance": 5.2,
+          "piezo_peak": 0.0082,
+          "piezo_rms": 0.0044,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 23,
+      "timestamp_utc": "2026-11-03T08:20:00Z",
+      "timestamp_ist": "13:50",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.005,
+          "tilt_y": -0.07,
+          "tilt_mag": 0.0702,
+          "vibration": 0.056,
+          "distance": 42.805,
+          "piezo_peak": 0.0193,
+          "piezo_rms": 0.0084,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.07500000000000001,
+          "tilt_y": 0.05,
+          "tilt_mag": 0.0901,
+          "vibration": 0.029,
+          "distance": 5.2,
+          "piezo_peak": 0.008,
+          "piezo_rms": 0.0042,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 24,
+      "timestamp_utc": "2026-11-03T08:21:00Z",
+      "timestamp_ist": "13:51",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.055,
+          "tilt_y": 0.04,
+          "tilt_mag": 0.068,
+          "vibration": 0.056,
+          "distance": 42.82,
+          "piezo_peak": 0.0176,
+          "piezo_rms": 0.0085,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.01,
+          "tilt_y": 0.1,
+          "tilt_mag": 0.1005,
+          "vibration": 0.032,
+          "distance": 5.2,
+          "piezo_peak": 0.008,
+          "piezo_rms": 0.0042,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 25,
+      "timestamp_utc": "2026-11-03T08:22:00Z",
+      "timestamp_ist": "13:52",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.14500000000000002,
+          "tilt_y": -0.025,
+          "tilt_mag": 0.1471,
+          "vibration": 0.062,
+          "distance": 38.16,
+          "piezo_peak": 0.5569,
+          "piezo_rms": 0.0312,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.29,
+          "tilt_y": 0.08,
+          "tilt_mag": 0.3008,
+          "vibration": 0.03,
+          "distance": 4.89,
+          "piezo_peak": 0.023,
+          "piezo_rms": 0.0039,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 26,
+      "timestamp_utc": "2026-11-03T08:23:00Z",
+      "timestamp_ist": "13:53",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.235,
+          "tilt_y": -0.02,
+          "tilt_mag": 0.2358,
+          "vibration": 0.062,
+          "distance": 38.16,
+          "piezo_peak": 0.0313,
+          "piezo_rms": 0.02085,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.27,
+          "tilt_y": 0.015,
+          "tilt_mag": 0.2704,
+          "vibration": 0.028,
+          "distance": 4.88,
+          "piezo_peak": 0.0086,
+          "piezo_rms": 0.0045,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 27,
+      "timestamp_utc": "2026-11-03T08:24:00Z",
+      "timestamp_ist": "13:54",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.24,
+          "tilt_y": 0.05,
+          "tilt_mag": 0.2452,
+          "vibration": 0.061,
+          "distance": 38.16,
+          "piezo_peak": 0.031,
+          "piezo_rms": 0.0207,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.275,
+          "tilt_y": 0.03,
+          "tilt_mag": 0.2766,
+          "vibration": 0.033,
+          "distance": 4.87,
+          "piezo_peak": 0.0082,
+          "piezo_rms": 0.0045,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 28,
+      "timestamp_utc": "2026-11-03T08:25:00Z",
+      "timestamp_ist": "13:55",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.315,
+          "tilt_y": -0.035,
+          "tilt_mag": 0.3169,
+          "vibration": 0.058,
+          "distance": 38.16,
+          "piezo_peak": 0.0318,
+          "piezo_rms": 0.0207,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.29000000000000004,
+          "tilt_y": 0.03,
+          "tilt_mag": 0.2915,
+          "vibration": 0.03,
+          "distance": 4.87,
+          "piezo_peak": 0.0082,
+          "piezo_rms": 0.0044,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 29,
+      "timestamp_utc": "2026-11-03T08:26:00Z",
+      "timestamp_ist": "13:56",
+      "is_baseline": true,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.24,
+          "tilt_y": -0.02,
+          "tilt_mag": 0.2408,
+          "vibration": 0.059,
+          "distance": 38.16,
+          "piezo_peak": 0.0329,
+          "piezo_rms": 0.0206,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.235,
+          "tilt_y": 0.02,
+          "tilt_mag": 0.2358,
+          "vibration": 0.031,
+          "distance": 4.87,
+          "piezo_peak": 0.0081,
+          "piezo_rms": 0.0043,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 30,
+      "timestamp_utc": "2026-11-03T08:27:00Z",
+      "timestamp_ist": "13:57",
+      "is_baseline": false,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.29,
+          "tilt_y": -0.03,
+          "tilt_mag": 0.2915,
+          "vibration": 0.059,
+          "distance": 38.16,
+          "piezo_peak": 0.0364,
+          "piezo_rms": 0.0205,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.195,
+          "tilt_y": 0.07500000000000001,
+          "tilt_mag": 0.2089,
+          "vibration": 0.03,
+          "distance": 4.87,
+          "piezo_peak": 0.0084,
+          "piezo_rms": 0.00435,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 31,
+      "timestamp_utc": "2026-11-03T08:28:00Z",
+      "timestamp_ist": "13:58",
+      "is_baseline": false,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.305,
+          "tilt_y": -0.07,
+          "tilt_mag": 0.3129,
+          "vibration": 0.06,
+          "distance": 38.16,
+          "piezo_peak": 0.038,
+          "piezo_rms": 0.0205,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.22,
+          "tilt_y": -0.05,
+          "tilt_mag": 0.2256,
+          "vibration": 0.031,
+          "distance": 4.87,
+          "piezo_peak": 0.0082,
+          "piezo_rms": 0.0043,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 32,
+      "timestamp_utc": "2026-11-03T08:29:00Z",
+      "timestamp_ist": "13:59",
+      "is_baseline": false,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.3,
+          "tilt_y": -0.07,
+          "tilt_mag": 0.3081,
+          "vibration": 0.06,
+          "distance": 38.16,
+          "piezo_peak": 0.0336,
+          "piezo_rms": 0.0205,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.25,
+          "tilt_y": 0.09,
+          "tilt_mag": 0.2657,
+          "vibration": 0.033,
+          "distance": 4.87,
+          "piezo_peak": 0.0082,
+          "piezo_rms": 0.0044,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 33,
+      "timestamp_utc": "2026-11-03T08:30:00Z",
+      "timestamp_ist": "14:00",
+      "is_baseline": false,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.29,
+          "tilt_y": -0.02,
+          "tilt_mag": 0.2907,
+          "vibration": 0.058,
+          "distance": 38.16,
+          "piezo_peak": 0.0301,
+          "piezo_rms": 0.0205,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.18,
+          "tilt_y": 0.045,
+          "tilt_mag": 0.1855,
+          "vibration": 0.03,
+          "distance": 4.87,
+          "piezo_peak": 0.0082,
+          "piezo_rms": 0.00435,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 34,
+      "timestamp_utc": "2026-11-03T08:31:00Z",
+      "timestamp_ist": "14:01",
+      "is_baseline": false,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.32,
+          "tilt_y": -0.01,
+          "tilt_mag": 0.3202,
+          "vibration": 0.058,
+          "distance": 38.16,
+          "piezo_peak": 0.044,
+          "piezo_rms": 0.020450000000000003,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.23,
+          "tilt_y": 0.01,
+          "tilt_mag": 0.2302,
+          "vibration": 0.031,
+          "distance": 4.87,
+          "piezo_peak": 0.008,
+          "piezo_rms": 0.0043,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 35,
+      "timestamp_utc": "2026-11-03T08:32:00Z",
+      "timestamp_ist": "14:02",
+      "is_baseline": false,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.27,
+          "tilt_y": -0.04,
+          "tilt_mag": 0.2729,
+          "vibration": 0.064,
+          "distance": 38.16,
+          "piezo_peak": 0.0999,
+          "piezo_rms": 0.0204,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.18,
+          "tilt_y": 0.12,
+          "tilt_mag": 0.2163,
+          "vibration": 0.031,
+          "distance": 4.87,
+          "piezo_peak": 0.0273,
+          "piezo_rms": 0.0044,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 36,
+      "timestamp_utc": "2026-11-03T08:33:00Z",
+      "timestamp_ist": "14:03",
+      "is_baseline": false,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.16,
+          "tilt_y": 0.08,
+          "tilt_mag": 0.1789,
+          "vibration": 0.131,
+          "distance": 40.47,
+          "piezo_peak": 0.0703,
+          "piezo_rms": 0.0259,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.255,
+          "tilt_y": 0.04,
+          "tilt_mag": 0.2581,
+          "vibration": 0.127,
+          "distance": 6.16,
+          "piezo_peak": 0.0561,
+          "piezo_rms": 0.00485,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    },
+    {
+      "minute_index": 37,
+      "timestamp_utc": "2026-11-03T08:34:00Z",
+      "timestamp_ist": "14:04",
+      "is_baseline": false,
+      "nodes": {
+        "NODE_01": {
+          "tilt_x": -0.135,
+          "tilt_y": -0.015,
+          "tilt_mag": 0.1358,
+          "vibration": 0.061,
+          "distance": 40.05,
+          "piezo_peak": 0.0318,
+          "piezo_rms": 0.02255,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        },
+        "NODE_02": {
+          "tilt_x": -0.32,
+          "tilt_y": 0.07,
+          "tilt_mag": 0.3276,
+          "vibration": 0.029,
+          "distance": 6.16,
+          "piezo_peak": 0.0091,
+          "piezo_rms": 0.0046,
+          "mpu6050_status": "ok",
+          "hc_sr04_status": "ok",
+          "ads1115_status": "ok"
+        }
+      }
+    }
+  ]
+}

@@ -108,16 +108,16 @@ export default function App() {
             </div>
           </div>
           <span style={{
-            background: 'rgba(239, 68, 68, 0.15)',
-            color: '#f87171',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
+            background: activeTab === 'real' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+            color: activeTab === 'real' ? '#fbbf24' : '#f87171',
+            border: activeTab === 'real' ? '1px solid rgba(234, 179, 8, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
             borderRadius: '12px',
             padding: '3px 10px',
             fontSize: '11px',
             fontWeight: '600',
             letterSpacing: '0.5px'
           }}>
-            SIMULATED DATA — not real mine data
+            {activeTab === 'real' ? 'REAL PROTOTYPE BENCH RECORDING, not mine data' : 'SIMULATED DATA, not real mine data'}
           </span>
         </div>
 
@@ -147,6 +147,19 @@ export default function App() {
             }}
           >
             Benchmark Results
+          </button>
+          <button
+            onClick={() => setActiveTab('real')}
+            style={{
+              padding: '6px 12px',
+              fontSize: '13px',
+              fontWeight: '600',
+              background: activeTab === 'real' ? 'var(--bg-card-hover)' : 'transparent',
+              color: activeTab === 'real' ? 'var(--text-main)' : 'var(--text-muted)',
+              border: activeTab === 'real' ? '1px solid var(--border-highlight)' : '1px solid transparent'
+            }}
+          >
+            Real Recording
           </button>
           <button
             onClick={() => setActiveTab('about')}
@@ -348,6 +361,8 @@ export default function App() {
         )}
 
         {activeTab === 'results' && <ResultsTab summaryData={summaryData} />}
+
+        {activeTab === 'real' && <RealRecordingTab />}
 
         {activeTab === 'about' && <AboutTab />}
       </main>
@@ -1146,6 +1161,537 @@ function AboutTab() {
             <div style={{ color: 'var(--text-dim)', fontSize: '12px' }}>Evidence Verification</div>
             <div style={{ fontWeight: '600', color: 'var(--color-healthy)' }}>100% of cited evidence IDs matched real tool outputs (761 of 761)</div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// -----------------------------------------------------------------------------
+// Component: Real Recording Tab (2-Node Prototype Session)
+// -----------------------------------------------------------------------------
+function RealRecordingTab() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetch('./demo/real_session.json')
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(json => {
+        setData(json);
+        setLoading(false);
+      })
+      .catch(err => {
+        fetch('./real_session.json')
+          .then(res => res.json())
+          .then(json => {
+            setData(json);
+            setLoading(false);
+          })
+          .catch(e => {
+            setError(e.message);
+            setLoading(false);
+          });
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+        Loading real prototype recording data...
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-critical)' }}>
+        Error loading real session data: {error || 'No data found'}
+      </div>
+    );
+  }
+
+  const series = data.minute_series || [];
+  const totalMins = series.length;
+  const nodes = ['NODE_01', 'NODE_02'];
+  const nodeColors = {
+    NODE_01: '#38bdf8',
+    NODE_02: '#34d399',
+  };
+
+  const svgWidth = 800;
+  const svgHeight = 110;
+  const padLeft = 45;
+  const padRight = 20;
+  const padTop = 15;
+  const padBottom = 20;
+  const chartW = svgWidth - padLeft - padRight;
+  const chartH = svgHeight - padTop - padBottom;
+
+  const baselineX = padLeft + (29 / Math.max(1, totalMins - 1)) * chartW;
+  const alertMinuteIdx = series.findIndex(s => s.timestamp_ist === '13:56');
+  const alertX = alertMinuteIdx >= 0 ? padLeft + (alertMinuteIdx / Math.max(1, totalMins - 1)) * chartW : baselineX;
+
+  const channels = [
+    {
+      id: 'distance',
+      title: 'Distance (cm) — HC-SR04 Ultrasonic Range',
+      unit: 'cm',
+      minVal: 0,
+      maxVal: 50,
+      getVal: (nR) => nR.distance,
+      thresholds: []
+    },
+    {
+      id: 'tilt_mag',
+      title: 'Tilt Magnitude (deg) — MPU6050 Accelerometer',
+      unit: 'deg',
+      minVal: 0,
+      maxVal: 0.5,
+      getVal: (nR) => nR.tilt_mag,
+      thresholds: []
+    },
+    {
+      id: 'vibration',
+      title: 'Vibration (g) — Peak Acceleration',
+      unit: 'g',
+      minVal: 0,
+      maxVal: 0.2,
+      getVal: (nR) => nR.vibration,
+      thresholds: [{ val: 0.1, label: 'Excursion ~0.13g', color: 'var(--color-warning)' }]
+    },
+    {
+      id: 'piezo_peak',
+      title: 'Acoustic / Piezo Peak (V) — ADS1115 ADC',
+      unit: 'V',
+      minVal: 0,
+      maxVal: 0.6,
+      getVal: (nR) => nR.piezo_peak,
+      thresholds: [{ val: 0.1, label: 'Acoustic Threshold', color: 'var(--color-critical)' }]
+    }
+  ];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      {/* 1. Header & Mandatory Disclaimer Banner */}
+      <div style={{
+        background: 'rgba(234, 179, 8, 0.08)',
+        border: '1px solid rgba(234, 179, 8, 0.35)',
+        borderRadius: '8px',
+        padding: '16px 20px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '20px' }}>⚠️</span>
+          <span style={{ fontSize: '14px', fontWeight: '700', color: '#fbbf24', letterSpacing: '0.3px' }}>
+            PROTOTYPE RECORDING DISCLAIMER & METHODOLOGY NOTE
+          </span>
+        </div>
+        <p style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--text-main)', margin: 0, fontWeight: '500' }}>
+          {data.disclaimer}
+        </p>
+        <p style={{ fontSize: '12px', lineHeight: '1.5', color: 'var(--text-muted)', margin: 0 }}>
+          {data.fail_closed_note}
+        </p>
+      </div>
+
+      {/* 2. Session Info Bar */}
+      <div style={{
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border-color)',
+        borderRadius: '8px',
+        padding: '12px 18px',
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '24px',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <div>
+          <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>Session ID: </span>
+          <strong style={{ fontSize: '13px', color: 'var(--text-main)' }}>{data.session_id}</strong>
+          <span style={{ margin: '0 8px', color: 'var(--border-color)' }}>|</span>
+          <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>Date: </span>
+          <strong style={{ fontSize: '13px', color: 'var(--text-main)' }}>{data.recorded_date}</strong>
+          <span style={{ margin: '0 8px', color: 'var(--border-color)' }}>|</span>
+          <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>Duration: </span>
+          <strong style={{ fontSize: '13px', color: 'var(--text-main)' }}>{data.duration_minutes} minutes ({series[0]?.timestamp_ist} – {series[series.length - 1]?.timestamp_ist} IST)</strong>
+        </div>
+        <div style={{ display: 'flex', gap: '16px', fontSize: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: nodeColors.NODE_01 }}></span>
+            <span style={{ fontWeight: '600' }}>NODE_01 (x=0.00 m)</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: nodeColors.NODE_02 }}></span>
+            <span style={{ fontWeight: '600' }}>NODE_02 (x=0.43 m)</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Sensor Telemetry Charts (4 Channels) */}
+      <div style={{
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border-color)',
+        borderRadius: '8px',
+        padding: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+          <div>
+            <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>
+              Prototype Telemetry Time Series (37 Minutes, Resampled 1-min)
+            </h3>
+            <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: '2px 0 0 0' }}>
+              Shaded region denotes the 30-minute detector baseline window (13:27 – 13:56 IST). Alert evaluated at end of baseline.
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', fontSize: '11px', alignItems: 'center' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ width: '12px', height: '8px', background: 'rgba(56, 189, 248, 0.1)', border: '1px dashed var(--color-review)' }}></span>
+              Baseline (30m)
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ width: '12px', height: '2px', background: 'var(--color-critical)' }}></span>
+              13:56 Alert
+            </span>
+          </div>
+        </div>
+
+        {channels.map(ch => {
+          const paths = {};
+          nodes.forEach(nid => {
+            let dStr = '';
+            series.forEach((s, idx) => {
+              const nR = s.nodes[nid];
+              if (!nR) return;
+              const val = ch.getVal(nR);
+              const x = padLeft + (idx / Math.max(1, totalMins - 1)) * chartW;
+              const clamped = Math.max(ch.minVal, Math.min(val, ch.maxVal));
+              const y = padTop + chartH - ((clamped - ch.minVal) / (ch.maxVal - ch.minVal)) * chartH;
+              if (dStr === '') dStr += `M ${x.toFixed(1)} ${y.toFixed(1)}`;
+              else dStr += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+            });
+            paths[nid] = dStr;
+          });
+
+          return (
+            <div key={ch.id} style={{ background: 'var(--bg-primary)', borderRadius: '6px', padding: '10px 14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                <span>{ch.title}</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Range: [{ch.minVal} – {ch.maxVal} {ch.unit}]</span>
+              </div>
+              <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="none" style={{ width: '100%', height: '105px', display: 'block' }}>
+                {/* Baseline 30-min shading */}
+                <rect
+                  x={padLeft}
+                  y={padTop}
+                  width={baselineX - padLeft}
+                  height={chartH}
+                  fill="rgba(56, 189, 248, 0.04)"
+                />
+                <line
+                  x1={baselineX}
+                  y1={padTop}
+                  x2={baselineX}
+                  y2={padTop + chartH}
+                  stroke="var(--color-review)"
+                  strokeDasharray="3,3"
+                  strokeWidth="1.5"
+                />
+
+                {/* Horizontal reference grid lines */}
+                <line x1={padLeft} y1={padTop} x2={padLeft + chartW} y2={padTop} stroke="var(--border-color)" strokeWidth="1" />
+                <line x1={padLeft} y1={padTop + chartH / 2} x2={padLeft + chartW} y2={padTop + chartH / 2} stroke="var(--border-color)" strokeDasharray="3,3" strokeWidth="1" />
+                <line x1={padLeft} y1={padTop + chartH} x2={padLeft + chartW} y2={padTop + chartH} stroke="var(--border-color)" strokeWidth="1" />
+
+                {/* Optional channel thresholds */}
+                {ch.thresholds.map((t, idx) => {
+                  const ty = padTop + chartH - ((t.val - ch.minVal) / (ch.maxVal - ch.minVal)) * chartH;
+                  return (
+                    <g key={idx}>
+                      <line x1={padLeft} y1={ty} x2={padLeft + chartW} y2={ty} stroke={t.color} strokeDasharray="4,2" strokeWidth="1" />
+                      <text x={padLeft + 4} y={ty - 3} fill={t.color} fontSize="9" fontFamily="monospace">{t.label}</text>
+                    </g>
+                  );
+                })}
+
+                {/* Node curves */}
+                {nodes.map(nid => (
+                  <path
+                    key={nid}
+                    d={paths[nid] || ''}
+                    fill="none"
+                    stroke={nodeColors[nid]}
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                  />
+                ))}
+
+                {/* Alert vertical marker at 13:56 IST */}
+                <line
+                  x1={alertX}
+                  y1={padTop}
+                  x2={alertX}
+                  y2={padTop + chartH}
+                  stroke="var(--color-critical)"
+                  strokeWidth="2"
+                />
+                <text x={alertX + 3} y={padTop + 10} fill="var(--color-critical)" fontSize="9" fontWeight="700">13:56 ALERT</text>
+
+                {/* Y-axis labels */}
+                <text x={padLeft - 6} y={padTop + 8} fill="var(--text-dim)" fontSize="10" textAnchor="end" fontFamily="monospace">{ch.maxVal}</text>
+                <text x={padLeft - 6} y={padTop + chartH / 2 + 3} fill="var(--text-dim)" fontSize="10" textAnchor="end" fontFamily="monospace">{((ch.maxVal + ch.minVal) / 2).toFixed(1)}</text>
+                <text x={padLeft - 6} y={padTop + chartH} fill="var(--text-dim)" fontSize="10" textAnchor="end" fontFamily="monospace">{ch.minVal}</text>
+
+                {/* X-axis time ticks */}
+                {series.map((s, idx) => {
+                  if (idx % 5 === 0 || idx === totalMins - 1) {
+                    const x = padLeft + (idx / Math.max(1, totalMins - 1)) * chartW;
+                    return (
+                      <g key={idx}>
+                        <line x1={x} y1={padTop + chartH} x2={x} y2={padTop + chartH + 4} stroke="var(--border-color)" strokeWidth="1" />
+                        <text x={x} y={padTop + chartH + 14} fill="var(--text-dim)" fontSize="9" textAnchor="middle" fontFamily="monospace">
+                          {s.timestamp_ist}
+                        </text>
+                      </g>
+                    );
+                  }
+                  return null;
+                })}
+              </svg>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 4. Unlabelled Physical Disturbances Cards */}
+      <div style={{
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border-color)',
+        borderRadius: '8px',
+        padding: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px'
+      }}>
+        <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>
+          Observed Unlabelled Disturbances in Prototype Session
+        </h3>
+        <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: 0 }}>
+          Recordings capture bench hardware tests with deliberate manual adjustments and physical moves. No ground truth labels were supplied.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '12px', marginTop: '6px' }}>
+          {(data.unlabelled_disturbances || []).map((ev, idx) => (
+            <div key={idx} style={{
+              background: 'var(--bg-primary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '6px',
+              padding: '12px 14px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-review)' }}>
+                  {ev.event}
+                </span>
+                <span style={{ fontSize: '11px', fontFamily: 'monospace', background: 'rgba(56, 189, 248, 0.1)', color: 'var(--color-review)', padding: '2px 6px', borderRadius: '4px' }}>
+                  {ev.time_ist} IST ({ev.time_utc})
+                </span>
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                <strong>Node:</strong> {ev.node_id} | <strong>Channel:</strong> {ev.channel}
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--text-main)', lineHeight: '1.4' }}>
+                {ev.details}
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-dim)', borderTop: '1px dashed var(--border-color)', paddingTop: '6px', marginTop: '2px' }}>
+                {ev.impact}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 5. Baseline Engine Alerts vs Agent Investigation */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px' }}>
+        {/* Baseline Detection Card */}
+        <div style={{
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '8px',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px'
+        }}>
+          <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--color-critical)', margin: 0 }}>
+            Detector Baseline Alarms at 13:56 IST
+          </h3>
+          <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: 0 }}>
+            Evaluated at the conclusion of the 30-minute baseline window (07:57 – 08:26 UTC).
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+            {['b0', 'b1', 'b2'].map(bKey => {
+              const alertList = data.alerts[bKey] || [];
+              const hasAlert = alertList.length > 0;
+              const al = hasAlert ? alertList[0] : null;
+              return (
+                <div key={bKey} style={{
+                  background: 'var(--bg-primary)',
+                  border: hasAlert ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid var(--border-color)',
+                  borderRadius: '6px',
+                  padding: '10px 12px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <div>
+                    <div style={{ fontWeight: '700', fontSize: '13px' }}>
+                      {bKey.toUpperCase()}: {bKey === 'b0' ? 'Threshold Only' : bKey === 'b1' ? 'Persistence + Trend' : 'Engineered Multi-Gate Rules'}
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '2px' }}>
+                      {hasAlert ? `Reason: ${al.reason} (${al.node_ids.join(', ')})` : 'No alert triggered'}
+                    </div>
+                  </div>
+                  <span style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    padding: '3px 8px',
+                    borderRadius: '4px',
+                    background: hasAlert ? 'rgba(239, 68, 68, 0.15)' : 'rgba(52, 211, 153, 0.1)',
+                    color: hasAlert ? 'var(--color-critical)' : 'var(--color-healthy)'
+                  }}>
+                    {hasAlert ? al.level : 'NORMAL'}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Agent Decision Card */}
+        <div style={{
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '8px',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--color-review)', margin: 0 }}>
+              Agent Investigation (Muse Spark 1.3)
+            </h3>
+            <span style={{
+              fontSize: '12px',
+              fontWeight: '700',
+              padding: '3px 10px',
+              borderRadius: '6px',
+              background: 'rgba(52, 211, 153, 0.15)',
+              color: 'var(--color-healthy)',
+              border: '1px solid rgba(52, 211, 153, 0.3)'
+            }}>
+              RECOMMENDATION: {data.agent_decision?.recommendation || 'KEEP'}
+            </span>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', background: 'var(--bg-primary)', padding: '10px', borderRadius: '6px' }}>
+            <div>
+              <div style={{ fontSize: '10px', color: 'var(--text-dim)' }}>HYPOTHESIS</div>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', textTransform: 'uppercase' }}>
+                {data.agent_decision?.hypothesis || 'unclear'}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '10px', color: 'var(--text-dim)' }}>CONFIDENCE</div>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)' }}>
+                {((data.agent_decision?.confidence || 0) * 100).toFixed(0)}%
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '10px', color: 'var(--text-dim)' }}>TOOL CALLS</div>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)' }}>
+                {data.agent_decision?.tool_calls || 6} (6/6 executed)
+              </div>
+            </div>
+          </div>
+
+          <div style={{ background: 'var(--bg-primary)', padding: '10px 12px', borderRadius: '6px' }}>
+            <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-dim)', marginBottom: '4px' }}>
+              ANALYST BRIEF & DISPOSITION
+            </div>
+            <p style={{ fontSize: '12px', lineHeight: '1.5', color: 'var(--text-main)', margin: 0 }}>
+              "{data.agent_decision?.brief}"
+            </p>
+          </div>
+
+          <div style={{ background: 'var(--bg-primary)', padding: '10px 12px', borderRadius: '6px' }}>
+            <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-dim)', marginBottom: '4px' }}>
+              SAFETY GUARD RESULT
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: 'var(--text-main)' }}>
+                Guard Action: <strong>{data.agent_decision?.guard_action}</strong> ({data.agent_decision?.guard_reason})
+              </span>
+              <span style={{ fontSize: '11px', color: 'var(--color-healthy)', fontWeight: '600' }}>
+                FAIL-CLOSED SAFE
+              </span>
+            </div>
+          </div>
+
+          <div style={{
+            fontSize: '11px',
+            color: 'var(--text-dim)',
+            lineHeight: '1.4',
+            borderTop: '1px dashed var(--border-color)',
+            paddingTop: '8px'
+          }}>
+            Note: The agent's neighbour comparison used the first 30 minutes of the session as its reference, which already included the NODE_02 step at 13:38 IST, so its 'neighbour stable' finding is not reliable here.
+          </div>
+        </div>
+      </div>
+
+      {/* 6. Baseline Window Explanation (Step 5 Analysis) */}
+      <div style={{
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border-color)',
+        borderRadius: '8px',
+        padding: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px'
+      }}>
+        <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>
+          Investigation Finding Analysis: Spatial Neighbor Baseline Explanation
+        </h3>
+        <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0, lineHeight: '1.5' }}>
+          <strong>Observation:</strong> {data.step5_explanation?.finding}
+        </p>
+        <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0, lineHeight: '1.5' }}>
+          <strong>Physical Cause:</strong> {data.step5_explanation?.cause}
+        </p>
+        <div style={{
+          marginTop: '4px',
+          padding: '8px 12px',
+          background: 'rgba(56, 189, 248, 0.08)',
+          borderLeft: '3px solid var(--color-review)',
+          fontSize: '12px',
+          color: 'var(--text-main)'
+        }}>
+          <strong>Verdict:</strong> {data.step5_explanation?.verdict}
         </div>
       </div>
     </div>
