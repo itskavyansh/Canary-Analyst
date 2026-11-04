@@ -25,7 +25,7 @@ All four detectors evaluated on the held-out test split (=300$, seed 2026) under
 
 **Key Findings:**
 - **Paired Result:** Across all 214 non-hazard test scenarios, the agent removed 8 false alarms and added 0 (exact sign test  = 0.0078$).
-- **Hazard Detection & Safety:** 86 of 86 hazards detected and 0 hazard scenarios ever held (all 110 stream hazard candidates recommended KEEP).
+- **Hazard Detection & Safety:** 86 of 86 hazards detected and 0 hazard scenarios ever held. The guard's final action was KEEP on all 110 stream hazard candidates and none was held. On one of them (SCENARIO_0152_slow_creep_001) the analyst recommended a downgrade at confidence 0.78 and the guard vetoed it (minimum 0.80).
 - **False-Alarm Scenarios:** 24 to 16 of 300 (8.0% to 5.3%), with the note that the 95% intervals overlap ([5.0, 11.3] and [3.0, 7.7]).
 - **Baseline vs Agent Attribution:** Most of the false-alarm reduction (40.0% to 8.0%) comes from the frozen rules baseline B2.1, whose 90-minute projection window was chosen after a sweep on dev data (80/90/100 gave 10.7/6.7/11.2% false alarms); the agent adds a further 8 removals on top, each one checked by the guard.
 - **Known Limits:** 12 of 43 silent sensor faults still alarm, results are on simulated data, thresholds are demonstration values.

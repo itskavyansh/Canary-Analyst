@@ -1011,7 +1011,7 @@ function ResultsTab({ summaryData }) {
             86 of 86 hazards <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '400' }}>(100.0%)</span>
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            <strong>0 hazard scenarios ever held</strong> (all 110 stream hazard candidates recommended KEEP)
+            The guard's final action was KEEP on all 110 stream hazard candidates and none was held. On one of them (SCENARIO_0152_slow_creep_001) the analyst recommended a downgrade at confidence 0.78 and the guard vetoed it (minimum 0.80).
           </div>
         </div>
 
@@ -1152,7 +1152,7 @@ function ResultsTab({ summaryData }) {
           </button>
         </div>
         <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px', marginBottom: showBreakdown ? '12px' : 0 }}>
-          These breakdowns were computed after the test run and played no part in any design choice. 8 approved downgrades created 8 REVIEW holds, all cleared, none on a hazard scenario.
+          These breakdowns were computed after the test run and played no part in any design choice. Of 133 candidates the analyst recommended 20 downgrades: 8 approved by the guard (8 REVIEW holds, all cleared, none on a hazard) and 12 vetoed. Of the 12 vetoes, 10 were sensor-fault downgrades where the guard found no hardware flag, constant readings or rail values to confirm the fault, 1 was an environmental-tilt downgrade with common-mode movement on fewer than 3 nodes, and 1 was a downgrade on a real hazard at confidence 0.78 (minimum 0.80).
         </p>
 
         {showBreakdown && (

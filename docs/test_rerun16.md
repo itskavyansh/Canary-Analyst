@@ -121,7 +121,7 @@ Recomputing the full evaluation across the 133 stream candidates with the 16 rep
 | Metric | Original Reported / Cache Set | True Live Re-Run Set (16 Replaced) | Notes |
 | :--- | :---: | :---: | :--- |
 | **Hazard Detection Rate** | **100.0%** (86 / 86) | **100.0%** (86 / 86) | Zero hazard scenarios missed |
-| **Hazard Candidates Held** | **0** | **0** | 0 of the 110 stream hazard candidates held |
+| **Hazard Candidates Held** | **0** | **0** | The guard's final action was KEEP on all 110 stream hazard candidates and none was held. On one of them (SCENARIO_0152_slow_creep_001) the analyst recommended a downgrade at confidence 0.78 and the guard vetoed it (minimum 0.80). |
 | **`ground_movement` Labels on Hazards** | 106 / 110 (96.4%) | **107 / 110 (97.3%)** | `0009_slow_creep_002` improved from unclear to ground_movement |
 | - *Across all 115 cached hazards* | 111 / 115 (96.5%) | **112 / 115 (97.4%)** | Including the 5 pre-benchmark exploratory hazards |
 | **Evidence Validity Rate** | 100.0% | **100.0%** (714 / 714) | every cited evidence ID was returned by a tool call in the same investigation |

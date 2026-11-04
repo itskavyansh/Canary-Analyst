@@ -124,7 +124,7 @@ The headline benchmark evaluation across the 300 held-out test scenarios generat
 
 ### Verified Candidate Metrics (Stream Only, N=133)
 - **Candidate Episodes Investigated**: 133
-- **Hazard Candidates**: 110 (all 110 recommended `KEEP`, 0 held)
+- **Hazard Candidates**: 110. The guard's final action was KEEP on all 110 stream hazard candidates and none was held. On one of them (SCENARIO_0152_slow_creep_001) the analyst recommended a downgrade at confidence 0.78 and the guard vetoed it (minimum 0.80).
 - **Hazard Candidates Labelled `ground_movement`**: **107 of 110** (97.3%)
 - **Evidence Verification Integrity**: **100.0%** (714 of 714 cited evidence IDs verified against raw tool output hashes)
 - **Total Test Inference Cost**: **$2.86 USD** ($2.85577 USD; mean $0.02147 / candidate)
@@ -152,4 +152,4 @@ ain_tilt | 43 | 4 | 1 | 3 | 0 |
 | stuck_sensor | 42 | 2 | 1 | 1 | 0 |
 | **Total** | **214** | **23** | **15** | **8** | **0** |
 
-*Note: 8 approved downgrades created 8 REVIEW holds, all cleared, none on a hazard scenario (exact two-sided sign test p = 0.0078).*
+*Note: Of 133 candidates the analyst recommended 20 downgrades: 8 approved by the guard (8 REVIEW holds, all cleared, none on a hazard) and 12 vetoed. Of the 12 vetoes, 10 were sensor-fault downgrades where the guard found no hardware flag, constant readings or rail values to confirm the fault, 1 was an environmental-tilt downgrade with common-mode movement on fewer than 3 nodes, and 1 was a downgrade on a real hazard at confidence 0.78 (minimum 0.80).*
