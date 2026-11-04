@@ -92,9 +92,32 @@ export function LiveSandboxTab() {
     const r = rises[Math.floor(Math.random() * rises.length)];
     const onset = Math.floor(35 + Math.random() * 45); // 35 to 80
     const dur = Math.floor(60 + Math.random() * 61); // 60 to 120
-    const tilt = parseFloat((Math.random() * 45).toFixed(1));
-    const vib = parseFloat((Math.random() * 5.0).toFixed(2));
-    const dist = parseFloat((Math.random() * 20.0).toFixed(1));
+
+    // In half the cases, generate each value at least its warning threshold:
+    // Warning thresholds: tilt >= 15.0 deg (range 0 to 45), vibration >= 1.0 g (range 0 to 5), distance >= 2.0 cm (range 0 to 20)
+    let tilt = Math.random() < 0.5
+      ? parseFloat((15.0 + Math.random() * 30.0).toFixed(1))
+      : parseFloat((Math.random() * 15.0).toFixed(1));
+
+    let vib = Math.random() < 0.5
+      ? parseFloat((1.0 + Math.random() * 4.0).toFixed(2))
+      : parseFloat((Math.random() * 1.0).toFixed(2));
+
+    let dist = Math.random() < 0.5
+      ? parseFloat((2.0 + Math.random() * 18.0).toFixed(1))
+      : parseFloat((Math.random() * 2.0).toFixed(1));
+
+    // Keep preset consistent with values
+    if (p === 'common_mode_tilt') {
+      tilt = Math.max(tilt, 15.0);
+    } else if (p === 'vibration_pulse_all_nodes' || p === 'single_node_spike') {
+      vib = Math.max(vib, 1.0);
+    } else if (p === 'silent_sensor_fault') {
+      tilt = Math.max(tilt, 15.0);
+      dist = Math.max(dist, 2.0);
+    } else if (p === 'single_node_move') {
+      tilt = Math.max(tilt, 15.0);
+    }
 
     setPreset(p);
     setNode(n);
@@ -790,6 +813,60 @@ export function LiveSandboxTab() {
               ? Object.values(cand.evidence_validity).every(v => v === true)
               : true;
 
+            const isAgentFailed = cand.agent_status === 'failed'
+              || (cand.failed_conditions && cand.failed_conditions.includes('schema_parse_failure'))
+              || (Number(cand.confidence || 0) === 0 && (!cand.tool_names || cand.tool_names.length === 0));
+
+            if (isAgentFailed) {
+              const errKind = cand.error_kind || 'api_error';
+              return (
+                <div key={idx} style={{
+                  background: 'var(--bg-primary)',
+                  borderRadius: '6px',
+                  padding: '16px',
+                  border: '1px solid var(--border-color)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}>
+                  <div style={{
+                    background: 'rgba(239, 68, 68, 0.08)',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    borderRadius: '6px',
+                    padding: '14px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px'
+                  }}>
+                    <div style={{ fontSize: '13px', fontWeight: '700', color: '#f87171' }}>
+                      Agent unavailable for this run ({errKind}). The deterministic B2.1 alert stands, which is the fail-closed behaviour.
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                      The safety guard evaluated candidate episode {cand.episode_id} as <strong>{cand.guard_action || 'KEEP'}</strong>. No downgrade was permitted. Attempts: {cand.attempts || 1}.
+                    </div>
+                    <div>
+                      <button
+                        onClick={handleRun}
+                        disabled={isRunning}
+                        style={{
+                          background: 'var(--color-critical)',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '5px',
+                          padding: '6px 14px',
+                          fontSize: '12px',
+                          fontWeight: '700',
+                          cursor: isRunning ? 'not-allowed' : 'pointer'
+                        }}
+                      >
+                        🔄 Retry agent
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div key={idx} style={{
                 background: 'var(--bg-primary)',
@@ -890,3 +967,4 @@ export function LiveSandboxTab() {
     </div>
   );
 }
+

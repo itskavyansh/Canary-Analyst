@@ -6,6 +6,7 @@ Runs judge-designed scenarios through the frozen B2.1 and Agent pipeline.
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
+import logging
 import math
 import os
 from pathlib import Path
@@ -78,6 +79,22 @@ def extract_client_ip_from_values(forwarded_for: Optional[str], client_host: Opt
         if parts:
             return parts[0]
     return client_host or "127.0.0.1"
+
+
+def classify_error_kind(err_text: str, failed_conditions: List[str]) -> str:
+    """Classify failure into a short human-readable error_kind."""
+    err_lower = (err_text or "").lower()
+    if "rate_limit" in err_lower or "429" in err_lower:
+        return "rate_limit"
+    if "timeout" in err_lower or "timed out" in err_lower:
+        return "timeout"
+    if "budget" in err_lower:
+        return "budget_exceeded"
+    if "connection" in err_lower or "connect" in err_lower:
+        return "connection_error"
+    if "schema_parse_failure" in failed_conditions or "parse" in err_lower or "json" in err_lower:
+        return "schema_parse_failure"
+    return "api_error"
 
 
 # Unit-style check for client IP resolution
@@ -238,38 +255,69 @@ def execute_agent_job_sync(
 
         for cand in cands_to_run:
             c_start = time.time()
-            # Unique candidate id with uuid to guarantee fresh evaluation
-            unique_cand_id = f"{cand.episode_id}_{uuid.uuid4().hex[:8]}"
-            eval_cand = CandidateEpisode(
-                scenario_id=cand.scenario_id,
-                episode_id=unique_cand_id,
-                trigger_time=cand.trigger_time,
-                node_ids=cand.node_ids,
-                level=cand.level,
-                trigger_channels=cand.trigger_channels,
-            )
-
             rec_history = accumulated_readings_up_to.get(cand.trigger_time, [])
 
-            # Run investigation
+            attempts = 0
             analyst_res: Optional[AnalystResult] = None
-            investigate_error = None
-            try:
-                analyst_res = analyst.investigate(
-                    candidate=eval_cand,
-                    scenario_readings=rec_history,
-                    scenario_meta=scenario_meta,
+            guard_dec: Optional[Any] = None
+            investigate_error: Optional[str] = None
+            candidate_cost = 0.0
+            unique_cand_id = ""
+
+            while attempts < 2:
+                attempts += 1
+                unique_cand_id = f"{cand.episode_id}_{uuid.uuid4().hex[:8]}"
+                eval_cand = CandidateEpisode(
+                    scenario_id=cand.scenario_id,
+                    episode_id=unique_cand_id,
+                    trigger_time=cand.trigger_time,
+                    node_ids=cand.node_ids,
+                    level=cand.level,
+                    trigger_channels=cand.trigger_channels,
                 )
-            except Exception as e:
-                investigate_error = str(e)
+
+                attempt_res: Optional[AnalystResult] = None
+                attempt_err: Optional[str] = None
+                try:
+                    attempt_res = analyst.investigate(
+                        candidate=eval_cand,
+                        scenario_readings=rec_history,
+                        scenario_meta=scenario_meta,
+                    )
+                except Exception as e:
+                    attempt_err = str(e)
+                    logging.error("Analyst investigation attempt %d failed on %s: %s", attempts, cand.episode_id, attempt_err, exc_info=True)
+
+                if attempt_res and attempt_res.cost_usd:
+                    candidate_cost += float(attempt_res.cost_usd)
+
+                attempt_guard_dec = guard.evaluate(eval_cand, attempt_res)
+                has_parse_failure = "schema_parse_failure" in attempt_guard_dec.failed_conditions
+
+                if attempt_err is not None or has_parse_failure or attempt_res is None or attempt_res.parsed is None:
+                    investigate_error = attempt_err or "schema_parse_failure"
+                    analyst_res = attempt_res
+                    guard_dec = attempt_guard_dec
+                    if attempts < 2:
+                        continue
+                else:
+                    investigate_error = None
+                    analyst_res = attempt_res
+                    guard_dec = attempt_guard_dec
+                    break
 
             c_seconds = time.time() - c_start
-            c_cost = analyst_res.cost_usd if analyst_res else 0.0
-            total_job_cost += c_cost
+            total_job_cost += candidate_cost
 
-            if analyst_res is None:
-                # API failure or budget stop
-                guard_dec = guard.evaluate(eval_cand, None)
+            # Determine agent_status
+            has_failed_cond = guard_dec and ("schema_parse_failure" in guard_dec.failed_conditions)
+            if investigate_error is not None or has_failed_cond or analyst_res is None or analyst_res.parsed is None:
+                agent_status = "failed"
+                failed_conds = guard_dec.failed_conditions if guard_dec else ["schema_parse_failure"]
+                err_kind = classify_error_kind(str(investigate_error or ""), failed_conds)
+                if investigate_error:
+                    logging.error("Agent failed after %d attempts for candidate %s: %s", attempts, cand.episode_id, investigate_error)
+
                 candidate_results.append({
                     "episode_id": cand.episode_id,
                     "unique_id": unique_cand_id,
@@ -278,20 +326,24 @@ def execute_agent_job_sync(
                     "recommendation": "KEEP",
                     "hypothesis": "unclear",
                     "confidence": 0.0,
-                    "brief": "Analyst investigation unavailable or failed.",
+                    "brief": f"Agent unavailable for this run ({err_kind}). The deterministic B2.1 alert stands, which is the fail-closed behaviour.",
                     "findings": [],
                     "cited_evidence_ids": [],
                     "evidence_validity": {},
                     "tool_names": [],
-                    "guard_action": guard_dec.action,
-                    "failed_conditions": guard_dec.failed_conditions,
+                    "guard_action": guard_dec.action if guard_dec else "KEEP",
+                    "failed_conditions": failed_conds,
                     "hold_created": False,
-                    "cost": c_cost,
+                    "cost": candidate_cost,
                     "seconds": c_seconds,
+                    "attempts": attempts,
+                    "agent_status": "failed",
+                    "error_kind": err_kind,
                     "error": investigate_error,
                 })
                 continue
 
+            # Successful run
             parsed = analyst_res.parsed or {}
             recommendation = parsed.get("recommendation", "KEEP")
             hypothesis = parsed.get("hypothesis", "unclear")
@@ -300,7 +352,6 @@ def execute_agent_job_sync(
             findings = parsed.get("findings", [])
             cited_evidence_ids = parsed.get("cited_evidence_ids", [])
 
-            # Evidence validity
             known_evidence_ids = {
                 v.get("evidence_id")
                 for v in analyst_res.tool_results.values()
@@ -310,7 +361,6 @@ def execute_agent_job_sync(
                 eid: (eid in known_evidence_ids) for eid in cited_evidence_ids
             }
 
-            # Tool names extracted from tool_calls and tool_results
             tool_names_set = set()
             for call in analyst_res.tool_calls:
                 if isinstance(call, dict):
@@ -322,8 +372,6 @@ def execute_agent_job_sync(
                     tool_names_set.add(v["tool"])
             tool_names = sorted(list(tool_names_set))
 
-            # Guard evaluation
-            guard_dec = guard.evaluate(eval_cand, analyst_res)
             hold_created = (guard_dec.action == "DOWNGRADE")
 
             candidate_results.append({
@@ -342,8 +390,10 @@ def execute_agent_job_sync(
                 "guard_action": guard_dec.action,
                 "failed_conditions": guard_dec.failed_conditions,
                 "hold_created": hold_created,
-                "cost": c_cost,
+                "cost": candidate_cost,
                 "seconds": c_seconds,
+                "attempts": attempts,
+                "agent_status": "ok",
             })
 
         total_seconds = time.time() - start_time
