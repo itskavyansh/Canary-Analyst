@@ -21,7 +21,14 @@ Live Interactive Demo: [https://itskavyansh.github.io/Canary-Analyst/](https://i
 
 ## Headline Benchmark Results
 
-All four detectors evaluated on the held-out test split ($N=300$, seed 2026) under a strict no-lookahead streaming contract:
+All four detectors evaluated on the held-out test split (=300$, seed 2026) under a strict no-lookahead streaming contract.
+
+**Key Findings:**
+- **Paired Result:** Across all 214 non-hazard test scenarios, the agent removed 8 false alarms and added 0 (exact sign test  = 0.0078$).
+- **Hazard Detection & Safety:** 86 of 86 hazards detected and 0 hazard scenarios ever held (all 110 stream hazard candidates recommended KEEP).
+- **False-Alarm Scenarios:** 24 to 16 of 300 (8.0% to 5.3%), with the note that the 95% intervals overlap ([5.0, 11.3] and [3.0, 7.7]).
+- **Baseline vs Agent Attribution:** Most of the false-alarm reduction (40.0% to 8.0%) comes from the frozen rules baseline B2.1, whose 90-minute projection window was chosen after a sweep on dev data (80/90/100 gave 10.7/6.7/11.2% false alarms); the agent adds a further 8 removals on top, each one checked by the guard.
+- **Known Limits:** 12 of 43 silent sensor faults still alarm, results are on simulated data, thresholds are demonstration values.
 
 | Metric | B0 (Naive Raw Thresholds) | B1 (Stateful Persistence + Trend) | B2.1 (Frozen Engineered Rules) | AGENT (Muse Spark 1.3 + Guard) |
 | :--- | :---: | :---: | :---: | :---: |
@@ -33,9 +40,7 @@ All four detectors evaluated on the held-out test split ($N=300$, seed 2026) und
 | Detected Before Collapse | 74.4% | 100.0% | 100.0% | **100.0%** |
 | Mean Alert Episodes / Scenario | 0.81 | 1.02 | 0.44 | **0.42** |
 
-*Paired Evaluation Line*: Across all 214 non-hazard test scenarios, the paired exact sign test versus the frozen B2.1 baseline removed 8 false alarms with 0 added ($p = 0.0078$, statistically significant).
-
-Model sensitivity. The frozen pipeline was also run on the held-out test split with muse-spark-1.2 and 1.1 (cache keys include the model name, so no earlier entries were served). The 1.2 run made live calls for 131 of the 133 candidates on Nov 1. The other 2 (SCENARIO_0062_stuck_sensor_001 and SCENARIO_0183_slow_creep_001) were run live on Nov 4 (about $0.06) and how the Nov 1 summary handled them is unconfirmed, so the 1.2 figure carries that caveat. If an uninvestigated candidate occurred, the fail-closed SafetyGuard (agent/guard.py line 58) defaults to KEEP, which preserves B2's alert and marks SCENARIO_0062 as a false alarm. False-alarm scenarios of 300: 16 (1.3), 17 (1.2), 15 (1.1). Hazard detection: 86 of 86 for all three. Hold, cost and tool-call comparisons across models are not reported.
+Model sensitivity. The frozen pipeline was also run on the held-out test split with muse-spark-1.2 and 1.1 (cache keys include the model name, so no earlier entries were served). The 1.2 run made live calls for 131 of the 133 candidates on Nov 1. The other 2 (SCENARIO_0062_stuck_sensor_001 and SCENARIO_0183_slow_creep_001) were run live on Nov 4 (about .06) and how the Nov 1 summary handled them is unconfirmed, so the 1.2 figure carries that caveat. If an uninvestigated candidate occurred, the fail-closed SafetyGuard (agent/guard.py line 58) defaults to KEEP, which preserves B2's alert and marks SCENARIO_0062 as a false alarm. False-alarm scenarios of 300: 16 (1.3), 17 (1.2), 15 (1.1). Hazard detection: 86 of 86 for all three. Hold, cost and tool-call comparisons across models are not reported.
 
 ---
 
@@ -78,7 +83,7 @@ Everything was frozen before the test run (git tag `frozen-before-test`, commit 
 
 ## Related Work & Motivation
 
-These sources motivate the problem; none is used as data in our benchmark.
+These sources motivate the problem; none is used as data in our benchmark. We found no public labelled dataset of surface sensor readings above underground workings.
 
 - [Louisiana Department of Energy and Natural Resources, Sulphur Mines Monthly Deformation Reports (October 2024)](https://www.dnr.louisiana.gov/assets/OC/SulphurMines/InSAR/DeformationReports/October_2024_Deformation_Report.pdf): Monthly monitoring reports document short-lived tilt anomalies caused by weather precipitation and mechanical activity near surface sensors, demonstrating the operational necessity of filtering false alarms.
 - [Qiu et al., JISDM 2025, Tiltmeters as a Low-Cost Technology for Baseline Ground-Movement Monitoring](https://jisdm2025.gik.kit.edu/downloads/JISDM2025_Qiu_et_al.pdf): Field evaluation of low-cost tilt sensors confirms that thermal variations and temperature drift directly affect tiltmeter stability over multi-day monitoring periods.
@@ -167,8 +172,9 @@ canary-analyst/
 
 ## Models Used & Cost Efficiency
 
-- **Foundation Model**: `muse-spark-1.3` (Meta Model API), supporting native tool calling, reasoning effort, and temperature parameters.
-- **Evaluation Cost**: Total test split inference cost was **$2.86 USD** across 133 candidate anomaly episodes ($0.0215 / candidate).
+- **Foundation Model**: muse-spark-1.3 (Meta Model API), supporting native tool calling, reasoning effort, and temperature parameters.
+- **Cross-Model Comparison**: We did not compare against non-Meta models, so we make no claim that Muse Spark beats them.
+- **Evaluation Cost**: Total test split inference cost was **.86 USD** across 133 candidate anomaly episodes (.0215 / candidate).
 - **Evidence Integrity**: **100.0% evidence validity rate** (714 / 714 cited evidence IDs verified against raw tool hashes).
 
 ---

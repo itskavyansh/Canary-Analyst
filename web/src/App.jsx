@@ -964,6 +964,8 @@ function RevealPanel({ reveal, currentMinute, scenarioData }) {
 // Component: Results Tab
 // -----------------------------------------------------------------------------
 function ResultsTab({ summaryData }) {
+  const [showBreakdown, setShowBreakdown] = useState(false);
+
   if (!summaryData) return <div>Loading benchmark results...</div>;
 
   const testM = summaryData.test_metrics || {};
@@ -983,7 +985,7 @@ function ResultsTab({ summaryData }) {
         </p>
       </div>
 
-      {/* Primary Key Findings Header Box (Clean text without raw LaTeX tokens) */}
+      {/* Primary Key Findings Header Box */}
       <div style={{
         background: 'var(--bg-secondary)',
         border: '1px solid var(--border-color)',
@@ -994,34 +996,47 @@ function ResultsTab({ summaryData }) {
         gap: '16px'
       }}>
         <div>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>False-Alarm Scenarios</div>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Paired Comparison (Exact Sign Test)</div>
           <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--color-healthy)', marginTop: '2px' }}>
-            24 → 16 <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '400' }}>/ 300 scenarios</span>
+            -8 FA / +0 FA
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            <strong>8 removed</strong>, <strong>0 added</strong> (sign test p = 0.0078)
+            Of 214 non-hazard scenarios the agent removed 8 false alarms and added 0 (exact sign test p = 0.0078)
           </div>
         </div>
 
         <div>
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Hazard Detection & Safety</div>
           <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--color-healthy)', marginTop: '2px' }}>
-            100.0% <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '400' }}>(86/86 hazards)</span>
+            86 of 86 hazards <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '400' }}>(100.0%)</span>
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            <strong>0 hazard candidates held</strong>, same lead time (52.0m)
+            <strong>0 hazard scenarios ever held</strong> (all 110 stream hazard candidates recommended KEEP)
           </div>
         </div>
 
         <div>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Alarm-Minutes Secondary Note</div>
-          <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)', marginTop: '2px' }}>
-            139m → 15m <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '400' }}>(-89.2%)</span>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>False-Alarm Scenarios</div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--color-healthy)', marginTop: '2px' }}>
+            24 to 16 of 300 <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '400' }}>(8.0% to 5.3%)</span>
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '2px' }}>
-            128 of 139 baseline alarm-minutes come from silent sensor faults
+          <div style={{ fontSize: '12px', color: 'var(--text-dim)', marginTop: '2px' }}>
+            Note: 95% intervals overlap ([5.0, 11.3] and [3.0, 7.7])
           </div>
         </div>
+      </div>
+
+      {/* Baseline vs Agent Attribution Note */}
+      <div style={{
+        background: 'var(--bg-primary)',
+        borderLeft: '4px solid var(--color-review)',
+        padding: '12px 16px',
+        borderRadius: '0 6px 6px 0',
+        fontSize: '13px',
+        lineHeight: '1.5',
+        color: 'var(--text-main)'
+      }}>
+        Most of the false-alarm reduction (40.0% to 8.0%) comes from the frozen rules baseline B2.1, whose 90-minute projection window was chosen after a sweep on dev data (80/90/100 gave 10.7/6.7/11.2% false alarms); the agent adds a further 8 removals on top, each one checked by the guard.
       </div>
 
       {/* Main Table with Footnote on Pre-Collapse Rate */}
@@ -1072,10 +1087,133 @@ function ResultsTab({ summaryData }) {
             </tr>
           </tbody>
         </table>
-        {/* 3. Footnote defining Pre-Collapse Rate */}
+        {/* Footnote defining Pre-Collapse Rate */}
         <div style={{ padding: '8px 16px', fontSize: '11px', color: 'var(--text-dim)', borderTop: '1px solid var(--border-color)', background: 'var(--bg-primary)' }}>
           * <strong>Pre-Collapse Rate</strong>: share of creep scenarios warned before the simulated collapse (lead_time &gt; 0).
         </div>
+      </div>
+
+      {/* Model Sensitivity Card */}
+      <div style={{
+        background: 'var(--bg-secondary)',
+        borderRadius: '8px',
+        padding: '16px',
+        border: '1px solid var(--border-color)'
+      }}>
+        <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '8px' }}>
+          Model Sensitivity (Held-Out Test Set, N=300)
+        </h3>
+        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '12px' }}>
+          False-alarm scenarios of 300: 16 (1.3), 17 (1.2), 15 (1.1); hazard detection 86 of 86 for all; same frozen pipeline; the 1.2 figure carries a caveat (see README).
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
+          <div style={{ background: 'var(--bg-card)', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Muse Spark 1.3 (Headline)</div>
+            <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--color-healthy)', marginTop: '2px' }}>16 / 300 FA (5.3%)</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Hazard Det: 86 / 86 (100%)</div>
+          </div>
+          <div style={{ background: 'var(--bg-card)', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Muse Spark 1.2 *</div>
+            <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--color-healthy)', marginTop: '2px' }}>17 / 300 FA (5.7%)</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Hazard Det: 86 / 86 (100%)</div>
+          </div>
+          <div style={{ background: 'var(--bg-card)', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Muse Spark 1.1</div>
+            <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--color-healthy)', marginTop: '2px' }}>15 / 300 FA (5.0%)</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Hazard Det: 86 / 86 (100%)</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Post-Hoc Breakdown Collapsible */}
+      <div style={{
+        background: 'var(--bg-secondary)',
+        borderRadius: '8px',
+        padding: '16px',
+        border: '1px solid var(--border-color)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>
+            Post-hoc breakdown by scenario type (descriptive, not a test)
+          </h3>
+          <button
+            onClick={() => setShowBreakdown(!showBreakdown)}
+            style={{
+              padding: '4px 10px',
+              fontSize: '12px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '4px',
+              color: 'var(--text-main)',
+              cursor: 'pointer'
+            }}
+          >
+            {showBreakdown ? 'Hide Breakdown' : 'Show Breakdown'}
+          </button>
+        </div>
+        <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px', marginBottom: showBreakdown ? '12px' : 0 }}>
+          These breakdowns were computed after the test run and played no part in any design choice.
+        </p>
+
+        {showBreakdown && (
+          <div style={{ overflowX: 'auto', marginTop: '12px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+              <thead>
+                <tr style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', textAlign: 'left' }}>
+                  <th style={{ padding: '8px 12px' }}>Scenario Type (214 non-hazard)</th>
+                  <th style={{ padding: '8px 12px' }}>B2.1 False Alarms</th>
+                  <th style={{ padding: '8px 12px' }}>Agent False Alarms</th>
+                  <th style={{ padding: '8px 12px' }}>Removed</th>
+                  <th style={{ padding: '8px 12px' }}>Added</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '6px 12px', fontWeight: '600' }}>blast (N=43)</td>
+                  <td style={{ padding: '6px 12px' }}>4</td>
+                  <td style={{ padding: '6px 12px' }}>1</td>
+                  <td style={{ padding: '6px 12px', color: 'var(--color-healthy)' }}>3</td>
+                  <td style={{ padding: '6px 12px' }}>0</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '6px 12px', fontWeight: '600' }}>machinery_impact (N=43)</td>
+                  <td style={{ padding: '6px 12px' }}>1</td>
+                  <td style={{ padding: '6px 12px' }}>0</td>
+                  <td style={{ padding: '6px 12px', color: 'var(--color-healthy)' }}>1</td>
+                  <td style={{ padding: '6px 12px' }}>0</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '6px 12px', fontWeight: '600' }}>rain_tilt (N=43)</td>
+                  <td style={{ padding: '6px 12px' }}>4</td>
+                  <td style={{ padding: '6px 12px' }}>1</td>
+                  <td style={{ padding: '6px 12px', color: 'var(--color-healthy)' }}>3</td>
+                  <td style={{ padding: '6px 12px' }}>0</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '6px 12px', fontWeight: '600' }}>sensor_fault (N=43)</td>
+                  <td style={{ padding: '6px 12px' }}>12</td>
+                  <td style={{ padding: '6px 12px' }}>12</td>
+                  <td style={{ padding: '6px 12px' }}>0</td>
+                  <td style={{ padding: '6px 12px' }}>0</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '6px 12px', fontWeight: '600' }}>stuck_sensor (N=42)</td>
+                  <td style={{ padding: '6px 12px' }}>2</td>
+                  <td style={{ padding: '6px 12px' }}>1</td>
+                  <td style={{ padding: '6px 12px', color: 'var(--color-healthy)' }}>1</td>
+                  <td style={{ padding: '6px 12px' }}>0</td>
+                </tr>
+                <tr style={{ background: 'var(--bg-card)', fontWeight: '700' }}>
+                  <td style={{ padding: '8px 12px' }}>Total (N=214)</td>
+                  <td style={{ padding: '8px 12px' }}>23</td>
+                  <td style={{ padding: '8px 12px' }}>15</td>
+                  <td style={{ padding: '8px 12px', color: 'var(--color-healthy)' }}>8</td>
+                  <td style={{ padding: '8px 12px' }}>0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Claims and Limits Box */}
@@ -1089,8 +1227,11 @@ function ResultsTab({ summaryData }) {
           Claims & Limitations
         </h3>
         <ul style={{ paddingLeft: '20px', fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
+          <li style={{ fontWeight: '600', color: 'var(--text-main)' }}>
+            12 of 43 silent sensor faults still alarm, results are on simulated data, thresholds are demonstration values.
+          </li>
           {summaryData.limitations.map((lim, idx) => (
-            <li key={idx} style={{ fontWeight: idx === 0 ? '600' : 'normal', color: idx === 0 ? 'var(--text-main)' : 'var(--text-muted)' }}>
+            <li key={idx} style={{ color: 'var(--text-muted)' }}>
               {lim}
             </li>
           ))}
@@ -1100,9 +1241,6 @@ function ResultsTab({ summaryData }) {
   );
 }
 
-// -----------------------------------------------------------------------------
-// Component: About & Architecture Tab
-// -----------------------------------------------------------------------------
 function AboutTab() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '850px', margin: '0 auto', fontSize: '14px', lineHeight: '1.6' }}>
@@ -1113,9 +1251,23 @@ function AboutTab() {
         </p>
       </div>
 
+      {/* Headline Findings Summary */}
+      <div style={{ background: 'var(--bg-secondary)', borderRadius: '8px', padding: '16px', border: '1px solid var(--border-color)' }}>
+        <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--color-healthy)', marginBottom: '8px' }}>
+          Core Benchmark Evidence & Verification
+        </h3>
+        <ul style={{ paddingLeft: '20px', marginTop: '8px', color: 'var(--text-muted)' }}>
+          <li><strong>Paired Result:</strong> Of 214 non-hazard scenarios the agent removed 8 false alarms and added 0 (exact sign test p = 0.0078).</li>
+          <li><strong>Hazard Detection:</strong> 86 of 86 hazards detected and 0 hazard scenarios ever held.</li>
+          <li><strong>False-Alarm Scenarios:</strong> 24 to 16 of 300 (8.0% to 5.3%), with the note that the 95% intervals overlap ([5.0, 11.3] and [3.0, 7.7]).</li>
+          <li>Most of the false-alarm reduction (40.0% to 8.0%) comes from the frozen rules baseline B2.1, whose 90-minute projection window was chosen after a sweep on dev data (80/90/100 gave 10.7/6.7/11.2% false alarms); the agent adds a further 8 removals on top, each one checked by the guard.</li>
+          <li><strong>Known Limits:</strong> 12 of 43 silent sensor faults still alarm, results are on simulated data, thresholds are demonstration values.</li>
+        </ul>
+      </div>
+
       <div style={{ background: 'var(--bg-secondary)', borderRadius: '8px', padding: '16px', border: '1px solid var(--border-color)' }}>
         <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--color-review)', marginBottom: '8px' }}>
-          "AI Proposes, Deterministic Code Decides"
+          &quot;AI Proposes, Deterministic Code Decides&quot;
         </h3>
         <p style={{ color: 'var(--text-muted)' }}>
           Canary Analyst operates under a strict life-safety design pattern. In mine safety and geotechnical hazard prediction, a false alarm causes an operational delay, but a false negative causes catastrophic loss of human life. Therefore:
@@ -1133,7 +1285,7 @@ function AboutTab() {
           Hackathon Provenance & Hardware Credit
         </h3>
         <p style={{ color: 'var(--text-muted)' }}>
-          <strong>Built from scratch during the Meta Global AI Developer Hackathon (Oct 27 – Nov 4, 2026).</strong>
+          <strong>Built from scratch during the Meta Global AI Developer Hackathon (Oct 27 - Nov 4, 2026).</strong>
         </p>
         <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
           The physical hardware ingestion architecture (ESP32, MPU6050 accelerometer, HC-SR04 ultrasonic rangefinder, and ADS1115 piezoelectric acoustic sensor) represents our team's earlier <strong>ProjectCanary</strong> sensor design concept. All analytical code, statistical baseline engines, agent tools, guard logic, evaluation harness, and web demo were developed completely from scratch during this hackathon.
@@ -1155,13 +1307,16 @@ function AboutTab() {
           </div>
           <div>
             <div style={{ color: 'var(--text-dim)', fontSize: '12px' }}>Mean Cost / Candidate</div>
-            <div style={{ fontWeight: '600', color: 'var(--color-healthy)' }}>$0.0215 USD</div>
+            <div style={{ fontWeight: '600', color: 'var(--color-healthy)' }}>.0215 USD</div>
           </div>
           <div>
             <div style={{ color: 'var(--text-dim)', fontSize: '12px' }}>Evidence Verification</div>
             <div style={{ fontWeight: '600', color: 'var(--color-healthy)' }}>100% of cited evidence IDs matched real tool outputs (714 of 714)</div>
           </div>
         </div>
+        <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '12px' }}>
+          We did not compare against non-Meta models, so we make no claim that Muse Spark beats them.
+        </p>
       </div>
 
       <div style={{ background: 'var(--bg-secondary)', borderRadius: '8px', padding: '16px', border: '1px solid var(--border-color)' }}>
@@ -1172,7 +1327,7 @@ function AboutTab() {
           <strong>Cache Key Collision & Test Rerun:</strong> The original cache key in <code>agent/analyst.py</code> did not include a dataset split name. Because scenario IDs are shared between the dev and test splits, 16 test candidates were initially served from dev-split cache entries. An audit identified this and re-ran all 16 candidates live on held-out test data in <code>results/test_rerun16/</code>. All 16 reran live as KEEP; 15 kept the same label (ground_movement) and 1 (SCENARIO_0009_slow_creep_002) changed from unclear (0.55) to ground_movement (0.90); detection and scenario-level results are unchanged.
         </p>
         <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '8px' }}>
-          <strong>Candidate-Level Numbers Corrected:</strong> Published headline candidate numbers originally included 9 exploratory dev entries from the shared cache (142 candidates, $2.99 USD, 761 evidence IDs). Filtered strictly to the 133 test stream candidates with the live test rerun data, verified candidate metrics are: 133 candidate episodes, 107 of 110 hazard candidates labelled <code>ground_movement</code> (97.3%), 714 of 714 valid evidence IDs (100.0%), and $2.86 USD total cost ($0.0215 / candidate).
+          <strong>Candidate-Level Numbers Corrected:</strong> Published headline candidate numbers originally included 9 exploratory dev entries from the shared cache (142 candidates, .99 USD, 761 evidence IDs). Filtered strictly to the 133 test stream candidates with the live test rerun data, verified candidate metrics are: 133 candidate episodes, 107 of 110 hazard candidates labelled <code>ground_movement</code> (97.3%), 714 of 714 valid evidence IDs (100.0%), and .86 USD total cost (.0215 / candidate).
         </p>
       </div>
     </div>
@@ -1180,9 +1335,6 @@ function AboutTab() {
 }
 
 
-// -----------------------------------------------------------------------------
-// Component: Real Recording Tab (2-Node Prototype Session)
-// -----------------------------------------------------------------------------
 function RealRecordingTab() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);

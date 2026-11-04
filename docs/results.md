@@ -132,3 +132,42 @@ The headline benchmark evaluation across the 300 held-out test scenarios generat
 ### As originally published
 *As originally published, candidate-level statistics reported 142 candidates, $2.99 USD ($2.99488), 761 of 761 evidence IDs valid, and 111 of 115 hazard candidates labelled ground_movement. These original figures included 9 development-run cache entries (5 hazard, 4 non-hazard) that were stored in the global cache directory during pre-freeze testing and shared candidate ID keys because the cache hash did not include a split prefix. In an audit, the 16 test candidates that had been served from dev-split cache entries were re-run live on true test data in `results/test_rerun16/`. All 16 reran live as KEEP; 15 kept the same label (ground_movement) and 1 (SCENARIO_0009_slow_creep_002) changed from unclear (0.55) to ground_movement (0.90); detection and scenario-level results are unchanged. Scenario-level numbers (86/86 detection, 16 false-alarm scenarios, 8 holds cleared, paired sign test p=0.0078) are as published, and the candidate-level statistics above reflect strictly the 133 stream candidates with the live test data.*
 
+---
+
+## 9. Post-hoc breakdown (descriptive, not a test)
+
+These breakdowns were computed after the test run and played no part in any design choice.
+
+### Non-Hazard False Alarm Removals by Scenario Type (=214$)
+
+Across all 214 non-hazard scenarios in the held-out test split, comparing the frozen B2.1 baseline to the agent:
+
+| Scenario Type | Total Non-Hazard Scenarios | B2.1 False Alarms | Agent False Alarms | Removed | Added |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| last | 43 | 4 | 1 | 3 | 0 |
+| machinery_impact | 43 | 1 | 0 | 1 | 0 |
+| 
+ain_tilt | 43 | 4 | 1 | 3 | 0 |
+| sensor_fault | 43 | 12 | 12 | 0 | 0 |
+| stuck_sensor | 42 | 2 | 1 | 1 | 0 |
+| **Total** | **214** | **23** | **15** | **8** | **0** |
+
+*Note: 8 false alarms removed, 0 added (exact two-sided sign test p = 0.0078).*
+
+### Candidate Decision and Guard Verification Counts (=133$)
+
+Across all 133 candidate anomaly episodes evaluated for Muse Spark 1.3 (117 live test stream decisions plus 16 live test reruns in 
+esults/test_rerun16):
+- **Analyst Recommendations**:
+  - KEEP: 113
+  - DOWNGRADE: 20
+- **Safety Guard Disposition on Downgrades**:
+  - Guard Approved: 8 (all 8 entered 15-minute review hold and safely cleared)
+  - Guard Vetoed: 12 (all 12 failed-closed to KEEP)
+- **Breakdown of Guard Vetoes by Gate**:
+  - sensor_fault_failed (Gate C): 10 (no anomalous error flags or rail jumps verified on sensor hardware)
+  - environmental_tilt_failed (Gate C): 1 (common-mode tilt observed on fewer than 3 nodes)
+  - insufficient_confidence (Gate A): 1 (model confidence 0.78 below 0.80 minimum threshold)
+
+The 8 guard-approved downgrades reconcile exactly with the 8 review holds cleared in the test evaluation.
+
