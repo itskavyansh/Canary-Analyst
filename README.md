@@ -1,6 +1,6 @@
 # Canary Analyst: Autonomous Geotechnical AI Analyst for Subsidence Networks
 
-Canary Analyst monitors ground subsidence above abandoned underground coal workings using surface sensor arrays to detect catastrophic collapses early. It couples a multi-tool autonomous AI agent with a deterministic safety guard to eliminate false alarms without delaying or missing life-critical hazard alerts.
+Canary Analyst monitors ground subsidence above underground mine workings using surface sensor arrays to detect catastrophic collapses early. It couples a multi-tool autonomous AI agent with a deterministic safety guard to eliminate false alarms without delaying or missing life-critical hazard alerts.
 
 Live Interactive Demo: [https://itskavyansh.github.io/Canary-Analyst/](https://itskavyansh.github.io/Canary-Analyst/)
 

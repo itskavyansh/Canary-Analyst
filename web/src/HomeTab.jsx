@@ -29,7 +29,7 @@ export function HomeTab({ setActiveTab }) {
           color: 'var(--text-muted)',
           margin: 0
         }}>
-          Abandoned underground coal workings can collapse years after mining stops. Surface sensors watch for ground movement, but alerts can also come from rain, nearby blasts or faulty sensors, and too many false alarms teach people to ignore the system. Canary Analyst investigates each alert with Muse Spark 1.3 and lets a deterministic safety guard decide what the AI is allowed to change.
+          Underground mines can collapse during mining and even years after mining stops. Surface sensors watch for ground movement, but alerts can also come from rain, nearby blasts or faulty sensors, and too many false alarms teach people to ignore the system. Canary Analyst investigates each alert with Muse Spark 1.3 and lets a deterministic safety guard decide what the AI is allowed to change.
         </p>
         <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginTop: '6px' }}>
           <button
@@ -249,3 +249,4 @@ export function HomeTab({ setActiveTab }) {
     </div>
   );
 }
+

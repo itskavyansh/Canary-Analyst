@@ -1,6 +1,6 @@
 # Canary Analyst: Evaluation Results & Methodology
 
-Canary Analyst is an AI geotechnical analyst designed for a 4-node ground-subsidence monitoring network above abandoned coal workings. This document presents the evaluation of our four detectors across the development and held-out test benchmarks.
+Canary Analyst is an AI geotechnical analyst designed for a 4-node ground-subsidence monitoring network above mine workings. This document presents the evaluation of our four detectors across the development and held-out test benchmarks.
 
 ---
 

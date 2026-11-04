@@ -5,7 +5,7 @@ Canary Analyst combines probabilistic deep reasoning with a deterministic safety
 ---
 
 ### Core Philosophy: Asymmetric Risk
-In ground-subsidence monitoring above abandoned underground coal workings, missing a progressive catastrophic failure carries life-safety consequences. A false alarm causes a temporary review or inspection delay. Therefore:
+In ground-subsidence monitoring above underground mine workings, missing a progressive catastrophic failure carries life-safety consequences. A false alarm causes a temporary review or inspection delay. Therefore:
 1. **The Default Action is Always `KEEP`**: Unless every safety check passes deterministically, alerts remain active and escalate normally.
 2. **Deterministic Re-verification**: All facts claimed by the model (cross-node synchrony, schedule proximity, return to baseline, sensor errors) are re-calculated directly by deterministic Python code against the underlying tool evidence. The model's prose is never trusted for verification.
 3. **No Unilateral Dismissals (`HOLD` Instead of Dismissal)**: A verified benign downgrade never suppresses the event permanently. Instead, it places the episode into a temporary `REVIEW` status (`Alert.level = "REVIEW"`, metrics ignore `REVIEW`), bounded by strict physical and temporal escape triggers.
