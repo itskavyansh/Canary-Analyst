@@ -553,7 +553,7 @@ async def run_agent_job_background(
         agent_job_semaphore.release()
 
 
-@app.get_route("/api/sandbox/health", methods=["GET", "HEAD"])
+@app.api_route("/api/sandbox/health", methods=["GET", "HEAD"])
 async def health():
     return {
         "status": "ok",
