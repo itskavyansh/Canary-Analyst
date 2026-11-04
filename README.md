@@ -35,7 +35,7 @@ All four detectors evaluated on the held-out test split ($N=300$, seed 2026) und
 
 *Paired Evaluation Line*: Across all 214 non-hazard test scenarios, the paired exact sign test versus the frozen B2.1 baseline removed 8 false alarms with 0 added ($p = 0.0078$, statistically significant).
 
-**Model sensitivity.** The frozen pipeline was evaluated on the held-out test split with muse-spark-1.3, 1.2 and 1.1 (live calls; cache keys include the model name, so no earlier entries were served; 131 of 133 candidates in the original Nov 1 run for 1.2, the other 2 were run later). False-alarm scenarios of 300: 16 (1.3), 17 (1.2), 15 (1.1). Hazard detection: 86 of 86 for all three. Hold, cost and tool-call comparisons across models are not reported.
+**Model sensitivity.** The frozen pipeline was evaluated on the held-out test split with muse-spark-1.3, 1.2 and 1.1 (live calls; cache keys include the model name, so no earlier entries were served). False-alarm scenarios of 300: 16 (1.3), 17 (1.2), 15 (1.1). Hazard detection: 86 of 86 for all three. Hold, cost and tool-call comparisons across models are not reported.
 
 ---
 
