@@ -35,7 +35,7 @@ All four detectors evaluated on the held-out test split ($N=300$, seed 2026) und
 
 *Paired Evaluation Line*: Across all 214 non-hazard test scenarios, the paired exact sign test versus the frozen B2.1 baseline removed 8 false alarms with 0 added ($p = 0.0078$, statistically significant).
 
-**Model sensitivity.** The frozen pipeline was evaluated on the held-out test split with muse-spark-1.3, 1.2 and 1.1 (live calls; cache keys include the model name, so no earlier entries were served). False-alarm scenarios of 300: 16 (1.3), 17 (1.2), 15 (1.1). Hazard detection: 86 of 86 for all three. Hold, cost and tool-call comparisons across models are not reported.
+Model sensitivity. The frozen pipeline was also run on the held-out test split with muse-spark-1.2 and 1.1 (cache keys include the model name, so no earlier entries were served). The 1.2 run made live calls for 131 of the 133 candidates on Nov 1. The other 2 (SCENARIO_0062_stuck_sensor_001 and SCENARIO_0183_slow_creep_001) were run live on Nov 4 (about $0.06) and how the Nov 1 summary handled them is unconfirmed, so the 1.2 figure carries that caveat. If an uninvestigated candidate occurred, the fail-closed SafetyGuard (agent/guard.py line 58) defaults to KEEP, which preserves B2's alert and marks SCENARIO_0062 as a false alarm. False-alarm scenarios of 300: 16 (1.3), 17 (1.2), 15 (1.1). Hazard detection: 86 of 86 for all three. Hold, cost and tool-call comparisons across models are not reported.
 
 ---
 
