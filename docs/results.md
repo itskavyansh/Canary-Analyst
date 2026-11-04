@@ -116,3 +116,19 @@ Evaluated across all non-hazard scenarios ($N=214$):
 4. **Generator Hazards vs Reality**: Synthetic collapse profiles follow deterministic acceleration curves. Actual rock falls may undergo discontinuous step-like stick-slip behavior with sudden brittle failure.
 5. **Demonstration Thresholds**: Warning (15° tilt, 2.0 cm displacement, 1.0 g vibration) and critical thresholds are engineering demonstration values chosen for demonstration testing; site-specific geotechnical installations require customized geotechnical baseline surveying.
 
+---
+
+## 8. Candidate-Level Evaluation Metrics & Rerun Audit
+
+The headline benchmark evaluation across the 300 held-out test scenarios generated exactly **133 candidate anomaly episodes** through the frozen B2.1 detector pipeline.
+
+### Verified Candidate Metrics (Stream Only, N=133)
+- **Candidate Episodes Investigated**: 133
+- **Hazard Candidates**: 110 (all 110 recommended `KEEP`, 0 held)
+- **Hazard Candidates Labelled `ground_movement`**: **107 of 110** (97.3%)
+- **Evidence Verification Integrity**: **100.0%** (714 of 714 cited evidence IDs verified against raw tool output hashes)
+- **Total Test Inference Cost**: **$2.86 USD** ($2.85577 USD; mean $0.02147 / candidate)
+
+### As originally published
+*As originally published, candidate-level statistics reported 142 candidates, $2.99 USD ($2.99488), 761 of 761 evidence IDs valid, and 111 of 115 hazard candidates labelled ground_movement. These original figures included 9 development-run cache entries (5 hazard, 4 non-hazard) that were stored in the global cache directory during pre-freeze testing and shared candidate ID keys because the cache hash did not include a split prefix. In an audit, the 16 test candidates that had been served from dev-split cache entries were re-run live on true test data in `results/test_rerun16/`. All 16 reran live as KEEP; 15 kept the same label (ground_movement) and 1 (SCENARIO_0009_slow_creep_002) changed from unclear (0.55) to ground_movement (0.90); detection and scenario-level results are unchanged. Scenario-level numbers (86/86 detection, 16 false-alarm scenarios, 8 holds cleared, paired sign test p=0.0078) are as published, and the candidate-level statistics above reflect strictly the 133 stream candidates with the live test data.*
+

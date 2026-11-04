@@ -1155,13 +1155,25 @@ function AboutTab() {
           </div>
           <div>
             <div style={{ color: 'var(--text-dim)', fontSize: '12px' }}>Mean Cost / Candidate</div>
-            <div style={{ fontWeight: '600', color: 'var(--color-healthy)' }}>$0.0211 USD</div>
+            <div style={{ fontWeight: '600', color: 'var(--color-healthy)' }}>$0.0215 USD</div>
           </div>
           <div>
             <div style={{ color: 'var(--text-dim)', fontSize: '12px' }}>Evidence Verification</div>
-            <div style={{ fontWeight: '600', color: 'var(--color-healthy)' }}>100% of cited evidence IDs matched real tool outputs (761 of 761)</div>
+            <div style={{ fontWeight: '600', color: 'var(--color-healthy)' }}>100% of cited evidence IDs matched real tool outputs (714 of 714)</div>
           </div>
         </div>
+      </div>
+
+      <div style={{ background: 'var(--bg-secondary)', borderRadius: '8px', padding: '16px', border: '1px solid var(--border-color)' }}>
+        <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '8px' }}>
+          Audit Notes & Corrections
+        </h3>
+        <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
+          <strong>Cache Key Collision & Test Rerun:</strong> The original cache key in <code>agent/analyst.py</code> did not include a dataset split name. Because scenario IDs are shared between the dev and test splits, 16 test candidates were initially served from dev-split cache entries. An audit identified this and re-ran all 16 candidates live on held-out test data in <code>results/test_rerun16/</code>. All 16 reran live as KEEP; 15 kept the same label (ground_movement) and 1 (SCENARIO_0009_slow_creep_002) changed from unclear (0.55) to ground_movement (0.90); detection and scenario-level results are unchanged.
+        </p>
+        <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '8px' }}>
+          <strong>Candidate-Level Numbers Corrected:</strong> Published headline candidate numbers originally included 9 exploratory dev entries from the shared cache (142 candidates, $2.99 USD, 761 evidence IDs). Filtered strictly to the 133 test stream candidates with the live test rerun data, verified candidate metrics are: 133 candidate episodes, 107 of 110 hazard candidates labelled <code>ground_movement</code> (97.3%), 714 of 714 valid evidence IDs (100.0%), and $2.86 USD total cost ($0.0215 / candidate).
+        </p>
       </div>
     </div>
   );

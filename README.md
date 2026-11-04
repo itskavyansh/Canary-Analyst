@@ -35,6 +35,8 @@ All four detectors evaluated on the held-out test split ($N=300$, seed 2026) und
 
 *Paired Evaluation Line*: Across all 214 non-hazard test scenarios, the paired exact sign test versus the frozen B2.1 baseline removed 8 false alarms with 0 added ($p = 0.0078$, statistically significant).
 
+**Model sensitivity.** The same frozen pipeline was run once each on the held-out test split with muse-spark-1.3, 1.2 and 1.1 (live calls; cache keys include the model name, so no earlier entries were served). False-alarm scenarios of 300: 16 (1.3), 17 (1.2), 15 (1.1). Hazard detection: 86 of 86 for all three. Hold, cost and tool-call comparisons across models are not reported.
+
 ---
 
 ## What It Does
@@ -166,5 +168,41 @@ canary-analyst/
 ## Models Used & Cost Efficiency
 
 - **Foundation Model**: `muse-spark-1.3` (Meta Model API), supporting native tool calling, reasoning effort, and temperature parameters.
-- **Evaluation Cost**: Total test split inference cost was **$2.99 USD** across 142 candidate anomaly episodes ($0.0211 / candidate).
-- **Evidence Integrity**: **100.0% evidence validity rate** (761 / 761 cited evidence IDs verified against raw tool hashes).
+- **Evaluation Cost**: Total test split inference cost was **$2.86 USD** across 133 candidate anomaly episodes ($0.0215 / candidate).
+- **Evidence Integrity**: **100.0% evidence validity rate** (714 / 714 cited evidence IDs verified against raw tool hashes).
+
+---
+
+## Corrections and Known Issues
+
+An audit of the evaluation artifacts and code identified several candidate-level inconsistencies and implementation edge cases:
+
+1. **Cache Key Without Split Prefix and Test Rerun**:
+   - The original cache key formula in `agent/analyst.py` (`hashlib.sha256(f"{model}:{prompt_hash}:{candidate_id}:v1")`) did not incorporate a dataset split prefix or file hash.
+   - Because scenario IDs are shared between the dev and test splits, 16 test candidates were inadvertently served cached outputs from earlier development-split test runs rather than executing live API calls against test data.
+   - All 16 candidates were re-run live against true held-out test split telemetry (`data/scenarios_test`) using Muse Spark 1.3 in an isolated, empty cache directory (`results/test_rerun16/`, which is local only and not in the repo, documented in `docs/test_rerun16.md` which is tracked in the repo).
+   - All 16 reran live as KEEP; 15 kept the same label (ground_movement) and 1 (SCENARIO_0009_slow_creep_002) changed from unclear (0.55) to ground_movement (0.90); detection and scenario-level results unchanged.
+2. **Correction of Stale Candidate-Level Metrics**:
+   - As originally published, candidate-level headline metrics reported 142 candidates, $2.99 USD ($2.99488), 761 of 761 evidence IDs valid, and 111 of 115 hazard candidates labelled `ground_movement`.
+   - Those original figures included 9 exploratory dev-run cache entries (5 hazard, 4 non-hazard).
+   - Filtered strictly to the 133 test stream candidates and incorporating the live test rerun data, the true test set statistics are: 133 candidate episodes, **$2.86 USD** ($2.85577 USD; mean $0.0215 / candidate), **714 of 714** evidence IDs valid (100.0%), and **107 of 110** hazard candidates labelled `ground_movement` (97.3%).
+3. **Agent Neighbour Comparison Reference Window**:
+   - The `compare_neighbor_nodes` tool uses the first 30 readings of the provided session to establish its baseline median.
+   - If a disturbance or step change occurs during those first 30 minutes (as seen in the Nov 3 prototype bench recording at 13:38 IST on NODE_02), the reference absorbs part of the shift, making the tool's finding less sensitive to early offsets.
+4. **Two-Node Array Neighbour Verification**:
+   - In 2-node prototype bench recording deployments, spatial consistency gates requiring confirmation across at least 3 nodes (such as common-mode environmental tilt rejection) remain inert because the array lacks the geometry of the target 4-node deployment.
+5. **Real Prototype Recording Session Duration**:
+   - The prototype recording shown in the demo is a single 37-minute unlabelled bench session (13:27 to 14:04 IST on Nov 3, 2026).
+   - Older raw logs in `data/real_readings.csv` (such as Sep 13 sessions) did not qualify for full agent pipeline replay because they either monitored only a single node or had active durations under 35 minutes, whereas the baseline detectors require a 30-reading warm-up window.
+   - Two Sep 13 sessions did qualify and were replayed through B0, B1 and B2; they produced 0 alerts because NODE_01 never reached the 30-reading warm-up (13 readings), so its large tilt and vibration were never judged.
+6. **Constant Distance Reading on Prototype Bench**:
+   - During the Sep 13 prototype session, NODE_02 reported a constant -1.00 distance reading. The detectors took the constant -1.00 as the node's baseline median, so the change from baseline stayed 0.0 cm and no alert was raised; the cause of the -1.00 reading (probably no echo) is unverified.
+7. **Silent Sensor Faults**:
+   - 12 of 43 silent sensor fault scenarios still alarm, and 128 of 139 baseline alarm-minutes come from sensor faults.
+8. **Noise Profile Calibration and Sampling Interval**:
+   - `generator/noise_profile.json` states `source: calibrated_on_prototype_readings` while the README notes the profile was informed by prototype logs.
+   - The prototype sensor noise was recorded at approximately 1-second sampling and subsequently applied to simulated 1-minute time steps with noise caps (distance 0.35 cm, tilt 0.20 deg, vibration 0.015 g), meaning simulated noise is an approximation and lacks real-world environmental temperature drift.
+9. **Implementation Edge Cases Identified in Code Walkthrough**:
+   - KeyError in B2 Rule C can occur when a node first appears in the same update as another node's 10 cm jump; Rule C neighbour comparison is order-dependent; a 15-minute per-node cooldown can hide a WARNING to CRITICAL escalation; detection metric is not node-aware and counts WARNING; candidate channel guess is by substring; escalation candidates reuse the episode id (possible cache collision, unchecked); --final can be bypassed with --scenarios.
+10. **Model-Swap Report Script**:
+   - eval/report_model_swap.py falls back to hardcoded Muse Spark 1.3 values when a model's files lack candidate-level data, and it can mix entries from a shared transcript log. Do not use its candidate-level output (holds, cost, tool calls). The per-model results above come from each model's own summary.json.

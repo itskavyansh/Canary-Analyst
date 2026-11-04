@@ -309,11 +309,11 @@ def main():
             {"tier": "AGENT", "name": "Muse Spark 1.3 + Guard + 15m Review Hold", "test_fa_rate": 5.3, "test_lead_time": 52.0, "failure_mode": "Multi-tool investigation disambiguates complex multi-channel context, removing 8 false alarms with 0 added."}
         ],
         "costs": {
-            "test_total_usd": 2.99488,
-            "test_mean_usd": 0.02109,
-            "test_candidates": 142,
-            "test_mean_tokens": 17676.0,
-            "test_mean_latency_sec": 15.33,
+            "test_total_usd": 2.85577,
+            "test_mean_usd": 0.02147,
+            "test_candidates": 133,
+            "test_mean_tokens": 17668.3,
+            "test_mean_latency_sec": 15.48,
             "evidence_validity_rate": 100.0
         },
         "limitations": [
