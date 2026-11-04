@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import shutil
 import tempfile
+import threading
 import time
 from typing import Any, Dict, List, Literal, Optional
 import uuid
@@ -207,6 +208,177 @@ class RunRequest(BaseModel):
     seed: Optional[int] = Field(None, description="Random seed for reproducibility")
 
 
+def execute_single_candidate_sync(
+    cand: CandidateEpisode,
+    rec_history: List[Dict[str, Any]],
+    scenario_meta: Dict[str, Any],
+    temp_dir: str,
+    model: str,
+    budget_lock: threading.Lock,
+    spend_holder: List[float],
+    daily_budget_usd: float,
+    current_spend_initial: float,
+) -> Dict[str, Any]:
+    """Execute investigation for a single candidate with retry-once logic and thread-safe budget."""
+    c_start = time.time()
+    guard = SafetyGuard()
+    attempts = 0
+    analyst_res: Optional[AnalystResult] = None
+    guard_dec: Optional[Any] = None
+    investigate_error: Optional[str] = None
+    candidate_cost = 0.0
+    unique_cand_id = ""
+
+    while attempts < 2:
+        attempts += 1
+        unique_cand_id = f"{cand.episode_id}_{uuid.uuid4().hex[:8]}"
+        eval_cand = CandidateEpisode(
+            scenario_id=cand.scenario_id,
+            episode_id=unique_cand_id,
+            trigger_time=cand.trigger_time,
+            node_ids=cand.node_ids,
+            level=cand.level,
+            trigger_channels=cand.trigger_channels,
+        )
+
+        with budget_lock:
+            remaining_budget = max(0.0, daily_budget_usd - (current_spend_initial + spend_holder[0]))
+        if remaining_budget <= 0.0:
+            investigate_error = "budget_exceeded"
+            break
+
+        cand_cache_dir = os.path.join(temp_dir, f"cache_{unique_cand_id}")
+        cand_runs_dir = os.path.join(temp_dir, f"runs_{unique_cand_id}")
+        os.makedirs(cand_cache_dir, exist_ok=True)
+        os.makedirs(cand_runs_dir, exist_ok=True)
+
+        analyst = Analyst(
+            model=model,
+            cache_dir=cand_cache_dir,
+            runs_dir=cand_runs_dir,
+            budget_usd=max(0.1, remaining_budget),
+        )
+
+        attempt_res: Optional[AnalystResult] = None
+        attempt_err: Optional[str] = None
+        try:
+            attempt_res = analyst.investigate(
+                candidate=eval_cand,
+                scenario_readings=rec_history,
+                scenario_meta=scenario_meta,
+            )
+        except Exception as e:
+            attempt_err = str(e)
+            logging.error("Analyst investigation attempt %d failed on %s: %s", attempts, cand.episode_id, attempt_err, exc_info=True)
+
+        attempt_cost = 0.0
+        if attempt_res and attempt_res.cost_usd:
+            attempt_cost = float(attempt_res.cost_usd)
+            candidate_cost += attempt_cost
+            with budget_lock:
+                spend_holder[0] += attempt_cost
+
+        attempt_guard_dec = guard.evaluate(eval_cand, attempt_res)
+        has_parse_failure = "schema_parse_failure" in attempt_guard_dec.failed_conditions
+
+        if attempt_err is not None or has_parse_failure or attempt_res is None or attempt_res.parsed is None:
+            investigate_error = attempt_err or "schema_parse_failure"
+            analyst_res = attempt_res
+            guard_dec = attempt_guard_dec
+            if attempts < 2:
+                continue
+        else:
+            investigate_error = None
+            analyst_res = attempt_res
+            guard_dec = attempt_guard_dec
+            break
+
+    c_seconds = time.time() - c_start
+
+    has_failed_cond = guard_dec and ("schema_parse_failure" in guard_dec.failed_conditions)
+    if investigate_error is not None or has_failed_cond or analyst_res is None or analyst_res.parsed is None:
+        failed_conds = guard_dec.failed_conditions if guard_dec else ["schema_parse_failure"]
+        err_kind = classify_error_kind(str(investigate_error or ""), failed_conds)
+        if investigate_error:
+            logging.error("Agent failed after %d attempts for candidate %s: %s", attempts, cand.episode_id, investigate_error)
+
+        return {
+            "episode_id": cand.episode_id,
+            "unique_id": unique_cand_id,
+            "trigger_time": cand.trigger_time,
+            "level": cand.level,
+            "recommendation": "KEEP",
+            "hypothesis": "unclear",
+            "confidence": 0.0,
+            "brief": f"Agent unavailable for this run ({err_kind}). The deterministic B2.1 alert stands, which is the fail-closed behaviour.",
+            "findings": [],
+            "cited_evidence_ids": [],
+            "evidence_validity": {},
+            "tool_names": [],
+            "guard_action": guard_dec.action if guard_dec else "KEEP",
+            "failed_conditions": failed_conds,
+            "hold_created": False,
+            "cost": candidate_cost,
+            "seconds": c_seconds,
+            "attempts": attempts,
+            "agent_status": "failed",
+            "error_kind": err_kind,
+            "error": investigate_error,
+        }
+
+    parsed = analyst_res.parsed or {}
+    recommendation = parsed.get("recommendation", "KEEP")
+    hypothesis = parsed.get("hypothesis", "unclear")
+    confidence = float(parsed.get("confidence", 0.0))
+    brief = parsed.get("brief", "")
+    findings = parsed.get("findings", [])
+    cited_evidence_ids = parsed.get("cited_evidence_ids", [])
+
+    known_evidence_ids = {
+        v.get("evidence_id")
+        for v in analyst_res.tool_results.values()
+        if isinstance(v, dict) and v.get("evidence_id")
+    }
+    evidence_validity = {
+        eid: (eid in known_evidence_ids) for eid in cited_evidence_ids
+    }
+
+    tool_names_set = set()
+    for call in analyst_res.tool_calls:
+        if isinstance(call, dict):
+            name = call.get("function", {}).get("name") or call.get("name")
+            if name:
+                tool_names_set.add(name)
+    for v in analyst_res.tool_results.values():
+        if isinstance(v, dict) and v.get("tool"):
+            tool_names_set.add(v["tool"])
+    tool_names = sorted(list(tool_names_set))
+
+    hold_created = (guard_dec.action == "DOWNGRADE")
+
+    return {
+        "episode_id": cand.episode_id,
+        "unique_id": unique_cand_id,
+        "trigger_time": cand.trigger_time,
+        "level": cand.level,
+        "recommendation": recommendation,
+        "hypothesis": hypothesis,
+        "confidence": confidence,
+        "brief": brief,
+        "findings": findings,
+        "cited_evidence_ids": cited_evidence_ids,
+        "evidence_validity": evidence_validity,
+        "tool_names": tool_names,
+        "guard_action": guard_dec.action,
+        "failed_conditions": guard_dec.failed_conditions,
+        "hold_created": hold_created,
+        "cost": candidate_cost,
+        "seconds": c_seconds,
+        "attempts": attempts,
+        "agent_status": "ok",
+    }
+
+
 def execute_agent_job_sync(
     job_id: str,
     candidates: List[CandidateEpisode],
@@ -217,7 +389,7 @@ def execute_agent_job_sync(
     daily_budget_usd: float,
     current_spend: float,
 ) -> Dict[str, Any]:
-    """Synchronous worker execution of agent investigation for candidates."""
+    """Synchronous worker execution of agent investigation running candidates concurrently."""
     temp_dir = tempfile.mkdtemp(prefix=f"sandbox_run_{job_id}_")
     try:
         api_key = os.getenv("META_API_KEY", "")
@@ -240,87 +412,44 @@ def execute_agent_job_sync(
             }
 
         start_time = time.time()
-        analyst = Analyst(
-            model=model,
-            cache_dir=temp_dir,
-            runs_dir=temp_dir,
-            budget_usd=max(0.1, daily_budget_usd - current_spend),
-        )
-        guard = SafetyGuard()
-        hold_manager = HoldManager()
-
         cands_to_run = candidates[:max_candidates]
-        candidate_results: List[Dict[str, Any]] = []
-        total_job_cost = 0.0
+        n_cands = len(cands_to_run)
 
-        for cand in cands_to_run:
-            c_start = time.time()
+        budget_lock = threading.Lock()
+        spend_holder = [0.0]
+
+        if n_cands == 0:
+            return {
+                "status": "done",
+                "candidates": [],
+                "seconds": 0.0,
+                "cost": 0.0,
+            }
+
+        worker_count = min(n_cands, 2)
+        candidate_results: List[Dict[str, Any]] = [None] * n_cands
+
+        def worker_task(index: int, cand: CandidateEpisode) -> None:
             rec_history = accumulated_readings_up_to.get(cand.trigger_time, [])
-
-            attempts = 0
-            analyst_res: Optional[AnalystResult] = None
-            guard_dec: Optional[Any] = None
-            investigate_error: Optional[str] = None
-            candidate_cost = 0.0
-            unique_cand_id = ""
-
-            while attempts < 2:
-                attempts += 1
-                unique_cand_id = f"{cand.episode_id}_{uuid.uuid4().hex[:8]}"
-                eval_cand = CandidateEpisode(
-                    scenario_id=cand.scenario_id,
-                    episode_id=unique_cand_id,
-                    trigger_time=cand.trigger_time,
-                    node_ids=cand.node_ids,
-                    level=cand.level,
-                    trigger_channels=cand.trigger_channels,
+            try:
+                res = execute_single_candidate_sync(
+                    cand=cand,
+                    rec_history=rec_history,
+                    scenario_meta=scenario_meta,
+                    temp_dir=temp_dir,
+                    model=model,
+                    budget_lock=budget_lock,
+                    spend_holder=spend_holder,
+                    daily_budget_usd=daily_budget_usd,
+                    current_spend_initial=current_spend,
                 )
-
-                attempt_res: Optional[AnalystResult] = None
-                attempt_err: Optional[str] = None
-                try:
-                    attempt_res = analyst.investigate(
-                        candidate=eval_cand,
-                        scenario_readings=rec_history,
-                        scenario_meta=scenario_meta,
-                    )
-                except Exception as e:
-                    attempt_err = str(e)
-                    logging.error("Analyst investigation attempt %d failed on %s: %s", attempts, cand.episode_id, attempt_err, exc_info=True)
-
-                if attempt_res and attempt_res.cost_usd:
-                    candidate_cost += float(attempt_res.cost_usd)
-
-                attempt_guard_dec = guard.evaluate(eval_cand, attempt_res)
-                has_parse_failure = "schema_parse_failure" in attempt_guard_dec.failed_conditions
-
-                if attempt_err is not None or has_parse_failure or attempt_res is None or attempt_res.parsed is None:
-                    investigate_error = attempt_err or "schema_parse_failure"
-                    analyst_res = attempt_res
-                    guard_dec = attempt_guard_dec
-                    if attempts < 2:
-                        continue
-                else:
-                    investigate_error = None
-                    analyst_res = attempt_res
-                    guard_dec = attempt_guard_dec
-                    break
-
-            c_seconds = time.time() - c_start
-            total_job_cost += candidate_cost
-
-            # Determine agent_status
-            has_failed_cond = guard_dec and ("schema_parse_failure" in guard_dec.failed_conditions)
-            if investigate_error is not None or has_failed_cond or analyst_res is None or analyst_res.parsed is None:
-                agent_status = "failed"
-                failed_conds = guard_dec.failed_conditions if guard_dec else ["schema_parse_failure"]
-                err_kind = classify_error_kind(str(investigate_error or ""), failed_conds)
-                if investigate_error:
-                    logging.error("Agent failed after %d attempts for candidate %s: %s", attempts, cand.episode_id, investigate_error)
-
-                candidate_results.append({
+                candidate_results[index] = res
+            except Exception as e:
+                logging.error("Candidate %s raised unhandled error in worker: %s", cand.episode_id, str(e), exc_info=True)
+                err_kind = classify_error_kind(str(e), ["schema_parse_failure"])
+                candidate_results[index] = {
                     "episode_id": cand.episode_id,
-                    "unique_id": unique_cand_id,
+                    "unique_id": f"{cand.episode_id}_{uuid.uuid4().hex[:8]}",
                     "trigger_time": cand.trigger_time,
                     "level": cand.level,
                     "recommendation": "KEEP",
@@ -331,72 +460,25 @@ def execute_agent_job_sync(
                     "cited_evidence_ids": [],
                     "evidence_validity": {},
                     "tool_names": [],
-                    "guard_action": guard_dec.action if guard_dec else "KEEP",
-                    "failed_conditions": failed_conds,
+                    "guard_action": "KEEP",
+                    "failed_conditions": ["schema_parse_failure"],
                     "hold_created": False,
-                    "cost": candidate_cost,
-                    "seconds": c_seconds,
-                    "attempts": attempts,
+                    "cost": 0.0,
+                    "seconds": 0.0,
+                    "attempts": 1,
                     "agent_status": "failed",
                     "error_kind": err_kind,
-                    "error": investigate_error,
-                })
-                continue
+                    "error": str(e),
+                }
 
-            # Successful run
-            parsed = analyst_res.parsed or {}
-            recommendation = parsed.get("recommendation", "KEEP")
-            hypothesis = parsed.get("hypothesis", "unclear")
-            confidence = float(parsed.get("confidence", 0.0))
-            brief = parsed.get("brief", "")
-            findings = parsed.get("findings", [])
-            cited_evidence_ids = parsed.get("cited_evidence_ids", [])
-
-            known_evidence_ids = {
-                v.get("evidence_id")
-                for v in analyst_res.tool_results.values()
-                if isinstance(v, dict) and v.get("evidence_id")
-            }
-            evidence_validity = {
-                eid: (eid in known_evidence_ids) for eid in cited_evidence_ids
-            }
-
-            tool_names_set = set()
-            for call in analyst_res.tool_calls:
-                if isinstance(call, dict):
-                    name = call.get("function", {}).get("name") or call.get("name")
-                    if name:
-                        tool_names_set.add(name)
-            for v in analyst_res.tool_results.values():
-                if isinstance(v, dict) and v.get("tool"):
-                    tool_names_set.add(v["tool"])
-            tool_names = sorted(list(tool_names_set))
-
-            hold_created = (guard_dec.action == "DOWNGRADE")
-
-            candidate_results.append({
-                "episode_id": cand.episode_id,
-                "unique_id": unique_cand_id,
-                "trigger_time": cand.trigger_time,
-                "level": cand.level,
-                "recommendation": recommendation,
-                "hypothesis": hypothesis,
-                "confidence": confidence,
-                "brief": brief,
-                "findings": findings,
-                "cited_evidence_ids": cited_evidence_ids,
-                "evidence_validity": evidence_validity,
-                "tool_names": tool_names,
-                "guard_action": guard_dec.action,
-                "failed_conditions": guard_dec.failed_conditions,
-                "hold_created": hold_created,
-                "cost": candidate_cost,
-                "seconds": c_seconds,
-                "attempts": attempts,
-                "agent_status": "ok",
-            })
+        with ThreadPoolExecutor(max_workers=worker_count) as pool:
+            futures = [pool.submit(worker_task, idx, cand) for idx, cand in enumerate(cands_to_run)]
+            for f in futures:
+                f.result()
 
         total_seconds = time.time() - start_time
+        total_job_cost = sum(c.get("cost", 0.0) for c in candidate_results if c is not None)
+
         return {
             "status": "done",
             "candidates": candidate_results,

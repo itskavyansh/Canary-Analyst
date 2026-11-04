@@ -22,8 +22,10 @@ export function LiveSandboxTab() {
   const [jobStatus, setJobStatus] = useState(null);
   const [jobData, setJobData] = useState(null);
   const [adjustmentNote, setAdjustmentNote] = useState('');
+  const [agentElapsedSeconds, setAgentElapsedSeconds] = useState(0);
 
   const pollIntervalRef = useRef(null);
+  const agentTimerRef = useRef(null);
 
   const cleanBaseUrl = (SANDBOX_URL || '').replace(/\/+$/, '');
 
@@ -74,6 +76,7 @@ export function LiveSandboxTab() {
       isMounted = false;
       if (timerId) clearTimeout(timerId);
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+      if (agentTimerRef.current) clearInterval(agentTimerRef.current);
     };
   }, [cleanBaseUrl]);
 
@@ -257,7 +260,9 @@ export function LiveSandboxTab() {
     setRunResult(null);
     setJobStatus(null);
     setJobData(null);
+    setAgentElapsedSeconds(0);
     if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    if (agentTimerRef.current) clearInterval(agentTimerRef.current);
 
     const payload = {
       preset,
@@ -297,6 +302,11 @@ export function LiveSandboxTab() {
       if (data.job_id) {
         setJobStatus('queued');
         const jobId = data.job_id;
+        const jobStartTime = Date.now();
+
+        agentTimerRef.current = setInterval(() => {
+          setAgentElapsedSeconds(Math.floor((Date.now() - jobStartTime) / 1000));
+        }, 500);
 
         // Poll /api/sandbox/job/{id} every 2 seconds
         pollIntervalRef.current = setInterval(async () => {
@@ -306,6 +316,7 @@ export function LiveSandboxTab() {
               setJobStatus('error');
               setRunError('Too many requests while polling. Please try again.');
               clearInterval(pollIntervalRef.current);
+              if (agentTimerRef.current) clearInterval(agentTimerRef.current);
               setIsRunning(false);
               return;
             }
@@ -313,6 +324,7 @@ export function LiveSandboxTab() {
               setJobStatus('error');
               setRunError(`Error fetching job status (HTTP ${jRes.status})`);
               clearInterval(pollIntervalRef.current);
+              if (agentTimerRef.current) clearInterval(agentTimerRef.current);
               setIsRunning(false);
               return;
             }
@@ -322,12 +334,14 @@ export function LiveSandboxTab() {
 
             if (jData.status === 'done' || jData.status === 'error' || jData.status === 'unavailable' || jData.status === 'daily budget reached') {
               clearInterval(pollIntervalRef.current);
+              if (agentTimerRef.current) clearInterval(agentTimerRef.current);
               setIsRunning(false);
             }
           } catch (pollErr) {
             setJobStatus('error');
             setRunError(`Network error while polling agent job: ${pollErr.message}`);
             clearInterval(pollIntervalRef.current);
+            if (agentTimerRef.current) clearInterval(agentTimerRef.current);
             setIsRunning(false);
           }
         }, 2000);
@@ -335,6 +349,7 @@ export function LiveSandboxTab() {
         setIsRunning(false);
       }
     } catch (err) {
+      if (agentTimerRef.current) clearInterval(agentTimerRef.current);
       setIsRunning(false);
       setRunError(`Failed to connect to sandbox backend: ${err.message}`);
     }
@@ -911,10 +926,12 @@ export function LiveSandboxTab() {
           <span style={{ fontSize: '20px' }}>🔍</span>
           <div>
             <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-review)' }}>
-              The agent is investigating, usually 15 to 35 seconds
+              The agent is investigating, {agentElapsedSeconds} s so far
             </div>
             <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '2px' }}>
-              Dispatching diagnostic tools and evaluating deterministic Safety Guard gates...
+              {agentElapsedSeconds > 45
+                ? 'Still working, the agent is making its tool calls.'
+                : 'Dispatching diagnostic tools and evaluating deterministic Safety Guard gates...'}
             </div>
           </div>
         </div>
