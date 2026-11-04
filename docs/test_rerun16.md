@@ -22,29 +22,49 @@ The rerun was executed strictly on the held-out test split (`data/scenarios_test
 
 ## 2. Verification of Tool Outputs Against Held-Out TEST Split
 
-Each candidate's tool execution traces in `results/test_rerun16/runs/transcripts.jsonl` were recomputed against the raw scenario readings in both `data/scenarios/` (DEV, seed 42) and `data/scenarios_test/` (TEST, seed 2026):
+For each of the 16 candidates, taking the first `get_node_history` call stored in the original dev cache entry (`results/agent_cache`) and in the new transcript (`results/test_rerun16/runs`):
 
-| Candidate ID | Node | Channel | Stored mean | Recomputed on TEST | Recomputed on DEV | Match |
-| :--- | :--- | :--- | :---: | :---: | :---: | :---: |
-| `SCENARIO_0009_slow_creep_001` | `NODE_04` | `tilt` | 6.2156 | 6.2156 | 0.3025 | TEST |
-| `SCENARIO_0009_slow_creep_002` | `NODE_01` | `tilt` | 7.261 | 7.261 | 0.2683 | TEST |
-| `SCENARIO_0021_accelerating_creep_001` | `NODE_03` | `distance` | 0.4223 | 0.4223 | 0.1684 | TEST |
-| `SCENARIO_0021_accelerating_creep_002` | `NODE_03` | `tilt` | 4.2637 | 4.2637 | 0.2101 | TEST |
-| `SCENARIO_0023_accelerating_creep_001` | `NODE_04` | `distance` | 0.2678 | 0.2678 | 0.25 | TEST |
-| `SCENARIO_0023_accelerating_creep_002` | `NODE_02` | `tilt` | 1.8254 | 1.8254 | 0.2254 | TEST |
-| `SCENARIO_0025_accelerating_creep_001` | `NODE_04` | `tilt` | 2.3318 | 2.3318 | 0.2063 | TEST |
-| `SCENARIO_0073_accelerating_creep_001` | `NODE_01` | `tilt` | 4.2547 | 4.2547 | 6.334 | TEST |
-| `SCENARIO_0130_slow_creep_001` | `NODE_01` | `tilt` | 8.0812 | 8.0812 | 0.2287 | TEST |
-| `SCENARIO_0178_accelerating_creep_001` | `NODE_03` | `tilt` | 2.8439 | 2.8439 | 0.2193 | TEST |
-| `SCENARIO_0179_slow_creep_001` | `NODE_01` | `tilt` | 5.7974 | 5.7974 | 3.5785 | TEST |
-| `SCENARIO_0182_slow_creep_001` | `NODE_03` | `tilt` | 4.2734 | 4.2734 | 0.253 | TEST |
-| `SCENARIO_0182_slow_creep_002` | `NODE_03` | `tilt` | 6.691 | 6.691 | 0.2642 | TEST |
-| `SCENARIO_0199_accelerating_creep_001` | `NODE_03` | `tilt` | 3.7513 | 3.7513 | 0.2619 | TEST |
-| `SCENARIO_0216_slow_creep_001` | `NODE_01` | `tilt` | 5.5216 | 5.5216 | 0.2449 | TEST |
-| `SCENARIO_0287_accelerating_creep_001` | `NODE_02` | `tilt` | 3.7147 | 3.7147 | 0.2564 | TEST |
-| `SCENARIO_0287_accelerating_creep_002` | `NODE_02` | `distance` | 11.4601 | 11.4601 | 0.0122 | TEST |
+### Original Dev Cache First `get_node_history` Call
+| Candidate ID | Node | Channel | Window | Stored Mean (Dev Cache) | Recomputed on DEV | Recomputed on TEST | Match |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `SCENARIO_0009_slow_creep_001` | `NODE_03` | `distance` | 60 min | 0.3515 | 0.3515 | 0.1466 | DEV |
+| `SCENARIO_0009_slow_creep_002` | `NODE_01` | `distance` | 60 min | 0.3273 | 0.3273 | 0.3501 | DEV |
+| `SCENARIO_0021_accelerating_creep_001` | `NODE_04` | `distance` | 60 min | 0.406 | 0.406 | 0.2768 | DEV |
+| `SCENARIO_0021_accelerating_creep_002` | `NODE_01` | `piezo_peak` | 60 min | 0.9853 | 0.9853 | 0.0261 | DEV |
+| `SCENARIO_0023_accelerating_creep_001` | `NODE_03` | `distance` | 60 min | 0.2548 | 0.2548 | 0.5105 | DEV |
+| `SCENARIO_0023_accelerating_creep_002` | `NODE_04` | `distance` | 60 min | 5.0798 | 5.0798 | 0.2905 | DEV |
+| `SCENARIO_0025_accelerating_creep_001` | `NODE_03` | `distance` | 60 min | 0.5529 | 0.5529 | 16.1836 | DEV |
+| `SCENARIO_0073_accelerating_creep_001` | `NODE_01` | `tilt` | 60 min | 4.9376 | 4.9376 | 3.2029 | DEV |
+| `SCENARIO_0130_slow_creep_001` | `NODE_02` | `tilt` | 60 min | 5.0002 | 5.0002 | 0.2518 | DEV |
+| `SCENARIO_0178_accelerating_creep_001` | `NODE_01` | `distance` | 60 min | 0.4284 | 0.4284 | 0.2526 | DEV |
+| `SCENARIO_0179_slow_creep_001` | `NODE_01` | `distance` | 60 min | 0.3082 | 0.3082 | 0.3382 | DEV |
+| `SCENARIO_0182_slow_creep_001` | `NODE_04` | `tilt` | 60 min | 6.4877 | 6.4877 | 7.012 | DEV |
+| `SCENARIO_0199_accelerating_creep_001` | `NODE_01` | `distance` | 60 min | 0.424 | 0.424 | 0.292 | DEV |
+| `SCENARIO_0216_slow_creep_001` | `NODE_04` | `tilt` | 60 min | 6.5748 | 6.5748 | 0.265 | DEV |
+| `SCENARIO_0287_accelerating_creep_001` | `NODE_04` | `distance` | 60 min | 0.3958 | 0.3958 | 0.3224 | DEV |
+| `SCENARIO_0287_accelerating_creep_002` | `NODE_04` | `tilt` | 60 min | 3.7267 | 3.7267 | 0.224 | DEV |
 
-**Result**: for all 17 candidates, the first get_node_history result stored in the new transcript equals the value recomputed on the TEST split and differs from the value recomputed on the DEV split for the same query.
+### New Live Test Rerun First `get_node_history` Call
+| Candidate ID | Node | Channel | Window | Stored Mean (Rerun) | Recomputed on DEV | Recomputed on TEST | Match |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `SCENARIO_0009_slow_creep_001` | `NODE_04` | `tilt` | 60 min | 6.2156 | 0.3025 | 6.2156 | TEST |
+| `SCENARIO_0009_slow_creep_002` | `NODE_01` | `tilt` | 60 min | 7.261 | 0.2683 | 7.261 | TEST |
+| `SCENARIO_0021_accelerating_creep_001` | `NODE_03` | `distance` | 60 min | 0.4223 | 0.1684 | 0.4223 | TEST |
+| `SCENARIO_0021_accelerating_creep_002` | `NODE_03` | `tilt` | 60 min | 4.2637 | 0.2101 | 4.2637 | TEST |
+| `SCENARIO_0023_accelerating_creep_001` | `NODE_04` | `distance` | 60 min | 0.2678 | 0.25 | 0.2678 | TEST |
+| `SCENARIO_0023_accelerating_creep_002` | `NODE_02` | `tilt` | 60 min | 1.8254 | 0.2254 | 1.8254 | TEST |
+| `SCENARIO_0025_accelerating_creep_001` | `NODE_04` | `tilt` | 60 min | 2.3318 | 0.2063 | 2.3318 | TEST |
+| `SCENARIO_0073_accelerating_creep_001` | `NODE_01` | `tilt` | 60 min | 4.2547 | 6.334 | 4.2547 | TEST |
+| `SCENARIO_0130_slow_creep_001` | `NODE_01` | `tilt` | 60 min | 8.0812 | 0.2287 | 8.0812 | TEST |
+| `SCENARIO_0178_accelerating_creep_001` | `NODE_03` | `tilt` | 60 min | 2.8439 | 0.2193 | 2.8439 | TEST |
+| `SCENARIO_0179_slow_creep_001` | `NODE_01` | `tilt` | 60 min | 5.7974 | 3.5785 | 5.7974 | TEST |
+| `SCENARIO_0182_slow_creep_001` | `NODE_03` | `tilt` | 60 min | 4.2734 | 0.253 | 4.2734 | TEST |
+| `SCENARIO_0199_accelerating_creep_001` | `NODE_03` | `tilt` | 60 min | 3.7513 | 0.2619 | 3.7513 | TEST |
+| `SCENARIO_0216_slow_creep_001` | `NODE_01` | `tilt` | 60 min | 5.5216 | 0.2449 | 5.5216 | TEST |
+| `SCENARIO_0287_accelerating_creep_001` | `NODE_02` | `tilt` | 60 min | 3.7147 | 0.2564 | 3.7147 | TEST |
+| `SCENARIO_0287_accelerating_creep_002` | `NODE_02` | `distance` | 60 min | 11.4601 | 0.0122 | 11.4601 | TEST |
+
+**Result**: For all 16 candidates, the original dev-cache entry matches readings from the DEV split (`data/scenarios`), whereas the live rerun transcript matches readings from the TEST split (`data/scenarios_test`).
 
 ---
 

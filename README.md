@@ -35,7 +35,7 @@ All four detectors evaluated on the held-out test split ($N=300$, seed 2026) und
 
 *Paired Evaluation Line*: Across all 214 non-hazard test scenarios, the paired exact sign test versus the frozen B2.1 baseline removed 8 false alarms with 0 added ($p = 0.0078$, statistically significant).
 
-**Model sensitivity.** The same frozen pipeline was run once each on the held-out test split with muse-spark-1.3, 1.2 and 1.1 (live calls; cache keys include the model name, so no earlier entries were served). False-alarm scenarios of 300: 16 (1.3), 17 (1.2), 15 (1.1). Hazard detection: 86 of 86 for all three. Hold, cost and tool-call comparisons across models are not reported.
+**Model sensitivity.** The frozen pipeline was evaluated on the held-out test split with muse-spark-1.3, 1.2 and 1.1 (live calls; cache keys include the model name, so no earlier entries were served; 131 of 133 candidates in the original Nov 1 run for 1.2, the other 2 were run later). False-alarm scenarios of 300: 16 (1.3), 17 (1.2), 15 (1.1). Hazard detection: 86 of 86 for all three. Hold, cost and tool-call comparisons across models are not reported.
 
 ---
 
@@ -194,7 +194,7 @@ An audit of the evaluation artifacts and code identified several candidate-level
 5. **Real Prototype Recording Session Duration**:
    - The prototype recording shown in the demo is a single 37-minute unlabelled bench session (13:27 to 14:04 IST on Nov 3, 2026).
    - Older raw logs in `data/real_readings.csv` (such as Sep 13 sessions) did not qualify for full agent pipeline replay because they either monitored only a single node or had active durations under 35 minutes, whereas the baseline detectors require a 30-reading warm-up window.
-   - Two Sep 13 sessions did qualify and were replayed through B0, B1 and B2; they produced 0 alerts because NODE_01 never reached the 30-reading warm-up (13 readings), so its large tilt and vibration were never judged.
+   - Two Sep 13 sessions did qualify and were replayed through B0, B1 and B2. They produced 0 alerts because NODE_01 had only 13 one-minute readings in the first session and never finished the 30-reading warm-up, so its large tilt and vibration were never judged.
 6. **Constant Distance Reading on Prototype Bench**:
    - During the Sep 13 prototype session, NODE_02 reported a constant -1.00 distance reading. The detectors took the constant -1.00 as the node's baseline median, so the change from baseline stayed 0.0 cm and no alert was raised; the cause of the -1.00 reading (probably no echo) is unverified.
 7. **Silent Sensor Faults**:
@@ -205,4 +205,4 @@ An audit of the evaluation artifacts and code identified several candidate-level
 9. **Implementation Edge Cases Identified in Code Walkthrough**:
    - KeyError in B2 Rule C can occur when a node first appears in the same update as another node's 10 cm jump; Rule C neighbour comparison is order-dependent; a 15-minute per-node cooldown can hide a WARNING to CRITICAL escalation; detection metric is not node-aware and counts WARNING; candidate channel guess is by substring; escalation candidates reuse the episode id (possible cache collision, unchecked); --final can be bypassed with --scenarios.
 10. **Model-Swap Report Script**:
-   - eval/report_model_swap.py falls back to hardcoded Muse Spark 1.3 values when a model's files lack candidate-level data, and it can mix entries from a shared transcript log. Do not use its candidate-level output (holds, cost, tool calls). The per-model results above come from each model's own summary.json.
+   - eval/report_model_swap.py falls back to hardcoded Muse Spark 1.3 values when a model's files lack candidate-level data, and it can mix entries from a shared transcript log. Do not use its candidate-level output (holds, cost, tool calls).
