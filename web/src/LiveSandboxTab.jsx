@@ -142,16 +142,25 @@ export function LiveSandboxTab() {
 
   const handleRandomise = () => {
     setAdjustmentNote('');
-    const presets = [
-      'single_node_move',
-      'common_mode_tilt',
-      'vibration_pulse_all_nodes',
-      'single_node_spike',
-      'silent_sensor_fault'
-    ];
-    const nodes = ['NODE_01', 'NODE_02', 'NODE_03', 'NODE_04'];
+    // Weighted preset selection:
+    // single node move: 60%, common mode tilt: 25%, others combined (vibration pulse, single node spike, silent sensor fault, random): 15%
+    const randPreset = Math.random();
+    let p = 'single_node_move';
+    if (randPreset < 0.60) {
+      p = 'single_node_move';
+    } else if (randPreset < 0.85) {
+      p = 'common_mode_tilt';
+    } else {
+      const otherPresets = [
+        'vibration_pulse_all_nodes',
+        'single_node_spike',
+        'silent_sensor_fault',
+        'random'
+      ];
+      p = otherPresets[Math.floor(Math.random() * otherPresets.length)];
+    }
 
-    const p = presets[Math.floor(Math.random() * presets.length)];
+    const nodes = ['NODE_01', 'NODE_02', 'NODE_03', 'NODE_04'];
     const n = nodes[Math.floor(Math.random() * nodes.length)];
 
     // Preset consistency: for common_mode_tilt, rise must be 10 or 30 min, never sudden (0)
@@ -171,9 +180,9 @@ export function LiveSandboxTab() {
     const minDur = onset + r + 25;
     const dur = Math.min(120, Math.floor(minDur + Math.random() * (120 - minDur + 1)));
 
-    // Randomise magnitudes: in 70 percent of cases pick tilt >= 18 deg, vibration >= 1.3 g, distance step >= 2.6 cm
-    // for the channel(s) the chosen preset uses.
-    // In the other 30 percent keep current random ranges.
+    // Magnitudes:
+    // For single node move and common mode tilt: always use above-threshold magnitudes (tilt >= 18 deg, and for single node move vibration >= 1.3 g, distance step >= 2.6 cm).
+    // For other presets: 70% elevated, 30% low-value branch.
     // Never set a value exactly equal to a threshold (15.0, 22.5, 1.0, 1.5, 2.0, 3.0, 18.0, 1.3, 2.6).
     const isElevated = Math.random() < 0.70;
 
@@ -192,23 +201,13 @@ export function LiveSandboxTab() {
     let dist = 0.0;
 
     if (p === 'single_node_move') {
-      // Uses all three channels
-      if (isElevated) {
-        tilt = parseFloat((18.1 + Math.random() * 26.5).toFixed(1)); // 18.1 to 44.6
-        vib = parseFloat((1.35 + Math.random() * 3.5).toFixed(2));
-        dist = parseFloat((2.65 + Math.random() * 17.0).toFixed(1));
-      } else {
-        tilt = parseFloat((0.2 + Math.random() * 14.5).toFixed(1));
-        vib = parseFloat((0.05 + Math.random() * 0.9).toFixed(2));
-        dist = parseFloat((0.2 + Math.random() * 1.7).toFixed(1));
-      }
+      // Always above-threshold magnitudes (dropped 30% low-value branch)
+      tilt = parseFloat((18.1 + Math.random() * 26.5).toFixed(1)); // 18.1 to 44.6
+      vib = parseFloat((1.35 + Math.random() * 3.5).toFixed(2));
+      dist = parseFloat((2.65 + Math.random() * 17.0).toFixed(1));
     } else if (p === 'common_mode_tilt') {
-      // Uses tilt only
-      if (isElevated) {
-        tilt = parseFloat((18.1 + Math.random() * 26.5).toFixed(1));
-      } else {
-        tilt = parseFloat((0.2 + Math.random() * 14.5).toFixed(1));
-      }
+      // Always above-threshold tilt (dropped 30% low-value branch)
+      tilt = parseFloat((18.1 + Math.random() * 26.5).toFixed(1));
       vib = parseFloat((0.02 + Math.random() * 0.8).toFixed(2));
       dist = parseFloat((0.1 + Math.random() * 1.8).toFixed(1));
     } else if (p === 'vibration_pulse_all_nodes' || p === 'single_node_spike') {
@@ -225,6 +224,17 @@ export function LiveSandboxTab() {
       tilt = parseFloat((Math.random() * 45).toFixed(1));
       vib = parseFloat((Math.random() * 5.0).toFixed(2));
       dist = parseFloat((Math.random() * 20.0).toFixed(1));
+    } else {
+      // "random" preset
+      if (isElevated) {
+        tilt = parseFloat((18.1 + Math.random() * 26.5).toFixed(1));
+        vib = parseFloat((1.35 + Math.random() * 3.5).toFixed(2));
+        dist = parseFloat((2.65 + Math.random() * 17.0).toFixed(1));
+      } else {
+        tilt = parseFloat((Math.random() * 45).toFixed(1));
+        vib = parseFloat((Math.random() * 5.0).toFixed(2));
+        dist = parseFloat((Math.random() * 20.0).toFixed(1));
+      }
     }
 
     tilt = avoidThresholds(tilt, [15.0, 18.0, 22.5]);
