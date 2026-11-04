@@ -442,7 +442,14 @@ export function LiveSandboxTab() {
         color: 'var(--text-main)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-          <span style={{ fontSize: '16px' }}>🔬</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-review)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M6 18h8" />
+            <path d="M3 22h18" />
+            <path d="M14 22a7 7 0 1 0 0-14h-1" />
+            <path d="M9 14h2" />
+            <path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z" />
+            <path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3" />
+          </svg>
           <strong style={{ fontSize: '14px', color: 'var(--color-review)' }}>Interactive Pipeline Sandbox</strong>
         </div>
         Live sandbox. Each run builds a new synthetic scenario from your inputs, runs the frozen detector, and, if it alarms, calls Muse Spark 1.3 live with the same frozen prompt, tools and guard as the benchmark. This is a single run on synthetic data, not a benchmark result. Thresholds are demonstration values. The system only recommends; humans decide on evacuation.
@@ -461,7 +468,12 @@ export function LiveSandboxTab() {
           fontSize: '13px',
           color: '#fbbf24'
         }}>
-          <span>⏳</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M5 22h14" />
+            <path d="M5 2h14" />
+            <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" />
+            <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
+          </svg>
           <span>{serverMessage}</span>
         </div>
       )}
@@ -478,7 +490,10 @@ export function LiveSandboxTab() {
           fontSize: '13px',
           color: '#f87171'
         }}>
-          <span>❌</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
           <span>{serverMessage}</span>
         </div>
       )}
@@ -493,6 +508,17 @@ export function LiveSandboxTab() {
         flexDirection: 'column',
         gap: '16px'
       }}>
+        <div style={{
+          background: 'rgba(56, 189, 248, 0.08)',
+          border: '1px solid rgba(56, 189, 248, 0.25)',
+          borderRadius: '6px',
+          padding: '8px 12px',
+          fontSize: '13px',
+          color: 'var(--color-review)',
+          fontWeight: '500'
+        }}>
+          Start here: press Run Scenario. The default values trigger an alert.
+        </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
           <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>
             Scenario Configuration & Sensor Inputs
@@ -509,10 +535,21 @@ export function LiveSandboxTab() {
                 padding: '6px 14px',
                 fontSize: '12px',
                 fontWeight: '600',
-                cursor: isRunning ? 'not-allowed' : 'pointer'
+                cursor: isRunning ? 'not-allowed' : 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
               }}
             >
-              🎲 Randomise
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                <path d="M16 8h.01" />
+                <path d="M8 8h.01" />
+                <path d="M8 16h.01" />
+                <path d="M16 16h.01" />
+                <path d="M12 12h.01" />
+              </svg>
+              Randomise
             </button>
             <button
               onClick={handleRun}
@@ -525,10 +562,34 @@ export function LiveSandboxTab() {
                 padding: '6px 18px',
                 fontSize: '13px',
                 fontWeight: '700',
-                cursor: (isRunning || serverStatus === 'waking' || serverStatus === 'unavailable') ? 'not-allowed' : 'pointer'
+                cursor: (isRunning || serverStatus === 'waking' || serverStatus === 'unavailable') ? 'not-allowed' : 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
               }}
             >
-              {isRunning ? '⏳ Running...' : '▶ Run Scenario'}
+              {isRunning ? (
+                <>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <line x1="12" y1="2" x2="12" y2="6" />
+                    <line x1="12" y1="18" x2="12" y2="22" />
+                    <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" />
+                    <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" />
+                    <line x1="2" y1="12" x2="6" y2="12" />
+                    <line x1="18" y1="12" x2="22" y2="12" />
+                    <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" />
+                    <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
+                  </svg>
+                  Running...
+                </>
+              ) : (
+                <>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                  Run Scenario
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -723,9 +784,17 @@ export function LiveSandboxTab() {
             borderRadius: '6px',
             padding: '8px 12px',
             fontSize: '12px',
-            color: 'var(--color-review)'
+            color: 'var(--color-review)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
-            ℹ️ {adjustmentNote}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="16" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12.01" y2="8" />
+            </svg>
+            <span>{adjustmentNote}</span>
           </div>
         )}
       </div>
@@ -942,7 +1011,10 @@ export function LiveSandboxTab() {
           alignItems: 'center',
           gap: '12px'
         }}>
-          <span style={{ fontSize: '20px' }}>🔍</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-review)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
           <div>
             <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-review)' }}>
               The agent is investigating, {agentElapsedSeconds} s so far
@@ -1028,10 +1100,17 @@ export function LiveSandboxTab() {
                           padding: '6px 14px',
                           fontSize: '12px',
                           fontWeight: '700',
-                          cursor: isRunning ? 'not-allowed' : 'pointer'
+                          cursor: isRunning ? 'not-allowed' : 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
                         }}
                       >
-                        🔄 Retry agent
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <polyline points="23 4 23 10 17 10" />
+                          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                        </svg>
+                        Retry agent
                       </button>
                     </div>
                   </div>

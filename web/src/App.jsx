@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LiveSandboxTab } from './LiveSandboxTab';
+import { HomeTab } from './HomeTab';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('replay'); // 'replay', 'results', 'about'
+  const [activeTab, setActiveTab] = useState('home'); // 'replay', 'results', 'about'
   const [indexData, setIndexData] = useState([]);
   const [selectedScenarioId, setSelectedScenarioId] = useState('');
   const [scenarioData, setScenarioData] = useState(null);
@@ -102,7 +103,11 @@ export default function App() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '24px' }}>🐤</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="var(--color-review)" strokeWidth="2" />
+              <circle cx="12" cy="12" r="4" fill="var(--color-healthy)" />
+              <polygon points="12,4 16,12 8,12" fill="var(--color-review)" opacity="0.6" />
+            </svg>
             <div>
               <h1 style={{ fontSize: '18px', fontWeight: '700', letterSpacing: '-0.3px' }}>Canary Analyst</h1>
               <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>AI Subsidence Network Investigation System</p>
@@ -122,19 +127,19 @@ export default function App() {
           </span>
         </div>
 
-        <nav style={{ display: 'flex', gap: '8px' }}>
+        <nav style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button
-            onClick={() => setActiveTab('replay')}
+            onClick={() => setActiveTab('home')}
             style={{
               padding: '6px 12px',
               fontSize: '13px',
               fontWeight: '600',
-              background: activeTab === 'replay' ? 'var(--bg-card-hover)' : 'transparent',
-              color: activeTab === 'replay' ? 'var(--text-main)' : 'var(--text-muted)',
-              border: activeTab === 'replay' ? '1px solid var(--border-highlight)' : '1px solid transparent'
+              background: activeTab === 'home' ? 'var(--bg-card-hover)' : 'transparent',
+              color: activeTab === 'home' ? 'var(--text-main)' : 'var(--text-muted)',
+              border: activeTab === 'home' ? '1px solid var(--border-highlight)' : '1px solid transparent'
             }}
           >
-            Scenario Replay
+            Home
           </button>
           <button
             onClick={() => setActiveTab('sandbox')}
@@ -160,7 +165,20 @@ export default function App() {
               border: activeTab === 'results' ? '1px solid var(--border-highlight)' : '1px solid transparent'
             }}
           >
-            Benchmark Results
+            Results
+          </button>
+          <button
+            onClick={() => setActiveTab('replay')}
+            style={{
+              padding: '6px 12px',
+              fontSize: '13px',
+              fontWeight: '600',
+              background: activeTab === 'replay' ? 'var(--bg-card-hover)' : 'transparent',
+              color: activeTab === 'replay' ? 'var(--text-main)' : 'var(--text-muted)',
+              border: activeTab === 'replay' ? '1px solid var(--border-highlight)' : '1px solid transparent'
+            }}
+          >
+            Example Cases
           </button>
           <button
             onClick={() => setActiveTab('real')}
@@ -173,7 +191,7 @@ export default function App() {
               border: activeTab === 'real' ? '1px solid var(--border-highlight)' : '1px solid transparent'
             }}
           >
-            Real Recording
+            Prototype Data
           </button>
           <button
             onClick={() => setActiveTab('about')}
@@ -186,13 +204,15 @@ export default function App() {
               border: activeTab === 'about' ? '1px solid var(--border-highlight)' : '1px solid transparent'
             }}
           >
-            About & Architecture
+            About
           </button>
         </nav>
       </header>
 
       {/* Main Content Area */}
       <main style={{ flex: 1, padding: '16px 20px', maxWidth: '1400px', width: '100%', margin: '0 auto' }}>
+        {activeTab === 'home' && <HomeTab setActiveTab={setActiveTab} />}
+
         {activeTab === 'replay' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {/* 6. Small "How to read this" 3-line box */}
@@ -205,9 +225,9 @@ export default function App() {
               color: 'var(--text-muted)',
               lineHeight: '1.5'
             }}>
-              <div>• <strong>Charts show live sensor data</strong> across 4 surface nodes (tilt, vibration, distance) over 6 hours.</div>
-              <div>• <strong>Top lane is the rules engine</strong> (B2.1 baseline); <strong>bottom lane is rules + Muse Spark + guard</strong>.</div>
-              <div>• <strong>The true event and outcome are revealed at the end</strong> of the replay (or via the Reveal button).</div>
+              <div>- <strong>Charts show simulated sensor data</strong> across 4 surface nodes (tilt, vibration, distance) over 6 hours.</div>
+              <div>- <strong>Top lane is the rules engine</strong> (B2.1 baseline); <strong>bottom lane is rules + Muse Spark + guard</strong>.</div>
+              <div>- <strong>The true event and outcome are revealed at the end</strong> of the replay (or via the Reveal button).</div>
             </div>
 
             {/* 1. Neutral Scenario Picker Cards */}
@@ -231,7 +251,7 @@ export default function App() {
                       <span style={{ fontSize: '13px', fontWeight: '700', color: isSelected ? 'var(--color-review)' : 'var(--text-main)' }}>
                         {scen.title}
                       </span>
-                      {isSelected && <span style={{ fontSize: '11px', color: 'var(--color-healthy)' }}>● ACTIVE</span>}
+                      {isSelected && <span style={{ fontSize: '11px', color: 'var(--color-healthy)', fontWeight: '600' }}>ACTIVE</span>}
                     </div>
                     <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
                       {scen.subtitle || 'Monitoring chunk, 4 nodes, 6 hours'}
@@ -263,7 +283,7 @@ export default function App() {
                     fontSize: '12px'
                   }}
                 >
-                  {isPlaying ? '⏸ PAUSE' : '▶ PLAY'}
+                  {isPlaying ? 'PAUSE' : 'PLAY'}
                 </button>
                 <button
                   onClick={() => { setIsPlaying(false); setCurrentMinute(0); }}
@@ -275,7 +295,7 @@ export default function App() {
                     fontSize: '12px'
                   }}
                 >
-                  ⏮ RESET
+                  RESET
                 </button>
               </div>
 
@@ -395,7 +415,7 @@ export default function App() {
         flexWrap: 'wrap',
         gap: '8px'
       }}>
-        <div>Canary Analyst — Meta Global AI Developer Hackathon 2026</div>
+        <div>Canary Analyst - Meta Global AI Developer Hackathon 2026</div>
         <div>Operational Notice: The system advises and recommends; human site authority decides evacuation.</div>
       </footer>
     </div>
@@ -436,21 +456,21 @@ function StackedCharts({ readings, currentMinute, blastSchedule }) {
   const channels = [
     {
       id: 'tilt',
-      title: 'Tilt Magnitude Change (deg) — Warning: 15°, Critical: 22.5°',
+      title: 'Tilt Magnitude Change (deg) - Warning: 15°, Critical: 22.5°',
       maxVal: 30,
       thresholds: [{ val: 15, color: 'var(--color-warning)' }, { val: 22.5, color: 'var(--color-critical)' }],
       calc: (nodeR) => Math.hypot(nodeR.tilt_x, nodeR.tilt_y)
     },
     {
       id: 'vibration',
-      title: 'Peak Vibration (g) — Warning: 1.0 g, Critical: 1.5 g',
+      title: 'Peak Vibration (g) - Warning: 1.0 g, Critical: 1.5 g',
       maxVal: 3.5,
       thresholds: [{ val: 1.0, color: 'var(--color-warning)' }, { val: 1.5, color: 'var(--color-critical)' }],
       calc: (nodeR) => nodeR.vibration
     },
     {
       id: 'distance',
-      title: 'Distance Displacement from Baseline (cm) — Warning: 2.0 cm, Critical: 3.0 cm',
+      title: 'Distance Displacement from Baseline (cm) - Warning: 2.0 cm, Critical: 3.0 cm',
       maxVal: 5.0,
       thresholds: [{ val: 2.0, color: 'var(--color-warning)' }, { val: 3.0, color: 'var(--color-critical)' }],
       calc: (nodeR, nid) => Math.abs(nodeR.distance - (baseDist[nid] || nodeR.distance))
@@ -609,9 +629,9 @@ function AlertLane({ label, subtitle, alerts, holdResolutions, currentMinute, re
           <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{subtitle}</div>
         </div>
         <div style={{ display: 'flex', gap: '8px', fontSize: '11px' }}>
-          <span style={{ color: 'var(--color-warning)' }}>● WARNING</span>
-          <span style={{ color: 'var(--color-critical)' }}>● CRITICAL</span>
-          {isAgent && <span style={{ color: 'var(--color-review)' }}>▦ REVIEW (HOLD)</span>}
+          <span style={{ color: 'var(--color-warning)', fontWeight: '600' }}>WARNING</span>
+          <span style={{ color: 'var(--color-critical)', fontWeight: '600' }}>CRITICAL</span>
+          {isAgent && <span style={{ color: 'var(--color-review)', fontWeight: '600' }}>REVIEW (HOLD)</span>}
         </div>
       </div>
 
@@ -723,7 +743,13 @@ function InvestigationPanel({ investigation, currentMinute }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
         <div>
           <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span>🔍 Muse Spark 1.3 Autonomous Investigation</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-review)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              Muse Spark 1.3 Autonomous Investigation
+            </span>
             <span style={{ fontSize: '11px', background: 'var(--bg-card)', padding: '2px 8px', borderRadius: '4px', color: 'var(--text-muted)' }}>
               Latency: {latency_sec.toFixed(1)}s · Cost: ${cost_usd.toFixed(4)}
             </span>
@@ -929,7 +955,7 @@ function RevealPanel({ reveal, currentMinute, scenarioData }) {
           color: 'var(--text-dim)',
           fontSize: '13px'
         }}>
-          🔒 Ground truth is locked during simulation replay. It will automatically unlock when T+359m is reached.
+          Ground truth is locked during simulation replay. It will automatically unlock when T+359m is reached.
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
@@ -939,7 +965,7 @@ function RevealPanel({ reveal, currentMinute, scenarioData }) {
               {reveal.scenario_type.replace('_', ' ').toUpperCase()}
             </div>
             <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
-              Hazard Status: {reveal.is_hazard ? '⚠️ True Geotechnical Hazard' : '✓ Non-Hazard / Operational Benign'}
+              Hazard Status: {reveal.is_hazard ? 'True Geotechnical Hazard' : 'Non-Hazard / Operational Benign'}
             </div>
             {reveal.collapse_time && (
               <div style={{ fontSize: '12px', color: 'var(--color-critical)', marginTop: '4px', fontWeight: '600' }}>
@@ -948,7 +974,7 @@ function RevealPanel({ reveal, currentMinute, scenarioData }) {
             )}
             {b2LeadTimeMin !== null && (
               <div style={{ fontSize: '12px', color: 'var(--text-main)', marginTop: '4px' }}>
-                Lead Time (Collapse − First Alert): <strong>{agLeadTimeMin} min</strong> (B2.1: {b2LeadTimeMin} min)
+                Lead Time (Collapse - First Alert): <strong>{agLeadTimeMin} min</strong> (B2.1: {b2LeadTimeMin} min)
               </div>
             )}
           </div>
@@ -959,14 +985,14 @@ function RevealPanel({ reveal, currentMinute, scenarioData }) {
               <div>
                 <strong>Rules Engine (B2.1):</strong>{' '}
                 {reveal.is_hazard
-                  ? (reveal.b2_detected ? `✓ Detected Hazard (${b2LeadTimeMin}m lead time)` : '✗ Missed Hazard')
-                  : (reveal.b2_false_alarm ? '✗ False Alarm Raised' : '✓ Correctly Silent')}
+                  ? (reveal.b2_detected ? `Detected Hazard (${b2LeadTimeMin}m lead time)` : 'Missed Hazard')
+                  : (reveal.b2_false_alarm ? 'False Alarm Raised' : 'Correctly Silent')}
               </div>
               <div>
                 <strong>Canary Analyst (AGENT):</strong>{' '}
                 {reveal.is_hazard
-                  ? (reveal.agent_detected ? `✓ Detected Hazard (${agLeadTimeMin}m lead time)` : '✗ Missed Hazard')
-                  : (reveal.agent_false_alarm ? '✗ False Alarm Raised' : '✓ Correctly Cleared / Silent')}
+                  ? (reveal.agent_detected ? `Detected Hazard (${agLeadTimeMin}m lead time)` : 'Missed Hazard')
+                  : (reveal.agent_false_alarm ? 'False Alarm Raised' : 'Correctly Cleared / Silent')}
               </div>
             </div>
           </div>
@@ -1426,7 +1452,7 @@ function RealRecordingTab() {
   const channels = [
     {
       id: 'distance',
-      title: 'Distance (cm) — HC-SR04 Ultrasonic Range',
+      title: 'Distance (cm) - HC-SR04 Ultrasonic Range',
       unit: 'cm',
       minVal: 0,
       maxVal: 50,
@@ -1435,7 +1461,7 @@ function RealRecordingTab() {
     },
     {
       id: 'tilt_mag',
-      title: 'Tilt Magnitude (deg) — MPU6050 Accelerometer',
+      title: 'Tilt Magnitude (deg) - MPU6050 Accelerometer',
       unit: 'deg',
       minVal: 0,
       maxVal: 0.5,
@@ -1444,7 +1470,7 @@ function RealRecordingTab() {
     },
     {
       id: 'vibration',
-      title: 'Vibration (g) — Peak Acceleration',
+      title: 'Vibration (g) - Peak Acceleration',
       unit: 'g',
       minVal: 0,
       maxVal: 0.2,
@@ -1453,7 +1479,7 @@ function RealRecordingTab() {
     },
     {
       id: 'piezo_peak',
-      title: 'Acoustic / Piezo Peak (V) — ADS1115 ADC',
+      title: 'Acoustic / Piezo Peak (V) - ADS1115 ADC',
       unit: 'V',
       minVal: 0,
       maxVal: 0.6,
@@ -1475,7 +1501,11 @@ function RealRecordingTab() {
         gap: '8px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '20px' }}>⚠️</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
           <span style={{ fontSize: '14px', fontWeight: '700', color: '#fbbf24', letterSpacing: '0.3px' }}>
             PROTOTYPE RECORDING DISCLAIMER & METHODOLOGY NOTE
           </span>
@@ -1508,7 +1538,7 @@ function RealRecordingTab() {
           <strong style={{ fontSize: '13px', color: 'var(--text-main)' }}>{data.recorded_date}</strong>
           <span style={{ margin: '0 8px', color: 'var(--border-color)' }}>|</span>
           <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>Duration: </span>
-          <strong style={{ fontSize: '13px', color: 'var(--text-main)' }}>{data.duration_minutes} minutes ({series[0]?.timestamp_ist} – {series[series.length - 1]?.timestamp_ist} IST)</strong>
+          <strong style={{ fontSize: '13px', color: 'var(--text-main)' }}>{data.duration_minutes} minutes ({series[0]?.timestamp_ist} - {series[series.length - 1]?.timestamp_ist} IST)</strong>
         </div>
         <div style={{ display: 'flex', gap: '16px', fontSize: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -1538,7 +1568,7 @@ function RealRecordingTab() {
               Prototype Telemetry Time Series (37 Minutes, Resampled 1-min)
             </h3>
             <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: '2px 0 0 0' }}>
-              Shaded region denotes the 30-minute detector baseline window (13:27 – 13:56 IST). Alert evaluated at end of baseline.
+              Shaded region denotes the 30-minute detector baseline window (13:27 - 13:56 IST). Alert evaluated at end of baseline.
             </p>
           </div>
           <div style={{ display: 'flex', gap: '12px', fontSize: '11px', alignItems: 'center' }}>
@@ -1574,7 +1604,7 @@ function RealRecordingTab() {
             <div key={ch.id} style={{ background: 'var(--bg-primary)', borderRadius: '6px', padding: '10px 14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', marginBottom: '4px' }}>
                 <span>{ch.title}</span>
-                <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Range: [{ch.minVal} – {ch.maxVal} {ch.unit}]</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Range: [{ch.minVal} - {ch.maxVal} {ch.unit}]</span>
               </div>
               <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="none" style={{ width: '100%', height: '105px', display: 'block' }}>
                 {/* Baseline 30-min shading */}
@@ -1726,7 +1756,7 @@ function RealRecordingTab() {
             Detector Baseline Alarms at 13:56 IST
           </h3>
           <p style={{ fontSize: '12px', color: 'var(--text-dim)', margin: 0 }}>
-            Evaluated at the conclusion of the 30-minute baseline window (07:57 – 08:26 UTC).
+            Evaluated at the conclusion of the 30-minute baseline window (07:57 - 08:26 UTC).
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
             {['b0', 'b1', 'b2'].map(bKey => {
