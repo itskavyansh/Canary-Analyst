@@ -303,6 +303,7 @@ export function LiveSandboxTab() {
         setJobStatus('queued');
         const jobId = data.job_id;
         const jobStartTime = Date.now();
+        let notFoundRetries = 0;
 
         agentTimerRef.current = setInterval(() => {
           setAgentElapsedSeconds(Math.floor((Date.now() - jobStartTime) / 1000));
@@ -312,6 +313,24 @@ export function LiveSandboxTab() {
         pollIntervalRef.current = setInterval(async () => {
           try {
             const jRes = await fetch(`${cleanBaseUrl}/api/sandbox/job/${jobId}`);
+            if (jRes.status === 404) {
+              notFoundRetries += 1;
+              if (notFoundRetries <= 3) {
+                // Retry up to 3 more times at 2s intervals
+                return;
+              }
+              // Still 404 after 3 retries
+              clearInterval(pollIntervalRef.current);
+              if (agentTimerRef.current) clearInterval(agentTimerRef.current);
+              setJobStatus('error');
+              setRunError('The sandbox server restarted during this run, so the agent result was lost. The detector result above is still valid. Press Run Scenario to try again.');
+              setIsRunning(false);
+              return;
+            }
+
+            // Reset 404 counter on any other response
+            notFoundRetries = 0;
+
             if (jRes.status === 429) {
               setJobStatus('error');
               setRunError('Too many requests while polling. Please try again.');
@@ -322,7 +341,7 @@ export function LiveSandboxTab() {
             }
             if (!jRes.ok) {
               setJobStatus('error');
-              setRunError(`Error fetching job status (HTTP ${jRes.status})`);
+              setRunError('Error fetching job status. Please try again.');
               clearInterval(pollIntervalRef.current);
               if (agentTimerRef.current) clearInterval(agentTimerRef.current);
               setIsRunning(false);
