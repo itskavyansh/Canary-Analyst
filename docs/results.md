@@ -152,22 +152,4 @@ ain_tilt | 43 | 4 | 1 | 3 | 0 |
 | stuck_sensor | 42 | 2 | 1 | 1 | 0 |
 | **Total** | **214** | **23** | **15** | **8** | **0** |
 
-*Note: 8 false alarms removed, 0 added (exact two-sided sign test p = 0.0078).*
-
-### Candidate Decision and Guard Verification Counts (=133$)
-
-Across all 133 candidate anomaly episodes evaluated for Muse Spark 1.3 (117 live test stream decisions plus 16 live test reruns in 
-esults/test_rerun16):
-- **Analyst Recommendations**:
-  - KEEP: 113
-  - DOWNGRADE: 20
-- **Safety Guard Disposition on Downgrades**:
-  - Guard Approved: 8 (all 8 entered 15-minute review hold and safely cleared)
-  - Guard Vetoed: 12 (all 12 failed-closed to KEEP)
-- **Breakdown of Guard Vetoes by Gate**:
-  - sensor_fault_failed (Gate C): 10 (no anomalous error flags or rail jumps verified on sensor hardware)
-  - environmental_tilt_failed (Gate C): 1 (common-mode tilt observed on fewer than 3 nodes)
-  - insufficient_confidence (Gate A): 1 (model confidence 0.78 below 0.80 minimum threshold)
-
-The 8 guard-approved downgrades reconcile exactly with the 8 review holds cleared in the test evaluation.
-
+*Note: 8 approved downgrades created 8 REVIEW holds, all cleared, none on a hazard scenario (exact two-sided sign test p = 0.0078).*

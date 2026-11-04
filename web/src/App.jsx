@@ -1152,7 +1152,7 @@ function ResultsTab({ summaryData }) {
           </button>
         </div>
         <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px', marginBottom: showBreakdown ? '12px' : 0 }}>
-          These breakdowns were computed after the test run and played no part in any design choice.
+          These breakdowns were computed after the test run and played no part in any design choice. 8 approved downgrades created 8 REVIEW holds, all cleared, none on a hazard scenario.
         </p>
 
         {showBreakdown && (
