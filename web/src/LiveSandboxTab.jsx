@@ -21,6 +21,7 @@ export function LiveSandboxTab() {
   const [runResult, setRunResult] = useState(null);
   const [jobStatus, setJobStatus] = useState(null);
   const [jobData, setJobData] = useState(null);
+  const [adjustmentNote, setAdjustmentNote] = useState('');
 
   const pollIntervalRef = useRef(null);
 
@@ -76,7 +77,71 @@ export function LiveSandboxTab() {
     };
   }, [cleanBaseUrl]);
 
+  // Helper to ensure duration >= onset + rise + 25
+  const enforceTiming = (newOnset, newRise, newDur) => {
+    const minDur = newOnset + newRise + 25;
+    if (newDur < minDur) {
+      if (minDur <= 120) {
+        setDurationMinutes(minDur);
+        setOnsetMinute(newOnset);
+        setRiseMinutes(newRise);
+        setAdjustmentNote('Duration adjusted so the event is sustained long enough to detect.');
+      } else {
+        // Duration capped at 120, lower onset so that onset + rise + 25 <= 120
+        const maxAllowedOnset = Math.max(35, 120 - newRise - 25);
+        setOnsetMinute(maxAllowedOnset);
+        setRiseMinutes(newRise);
+        setDurationMinutes(120);
+        setAdjustmentNote('Duration adjusted so the event is sustained long enough to detect.');
+      }
+    } else {
+      setOnsetMinute(newOnset);
+      setRiseMinutes(newRise);
+      setDurationMinutes(newDur);
+      setAdjustmentNote('');
+    }
+  };
+
+  const handleOnsetChange = (val) => {
+    const num = Number(val);
+    enforceTiming(num, riseMinutes, durationMinutes);
+  };
+
+  const handleRiseChange = (val) => {
+    const num = Number(val);
+    enforceTiming(onsetMinute, num, durationMinutes);
+  };
+
+  const handleDurationChange = (val) => {
+    const num = Number(val);
+    const minDur = onsetMinute + riseMinutes + 25;
+    if (num < minDur) {
+      // If user drags duration lower than minDur, lower onset if possible or keep minDur
+      const neededOnset = num - riseMinutes - 25;
+      if (neededOnset >= 35) {
+        setOnsetMinute(neededOnset);
+        setDurationMinutes(num);
+        setAdjustmentNote('Duration adjusted so the event is sustained long enough to detect.');
+      } else {
+        setOnsetMinute(35);
+        setDurationMinutes(Math.max(num, 35 + riseMinutes + 25));
+        setAdjustmentNote('Duration adjusted so the event is sustained long enough to detect.');
+      }
+    } else {
+      setDurationMinutes(num);
+      setAdjustmentNote('');
+    }
+  };
+
+  const handlePresetChange = (newPreset) => {
+    setPreset(newPreset);
+    if (newPreset === 'common_mode_tilt' && riseMinutes === 0) {
+      handleRiseChange(10);
+    }
+  };
+
   const handleRandomise = () => {
+    setAdjustmentNote('');
     const presets = [
       'single_node_move',
       'common_mode_tilt',
@@ -85,39 +150,86 @@ export function LiveSandboxTab() {
       'silent_sensor_fault'
     ];
     const nodes = ['NODE_01', 'NODE_02', 'NODE_03', 'NODE_04'];
-    const rises = [0, 10, 30];
 
     const p = presets[Math.floor(Math.random() * presets.length)];
     const n = nodes[Math.floor(Math.random() * nodes.length)];
-    const r = rises[Math.floor(Math.random() * rises.length)];
-    const onset = Math.floor(35 + Math.random() * 45); // 35 to 80
-    const dur = Math.floor(60 + Math.random() * 61); // 60 to 120
 
-    // In half the cases, generate each value at least its warning threshold:
-    // Warning thresholds: tilt >= 15.0 deg (range 0 to 45), vibration >= 1.0 g (range 0 to 5), distance >= 2.0 cm (range 0 to 20)
-    let tilt = Math.random() < 0.5
-      ? parseFloat((15.0 + Math.random() * 30.0).toFixed(1))
-      : parseFloat((Math.random() * 15.0).toFixed(1));
-
-    let vib = Math.random() < 0.5
-      ? parseFloat((1.0 + Math.random() * 4.0).toFixed(2))
-      : parseFloat((Math.random() * 1.0).toFixed(2));
-
-    let dist = Math.random() < 0.5
-      ? parseFloat((2.0 + Math.random() * 18.0).toFixed(1))
-      : parseFloat((Math.random() * 2.0).toFixed(1));
-
-    // Keep preset consistent with values
+    // Preset consistency: for common_mode_tilt, rise must be 10 or 30 min, never sudden (0)
+    let r = 0;
     if (p === 'common_mode_tilt') {
-      tilt = Math.max(tilt, 15.0);
-    } else if (p === 'vibration_pulse_all_nodes' || p === 'single_node_spike') {
-      vib = Math.max(vib, 1.0);
-    } else if (p === 'silent_sensor_fault') {
-      tilt = Math.max(tilt, 15.0);
-      dist = Math.max(dist, 2.0);
-    } else if (p === 'single_node_move') {
-      tilt = Math.max(tilt, 15.0);
+      r = Math.random() < 0.5 ? 10 : 30;
+    } else {
+      const rises = [0, 10, 30];
+      r = rises[Math.floor(Math.random() * rises.length)];
     }
+
+    // Pick onset first: onset between 35 and maxOnset where onset + r + 25 <= 120
+    const maxOnset = Math.max(35, Math.min(80, 120 - r - 25));
+    const onset = Math.floor(35 + Math.random() * (maxOnset - 35 + 1));
+
+    // Duration must be at least onset + r + 25, capped at 120
+    const minDur = onset + r + 25;
+    const dur = Math.min(120, Math.floor(minDur + Math.random() * (120 - minDur + 1)));
+
+    // Randomise magnitudes: in 70 percent of cases pick tilt >= 18 deg, vibration >= 1.3 g, distance step >= 2.6 cm
+    // for the channel(s) the chosen preset uses.
+    // In the other 30 percent keep current random ranges.
+    // Never set a value exactly equal to a threshold (15.0, 22.5, 1.0, 1.5, 2.0, 3.0, 18.0, 1.3, 2.6).
+    const isElevated = Math.random() < 0.70;
+
+    const avoidThresholds = (val, thresholds) => {
+      let v = val;
+      for (const th of thresholds) {
+        if (Math.abs(v - th) < 0.05) {
+          v = parseFloat((v + 0.15).toFixed(2));
+        }
+      }
+      return v;
+    };
+
+    let tilt = 0.0;
+    let vib = 0.0;
+    let dist = 0.0;
+
+    if (p === 'single_node_move') {
+      // Uses all three channels
+      if (isElevated) {
+        tilt = parseFloat((18.1 + Math.random() * 26.5).toFixed(1)); // 18.1 to 44.6
+        vib = parseFloat((1.35 + Math.random() * 3.5).toFixed(2));
+        dist = parseFloat((2.65 + Math.random() * 17.0).toFixed(1));
+      } else {
+        tilt = parseFloat((0.2 + Math.random() * 14.5).toFixed(1));
+        vib = parseFloat((0.05 + Math.random() * 0.9).toFixed(2));
+        dist = parseFloat((0.2 + Math.random() * 1.7).toFixed(1));
+      }
+    } else if (p === 'common_mode_tilt') {
+      // Uses tilt only
+      if (isElevated) {
+        tilt = parseFloat((18.1 + Math.random() * 26.5).toFixed(1));
+      } else {
+        tilt = parseFloat((0.2 + Math.random() * 14.5).toFixed(1));
+      }
+      vib = parseFloat((0.02 + Math.random() * 0.8).toFixed(2));
+      dist = parseFloat((0.1 + Math.random() * 1.8).toFixed(1));
+    } else if (p === 'vibration_pulse_all_nodes' || p === 'single_node_spike') {
+      // Uses vibration only
+      if (isElevated) {
+        vib = parseFloat((1.35 + Math.random() * 3.5).toFixed(2));
+      } else {
+        vib = parseFloat((0.05 + Math.random() * 0.9).toFixed(2));
+      }
+      tilt = parseFloat((0.2 + Math.random() * 14.5).toFixed(1));
+      dist = parseFloat((0.1 + Math.random() * 1.8).toFixed(1));
+    } else if (p === 'silent_sensor_fault') {
+      // Leave as is (silent sensor fault generates its own rail values in simulator)
+      tilt = parseFloat((Math.random() * 45).toFixed(1));
+      vib = parseFloat((Math.random() * 5.0).toFixed(2));
+      dist = parseFloat((Math.random() * 20.0).toFixed(1));
+    }
+
+    tilt = avoidThresholds(tilt, [15.0, 18.0, 22.5]);
+    vib = avoidThresholds(vib, [1.0, 1.3, 1.5]);
+    dist = avoidThresholds(dist, [2.0, 2.6, 3.0]);
 
     setPreset(p);
     setNode(n);
@@ -386,7 +498,7 @@ export function LiveSandboxTab() {
             </label>
             <select
               value={preset}
-              onChange={e => setPreset(e.target.value)}
+              onChange={e => handlePresetChange(e.target.value)}
               style={{
                 width: '100%',
                 padding: '7px 10px',
@@ -442,7 +554,7 @@ export function LiveSandboxTab() {
               min="35"
               max="80"
               value={onsetMinute}
-              onChange={e => setOnsetMinute(Number(e.target.value))}
+              onChange={e => handleOnsetChange(e.target.value)}
               style={{ width: '100%', accentColor: 'var(--color-review)' }}
             />
             <div style={{ fontSize: '10px', color: 'var(--text-dim)' }}>Range: 35 to 80 min (after 30m baseline)</div>
@@ -462,7 +574,7 @@ export function LiveSandboxTab() {
                 <button
                   key={opt.val}
                   type="button"
-                  onClick={() => setRiseMinutes(opt.val)}
+                  onClick={() => handleRiseChange(opt.val)}
                   style={{
                     flex: 1,
                     padding: '6px 8px',
@@ -552,12 +664,26 @@ export function LiveSandboxTab() {
               max="120"
               step="5"
               value={durationMinutes}
-              onChange={e => setDurationMinutes(Number(e.target.value))}
+              onChange={e => handleDurationChange(e.target.value)}
               style={{ width: '100%', accentColor: 'var(--color-review)' }}
             />
             <div style={{ fontSize: '10px', color: 'var(--text-dim)' }}>Range: 60 to 120 minutes (default 90)</div>
           </div>
         </div>
+
+        {/* 1. Timing Rule Adjustment Note */}
+        {adjustmentNote && (
+          <div style={{
+            background: 'rgba(56, 189, 248, 0.08)',
+            border: '1px solid rgba(56, 189, 248, 0.25)',
+            borderRadius: '6px',
+            padding: '8px 12px',
+            fontSize: '12px',
+            color: 'var(--color-review)'
+          }}>
+            ℹ️ {adjustmentNote}
+          </div>
+        )}
       </div>
 
       {/* Error Message */}
