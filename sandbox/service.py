@@ -58,6 +58,32 @@ agent_executor = ThreadPoolExecutor(max_workers=4)
 ip_request_timestamps: Dict[str, List[float]] = {}
 rate_limit_lock = asyncio.Lock()
 
+
+def get_real_client_ip(request: Request) -> str:
+    """Extract real client IP: first entry of X-Forwarded-For if present, else client host."""
+    forwarded = request.headers.get("x-forwarded-for") or request.headers.get("X-Forwarded-For")
+    if forwarded:
+        parts = [p.strip() for p in forwarded.split(",") if p.strip()]
+        if parts:
+            return parts[0]
+    if request.client and request.client.host:
+        return request.client.host
+    return "127.0.0.1"
+
+
+def extract_client_ip_from_values(forwarded_for: Optional[str], client_host: Optional[str]) -> str:
+    """Unit-testable helper for client IP resolution."""
+    if forwarded_for:
+        parts = [p.strip() for p in forwarded_for.split(",") if p.strip()]
+        if parts:
+            return parts[0]
+    return client_host or "127.0.0.1"
+
+
+# Unit-style check for client IP resolution
+assert extract_client_ip_from_values("203.0.113.195, 70.41.3.18", "127.0.0.1") == "203.0.113.195"
+assert extract_client_ip_from_values(None, "192.168.1.100") == "192.168.1.100"
+
 # Concurrency semaphore for running agent jobs (max 2 concurrent)
 MAX_CONCURRENT_JOBS = 2
 agent_job_semaphore = asyncio.Semaphore(MAX_CONCURRENT_JOBS)
@@ -397,14 +423,10 @@ async def run_agent_job_background(
 
 @app.get("/api/sandbox/health")
 async def health():
-    current_spend = await get_daily_spend()
-    daily_limit = float(os.getenv("SANDBOX_DAILY_USD", "5.0"))
     return {
-        "status": "healthy",
+        "status": "ok",
         "service": "Canary Analyst Sandbox",
         "running_jobs": running_job_count,
-        "daily_spend_usd": current_spend,
-        "daily_limit_usd": daily_limit,
         "sandbox_notice": SANDBOX_NOTICE,
     }
 
@@ -412,8 +434,8 @@ async def health():
 @app.post("/api/sandbox/run")
 async def run_scenario(req: RunRequest, request: Request):
     try:
-        # Rate limiting: 5 runs per minute per IP
-        client_ip = request.client.host if request.client else "127.0.0.1"
+        # Rate limiting: 5 runs per minute per real client IP
+        client_ip = get_real_client_ip(request)
         allowed = await check_rate_limit(client_ip)
         if not allowed:
             return JSONResponse(

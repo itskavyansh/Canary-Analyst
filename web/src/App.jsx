@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { LiveSandboxTab } from './LiveSandboxTab';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('replay'); // 'replay', 'results', 'about'
@@ -108,16 +109,16 @@ export default function App() {
             </div>
           </div>
           <span style={{
-            background: activeTab === 'real' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-            color: activeTab === 'real' ? '#fbbf24' : '#f87171',
-            border: activeTab === 'real' ? '1px solid rgba(234, 179, 8, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
+            background: activeTab === 'sandbox' ? 'rgba(56, 189, 248, 0.15)' : activeTab === 'real' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+            color: activeTab === 'sandbox' ? '#38bdf8' : activeTab === 'real' ? '#fbbf24' : '#f87171',
+            border: activeTab === 'sandbox' ? '1px solid rgba(56, 189, 248, 0.3)' : activeTab === 'real' ? '1px solid rgba(234, 179, 8, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
             borderRadius: '12px',
             padding: '3px 10px',
             fontSize: '11px',
             fontWeight: '600',
             letterSpacing: '0.5px'
           }}>
-            {activeTab === 'real' ? 'REAL PROTOTYPE BENCH RECORDING, not mine data' : 'SIMULATED DATA, not real mine data'}
+            {activeTab === 'sandbox' ? 'LIVE SANDBOX, synthetic scenario, not a benchmark' : activeTab === 'real' ? 'REAL PROTOTYPE BENCH RECORDING, not mine data' : 'SIMULATED DATA, not real mine data'}
           </span>
         </div>
 
@@ -134,6 +135,19 @@ export default function App() {
             }}
           >
             Scenario Replay
+          </button>
+          <button
+            onClick={() => setActiveTab('sandbox')}
+            style={{
+              padding: '6px 12px',
+              fontSize: '13px',
+              fontWeight: '600',
+              background: activeTab === 'sandbox' ? 'var(--bg-card-hover)' : 'transparent',
+              color: activeTab === 'sandbox' ? 'var(--text-main)' : 'var(--text-muted)',
+              border: activeTab === 'sandbox' ? '1px solid var(--border-highlight)' : '1px solid transparent'
+            }}
+          >
+            Live Sandbox
           </button>
           <button
             onClick={() => setActiveTab('results')}
@@ -361,6 +375,8 @@ export default function App() {
         )}
 
         {activeTab === 'results' && <ResultsTab summaryData={summaryData} />}
+
+        {activeTab === 'sandbox' && <LiveSandboxTab />}
 
         {activeTab === 'real' && <RealRecordingTab />}
 
@@ -983,6 +999,9 @@ function ResultsTab({ summaryData }) {
         <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
           Evaluated on 300 held-out test scenarios (seed 2026) under a strict no-lookahead streaming contract. Frozen before evaluation with git tag <code>frozen-before-test</code>.
         </p>
+        <p style={{ fontSize: '13px', color: 'var(--color-review)', marginTop: '4px', fontWeight: '600' }}>
+          The Live Sandbox tab runs the same frozen pipeline on new synthetic scenarios you design.
+        </p>
       </div>
 
       {/* Primary Key Findings Header Box */}
@@ -1248,6 +1267,9 @@ function AboutTab() {
         <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-main)' }}>About Canary Analyst</h2>
         <p style={{ color: 'var(--text-muted)', marginTop: '4px' }}>
           Autonomous Geotechnical AI Analyst for Ground-Subsidence Early Warning Networks
+        </p>
+        <p style={{ fontSize: '13px', color: 'var(--color-review)', marginTop: '6px', fontWeight: '600' }}>
+          The Live Sandbox tab runs the same frozen pipeline on new synthetic scenarios you design.
         </p>
       </div>
 
